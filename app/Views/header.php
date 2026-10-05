@@ -82,7 +82,7 @@ endif;
                         <li class="menu-nav__item">
                             <?= anchor(
                                     base_url('floribondant/QuizzConcept'),
-                                    'Quizz Concept',
+                                    'Quiz Concept',
                                     [
                                             'title'=>"Se diriger vers l'espace d'administration",
                                             'class'=>"menu-nav__lien"
