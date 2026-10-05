@@ -49,6 +49,5 @@ $routes->group('floribondant', static function ($routes) {
 });
 // Gestion du GROUPE C
 $routes->group('groupeC', static function ($routes) {
-    $routes->match(['GET', 'POST'], '/', 'Groupe_C_Admin::GroupeC_Admin');
-
+    $routes->match(['GET', 'POST'], 'QuizzConcept', 'Controllers_groupe_C\Groupe_C_Admin::GroupeC_Admin');
 });

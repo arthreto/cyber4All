@@ -144,12 +144,6 @@ class ConnexionController extends BaseController
             return $this->errorOnPage('connexion/inscription','Utilisateur ou mail déjà utilisé');
         }
 
-        $data = [
-            'pseudo' => $identifiant,
-            'email' => $email,
-            'mot_de_passe' => $mdp,
-            'role' => 'contributeur'
-        ];
         $utilisateurEntity = new Utilisateur();
         $utilisateur = $utilisateurEntity::creer($identifiant, $mdp, 'contributeur', $this->request->getPost('email'));
 
