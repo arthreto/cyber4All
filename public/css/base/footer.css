@@ -1,0 +1,296 @@
+.footer-page {
+    background: var(--white);
+    border-top: 1px solid var(--border-glass-subtle);
+    padding: 3rem 2rem 1.5rem;
+    margin-top: 2rem; /* Force le footer en bas */
+    backdrop-filter: blur(10px);
+    box-shadow: 0 -4px 20px var(--shadow-light);
+    width: 100%;
+}
+
+/* Container principal du footer */
+.footer-items {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2.5rem;
+    margin-bottom: 2.5rem;
+}
+
+/* Items individuels du footer */
+.footer-items .item {
+    background: var(--bg-glass-subtle);
+    padding: 2rem;
+    border-radius: 16px;
+    border: 1px solid var(--border-glass-light);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 4px 15px var(--shadow-generic-light);
+    transition: all 0.3s ease;
+}
+
+.footer-items .item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px var(--shadow-generic-medium);
+    background: var(--bg-glass-medium);
+}
+
+/* Titres des sections */
+.footer-items .item h4 {
+    color: var(--text-title);
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin: 0 0 1rem 0;
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Description */
+.footer-items .item p {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Liste des liens utiles */
+.footer-liens {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-lien {
+    margin-bottom: 0.8rem;
+    transition: transform 0.2s ease;
+}
+
+.footer-lien:hover {
+    transform: translateX(5px);
+}
+
+.footer-lien a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    display: inline-block;
+    position: relative;
+    padding: 0.4rem 0;
+}
+
+.footer-lien a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--gradient-primary);
+    transition: width 0.3s ease;
+}
+
+.footer-lien a:hover {
+    color: var(--color-primary-blue);
+    transform: translateX(3px);
+}
+
+.footer-lien a:hover::after {
+    width: 100%;
+}
+
+.copyright__link{
+    font-weight: 600;
+}
+.copyright__link:hover{
+    text-decoration: underline;
+}
+
+/* ==========================================
+   SECTION RÉGLEMENTATIONS
+   ========================================== */
+
+.footer-reglementations {
+    max-width: 1200px;
+    margin: 0 auto;
+    border-top: 1px solid var(--border-glass-subtle);
+    background: var(--bg-glass-ultra-subtle);
+    border-radius: 12px;
+    padding: 1.5rem;
+    backdrop-filter: blur(5px);
+}
+
+.reglementation-liens {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.5rem 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    justify-content: center;
+}
+
+.reglementation-lien {
+    color: var(--text-tertiary);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    border: 1px solid transparent;
+}
+
+.reglementation-lien:hover {
+    color: var(--color-primary-purple);
+    background: var(--bg-glass-subtle);
+    border-color: var(--border-glass-light);
+    transform: translateY(-1px);
+}
+
+/* Copyright */
+.footer-copyright {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    font-weight: 400;
+    margin: 0;
+    padding: 1rem 0;
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    opacity: 0.8;
+}
+
+/* ==========================================
+   RESPONSIVE DESIGN
+   ========================================== */
+
+@media (max-width: 768px) {
+    footer {
+        padding: 2rem 1rem 1rem;
+    }
+
+    .footer-items {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .footer-items .item {
+        padding: 1.5rem;
+    }
+
+    .footer-items .item h4 {
+        font-size: 1.1rem;
+    }
+
+    .reglementation-liens {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .reglementation-lien {
+        font-size: 0.8rem;
+    }
+
+    .footer-copyright {
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .footer-items .item {
+        padding: 1rem;
+        border-radius: 12px;
+    }
+
+    .footer-reglementations {
+        padding: 1rem;
+    }
+
+    .reglementation-liens {
+        gap: 0.5rem;
+    }
+
+    .reglementation-lien {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.75rem;
+    }
+}
+
+/* ==========================================
+   ANIMATIONS ET EFFETS
+   ========================================== */
+
+/* Animation d'apparition du footer */
+footer {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Effet de survol global sur le footer */
+footer:hover .footer-items .item {
+    opacity: 0.7;
+}
+
+footer:hover .footer-items .item:hover {
+    opacity: 1;
+}
+
+/* ==========================================
+   FALLBACK POUR NAVIGATEURS PLUS ANCIENS
+   ========================================== */
+
+/* Si backdrop-filter n'est pas supporté */
+@supports not (backdrop-filter: blur(10px)) {
+    footer {
+        background: linear-gradient(135deg, #e8eaf6 0%, #f3e5f5 100%);
+    }
+
+    .footer-items .item {
+        background: rgba(255, 255, 255, 0.9);
+    }
+}
+
+/* ==========================================
+   NOTES D'UTILISATION
+   ========================================== */
+
+/*
+=== UTILISATION ===
+
+1. Structure HTML requise :
+   <body>
+       <main>
+           <!-- Votre contenu principal -->
+       </main>
+       <!-- Votre footer existant -->
+   </body>
+
+2. Le footer restera collé en bas même avec peu de contenu
+3. Responsive design inclus
+4. Utilise les couleurs du système cyber4all
+5. Effets glassmorphism et animations inclus
+
+=== FONCTIONNALITÉS ===
+✓ Footer sticky (toujours en bas)
+✓ Design glassmorphism moderne
+✓ Animations fluides
+✓ Responsive complet
+✓ Effets de hover sophistiqués
+✓ Utilise le système de couleurs unifié
+*/

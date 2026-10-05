@@ -1,0 +1,383 @@
+/* Style du bouton */
+.btn-signaler {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: transparent;
+    border: 1px solid #dc2626;
+    color: #dc2626;
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-signaler--disabled {
+    background: #f3f4f6; /* gris très clair */
+    color: #b3b3b3;      /* gris texte */
+
+    border: none;
+    cursor: not-allowed;
+    pointer-events: none;
+    box-shadow:
+            0 1px 0 rgba(255, 255, 255, 0.9) inset,
+            0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.btn-signaler:hover {
+    background: #dc2626;
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* Style de la modal */
+.modal-signalement {
+    border: none;
+    border-radius: 1rem;
+    padding: 0;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    background: white;
+}
+
+.modal-signalement::backdrop {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: #1f2937;
+}
+
+.btn-close-modal {
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    color: #6b7280;
+    cursor: pointer;
+    padding: 0.25rem;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.375rem;
+    transition: all 0.2s ease;
+}
+
+.btn-close-modal:hover {
+    background: #f3f4f6;
+    color: #1f2937;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+/* Style du formulaire */
+.form-signalement {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    font-weight: 600;
+    color: #374151;
+    font-size: 0.95rem;
+}
+
+.form-control {
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    font-size: 0.95rem;
+    font-family: inherit;
+    resize: vertical;
+    transition: all 0.2s ease;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #7c3aed;
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+
+.btn-submit-signalement {
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+}
+
+.btn-submit-signalement:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+.alert-info {
+    padding: 1rem;
+    background: #dbeafe;
+    color: #1e40af;
+    border-radius: 0.5rem;
+    margin: 0;
+}
+
+/* Animation d'ouverture */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-signalement[open] {
+    animation: slideIn 0.3s ease;
+}
+
+.signalements-container {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.signalement__header{
+    padding: 10px;
+}
+
+.signalement-item {
+    padding: 8px;
+    border-bottom: 1px solid #f1f5f9;
+    color: #1e293b;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.signalement-item:hover {
+    background: #f8fafc;
+}
+
+.signalement-item:last-child {
+    border-bottom: none;
+}
+
+.signalement-id {
+    font-size: .8rem;
+    font-weight: 700;
+    color: #2563eb;
+    margin-bottom: 3px;
+}
+
+.signalement-mot {
+    color: #64748b;
+    margin-bottom: 3px;
+}
+
+.signalement-motif {
+    color: #ef4444;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Scrollbar personnalisée */
+.signalements-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.signalements-container::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 0 8px 8px 0;
+}
+
+.signalements-container::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+.signalements-container::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+.signalement-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 20px 10px;
+    text-align: center;
+}
+
+.signalement-empty__icon {
+    font-size: 28px;
+    margin-bottom: 8px;
+    opacity: 0.5;
+}
+
+.signalement-empty__text {
+    font-size: 10px;
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+
+.total-signalements {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background: rgba(251, 146, 60, 0.15);
+    border: 2px solid rgba(251, 146, 60, 0.4);
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #ea580c;
+    backdrop-filter: blur(8px);
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.total-signalements::before {
+    content: '';
+    font-size: 1.25rem;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.total-signalements:hover {
+    background: rgba(251, 146, 60, 0.25);
+    border-color: rgba(251, 146, 60, 0.6);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(251, 146, 60, 0.3);
+}
+
+/* Animation de pulsation pour l'icône */
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.8;
+    }
+}
+
+/* Variante avec badge count */
+.total-signalements--badge {
+    position: relative;
+    padding-right: 3rem;
+}
+
+.total-signalements--badge::after {
+    content: attr(data-count);
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #ea580c;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.25rem 0.6rem;
+    border-radius: 20px;
+    min-width: 24px;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(234, 88, 12, 0.4);
+}
+
+/* Version compacte */
+.total-signalements--compact {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+}
+
+.total-signalements--compact::before {
+    font-size: 1rem;
+}
+
+/* État d'alerte critique (beaucoup de signalements) */
+.total-signalements--critical {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.4);
+    color: #dc2626;
+}
+
+.total-signalements--critical::before {
+    content: '';
+    animation: shake 0.5s ease-in-out infinite;
+}
+
+.total-signalements--critical:hover {
+    background: rgba(239, 68, 68, 0.25);
+    border-color: rgba(239, 68, 68, 0.6);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0) rotate(0deg); }
+    25% { transform: translateX(-2px) rotate(-5deg); }
+    75% { transform: translateX(2px) rotate(5deg); }
+}
+
+/* État OK - Aucun signalement (0) */
+.total-signalements--ok {
+    background: rgba(34, 197, 94, 0.15);
+    border-color: rgba(34, 197, 94, 0.4);
+    color: #16a34a;
+}
+
+.total-signalements--ok::before {
+    content: '';
+    animation: none;
+}
+
+.total-signalements--ok:hover {
+    background: rgba(34, 197, 94, 0.25);
+    border-color: rgba(34, 197, 94, 0.6);
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .total-signalements {
+        font-size: 0.8rem;
+        padding: 0.6rem 1rem;
+    }
+
+    .total-signalements::before {
+        font-size: 1rem;
+    }
+}

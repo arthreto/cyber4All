@@ -1,0 +1,309 @@
+/* ===================================
+   SYSTÈME DE NOTIFICATIONS
+   =================================== */
+
+/* Base notification */
+.notification {
+    position: relative;
+    padding: .75rem 1rem;
+    margin: 1.5rem 0;
+    border-radius: 8px;
+    border-left: 5px solid;
+    background-color: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    animation: slideIn 0.3s ease-out;
+    width: 70%;
+}
+
+/* Animation d'apparition */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Titre de notification */
+.notification h3 {
+    margin: 0 0 0.75rem 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Icônes avant le titre */
+.notification h3::before {
+    content: '';
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    flex-shrink: 0;
+}
+
+/* Paragraphe de détails */
+.notification p {
+    margin: 0.5rem 0 0 0;
+    line-height: 1.6;
+    color: #4a5568;
+}
+
+/* Liste d'errors */
+.notification__errors {
+    margin: 1rem 0 0 0;
+    padding-left: 1.5rem;
+    list-style-type: none;
+}
+
+.notification__errors li {
+    position: relative;
+    padding: 0.5rem 0;
+    line-height: 1.5;
+}
+
+.notification__errors li::before {
+    content: '-';
+    position: absolute;
+    left: -1.25rem;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.notification__errors li strong {
+    font-weight: 600;
+    margin-right: 0.25rem;
+}
+
+/* ===================================
+   TYPES DE NOTIFICATIONS
+   =================================== */
+
+/* SUCCÈS */
+.notification--success {
+    background-color: #f0fdf4;
+    border-left-color: #22c55e;
+}
+
+.notification--success h3 {
+    color: #15803d;
+}
+
+.notification--success h3::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2322c55e'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z'/%3E%3C/svg%3E");
+}
+
+.notification--success .notification__errors li::before {
+    color: #22c55e;
+}
+
+/* error */
+.notification--error {
+    background-color: #fef2f2;
+    border-left-color: #ef4444;
+}
+
+.notification--error h3 {
+    color: #991b1b;
+}
+
+.notification--error h3::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ef4444'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z'/%3E%3C/svg%3E");
+}
+
+.notification--error .notification__errors li::before {
+    color: #ef4444;
+}
+
+/* warning */
+.notification--warning {
+    background-color: #fffbeb;
+    border-left-color: #f59e0b;
+}
+
+.notification--warning h3 {
+    color: #92400e;
+}
+
+.notification--warning h3::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23f59e0b'%3E%3Cpath d='M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z'/%3E%3C/svg%3E");
+}
+
+.notification--warning .notification__errors li::before {
+    color: #f59e0b;
+}
+
+/* INFO */
+.notification--info {
+    background-color: #eff6ff;
+    border-left-color: #3b82f6;
+}
+
+.notification--info h3 {
+    color: #1e40af;
+}
+
+.notification--info h3::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%233b82f6'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z'/%3E%3C/svg%3E");
+}
+
+.notification--info .notification__errors li::before {
+    color: #3b82f6;
+}
+
+/* ===================================
+   RESPONSIVE
+   =================================== */
+
+@media (max-width: 768px) {
+    .notification {
+        padding: 1rem;
+        margin: 1rem 0;
+        border-radius: 6px;
+    }
+
+    .notification h3 {
+        font-size: 1rem;
+    }
+
+    .notification h3::before {
+        width: 20px;
+        height: 20px;
+    }
+
+    .notification__errors {
+        padding-left: 1.25rem;
+    }
+
+    .notification__errors li::before {
+        left: -1rem;
+    }
+}
+
+/* ===================================
+   BOUTON DE FERMETURE
+   =================================== */
+
+.notification__close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    opacity: 0.6;
+    transition: all 0.2s;
+}
+
+.notification__close:hover {
+    opacity: 1;
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.notification__close:active {
+    transform: scale(0.95);
+}
+
+.notification__close::before,
+.notification__close::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 2px;
+    background-color: currentColor;
+}
+
+.notification__close::before {
+    transform: rotate(45deg);
+}
+
+.notification__close::after {
+    transform: rotate(-45deg);
+}
+
+/* Couleurs de la croix selon le type */
+.notification--success .notification__close {
+    color: #15803d;
+}
+
+.notification--error .notification__close {
+    color: #991b1b;
+}
+
+.notification--warning .notification__close {
+    color: #92400e;
+}
+
+.notification--info .notification__close {
+    color: #1e40af;
+}
+
+/* Animation de fermeture */
+.notification--closing {
+    animation: slideOut 0.3s ease-out forwards;
+}
+
+@keyframes slideOut {
+    to {
+        opacity: 0;
+        transform: translateY(-20px);
+        max-height: 0;
+        margin: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+}
+
+/* ===================================
+   VARIANTES ALTERNATIVES
+   =================================== */
+
+/* Version compacte */
+.notification--compact {
+    padding: 0.75rem 1rem;
+}
+
+.notification--compact h3 {
+    font-size: 0.95rem;
+    margin-bottom: 0;
+}
+
+.notification--compact p {
+    margin-top: 0.25rem;
+    font-size: 0.9rem;
+}
+
+/* Version avec bordure complète */
+.notification--bordered {
+    border: 2px solid;
+    border-left-width: 5px;
+}
+
+.notification--bordered.notification--success {
+    border-color: #22c55e;
+}
+
+.notification--bordered.notification--error {
+    border-color: #ef4444;
+}
+
+.notification--bordered.notification--warning {
+    border-color: #f59e0b;
+}
+
+.notification--bordered.notification--info {
+    border-color: #3b82f6;
+}

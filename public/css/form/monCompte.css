@@ -1,0 +1,287 @@
+/* ==========================================
+   PAGE MON COMPTE - DESIGN ÉPURÉ
+   Style cohérent avec l'accueil cyber4all
+   ========================================== */
+
+/* Container principal */
+.compte-container {
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+/* Grille principale - Layout de base */
+.compte-grid {
+    display: grid;
+    grid-template-areas:
+        "ligne-haut"
+        "ligne-bas";
+    grid-template-rows: auto 1fr;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+/* Attribution des zones principales */
+.compte-ligne-haut {
+    grid-area: ligne-haut;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.compte-ligne-bas {
+    grid-area: ligne-bas;
+}
+
+/* Les blocs à l'intérieur de la ligne haute */
+.compte-block.gauche,
+.compte-block.droite {
+    /* Pas besoin de grid-area ici, ils sont dans le grid de .compte-ligne-haut */
+}
+
+/* Blocs génériques avec effet glassmorphism */
+.compte-block,
+.compte-stats-placeholder {
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.compte-block:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Stats placeholder - hauteur automatique égale */
+.compte-stats-placeholder {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    min-height: 100%;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.compte-stats-placeholder h3 {
+    color: var(--gray-700);
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.compte-stats-placeholder p {
+    color: var(--gray-500);
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+/* ==========================================
+   SECTION INFORMATIONS COMPTE
+   ========================================== */
+
+.form-compte h1 {
+    color: var(--gray-700);
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    text-align: center;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Conteneurs d'input */
+.input-container {
+    position: relative;
+}
+
+.input-container:last-child {
+    margin-bottom: 0;
+}
+
+/* Styles des inputs */
+.input-box-connexion {
+    width: 100%;
+    padding: 1rem 1rem 1rem 3rem;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    color: var(--gray-700);
+    font-size: 1rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.input-box-connexion:focus {
+    border-color: rgba(102, 126, 234, 0.6);
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.input-box-connexion:disabled {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--gray-600);
+    cursor: not-allowed;
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Placeholder styling */
+.input-box-connexion::placeholder {
+    color: var(--gray-400);
+    font-weight: 400;
+}
+
+
+/* ==========================================
+   SECTION FORMULAIRE DE MODIFICATION
+   ========================================== */
+
+.form-connexion h1 {
+    color: var(--gray-700);
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+/* Bouton de validation */
+.btn-submit-connexion {
+    width: 100%;
+    padding: 1rem 2rem;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-top: 1rem;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.btn-submit-connexion:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    background: linear-gradient(135deg, #5a67d8, #6b46c1);
+}
+
+.btn-submit-connexion:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+/* ==========================================
+   RESPONSIVE DESIGN
+   ========================================== */
+
+/* Tablette */
+@media (max-width: 768px) {
+    .compte-container {
+        padding: 1rem;
+    }
+
+    .compte-ligne-haut {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .compte-block,
+    .compte-stats-placeholder {
+        padding: 1.5rem;
+    }
+
+    .form-compte h1,
+    .form-connexion h1 {
+        font-size: 1.5rem;
+    }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+    .compte-container {
+        padding: 0.5rem;
+        width: 100%;
+    }
+
+    .compte-ligne-haut {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .compte-block,
+    .compte-stats-placeholder {
+        padding: 1rem;
+    }
+
+    .input-box-connexion {
+        padding: 0.875rem 0.875rem 0.875rem 2.5rem;
+        font-size: 0.9rem;
+    }
+
+    .input-icon {
+        left: 0.875rem;
+        font-size: 1rem;
+    }
+}
+
+/* ==========================================
+   ANIMATIONS SUBTILES
+   ========================================== */
+
+/* Animation d'apparition */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.compte-block,
+.compte-stats-placeholder {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.compte-block.droite {
+    animation-delay: 0.1s;
+    animation-fill-mode: both;
+}
+
+.compte-ligne-bas {
+    animation-delay: 0.2s;
+    animation-fill-mode: both;
+}
+
+/* Effet de focus amélioré */
+.input-box-connexion:focus {
+    animation: gentle-pulse 0.3s ease-out;
+}
+
+@keyframes gentle-pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.3);
+    }
+    70% {
+        box-shadow: 0 0 0 6px rgba(102, 126, 234, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(102, 126, 234, 0);
+    }
+}

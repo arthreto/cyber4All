@@ -1,0 +1,270 @@
+/* === VARIABLES === */
+:root {
+    --primary-color: #2563eb;
+    --primary-hover: #1d4ed8;
+    --secondary-color: #64748b;
+    --error-color: #ef4444;
+    --success-color: #10b981;
+    --text-dark: #1e293b;
+    --text-light: #64748b;
+    --border-color: #e2e8f0;
+    --input-bg: #f8fafc;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --radius: 12px;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* === CONTENEUR PRINCIPAL === */
+.form-connexion {
+    width: 100%;
+    max-width: 440px;
+    background: white;
+    border-radius: var(--radius);
+    padding: 3rem 2.5rem;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-color);
+    animation: slideUp 0.5s ease-out;
+    margin: 1rem 0;
+}
+
+.form-label--required::after {
+    content: ' *';
+    color: #dc2626;
+}
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* === TITRE === */
+.form-connexion h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 2rem;
+    text-align: center;
+    letter-spacing: -0.025em;
+}
+
+/* === MESSAGE D'ERREUR === */
+.form-connexion h2 {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--error-color);
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+/* === INPUT WRAPPER === */
+.input-wrapper {
+    margin-bottom: 1.5rem;
+}
+
+.form-connexion label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.01em;
+}
+
+/* === INPUT CONTAINER === */
+.input-container {
+    position: relative;
+    transition: var(--transition);
+}
+
+.input-box-connexion,
+.form-connexion input[type="text"],
+.form-connexion input[type="email"],
+.form-connexion input[type="password"] {
+    width: 100%;
+    padding: 0.875rem 1rem 0.875rem 3rem;
+    font-size: 1rem;
+    color: var(--text-dark);
+    background: var(--input-bg);
+    border: 2px solid var(--border-color);
+    border-radius: 10px;
+    transition: var(--transition);
+    outline: none;
+}
+
+.input-box-connexion:focus,
+.form-connexion input:focus {
+    background: white;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.input-box-connexion::placeholder,
+.form-connexion input::placeholder {
+    color: #94a3b8;
+}
+
+/* === ICÔNES === */
+.input-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--secondary-color);
+    font-size: 1.125rem;
+    pointer-events: none;
+    transition: var(--transition);
+}
+
+.input-container:focus-within .input-icon:not(.input-icon--password-toggle) {
+    color: var(--primary-color);
+}
+
+/* === TOGGLE PASSWORD === */
+.input-icon--password-toggle {
+    left: auto;
+    right: 1rem;
+    pointer-events: all;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0.5rem;
+    border-radius: 6px;
+    transition: var(--transition);
+}
+
+.input-icon--password-toggle:hover {
+    background: var(--input-bg);
+    color: var(--primary-color);
+}
+
+.input-icon--password-toggle.visible {
+    color: var(--primary-color);
+}
+
+/* === INDICATIONS === */
+.champIndication {
+    display: block;
+    font-size: 0.8125rem;
+    color: var(--text-light);
+    margin-top: 0.5rem;
+    line-height: 1.5;
+}
+
+/* === LIENS === */
+.form-connexion a {
+    color: var(--gradient-primary);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    display: inline-block;
+    margin: 1rem 0;
+    transition: var(--transition);
+}
+
+.form-connexion a:hover {
+    color: var(--primary-hover);
+    text-decoration: underline;
+}
+
+/* === BOUTON SUBMIT === */
+.btn-submit-connexion {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: white;
+    background: var(--gradient-primary);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: var(--transition);
+    margin-top: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    box-shadow: var(--shadow-md);
+}
+
+.btn-submit-connexion:hover {
+    background: var(--gradient-primary-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.btn-submit-connexion:active {
+    transform: translateY(0);
+}
+
+.btn-submit-connexion i {
+    font-size: 1.125rem;
+}
+
+/* === LIEN D'INSCRIPTION === */
+.register-link-connexion {
+    text-align: center;
+    margin-top: 1.5rem;
+    font-size: 0.875rem;
+    color: var(--text-light);
+}
+
+.register-link-connexion .important {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.register-link-connexion a:hover .important {
+    text-decoration: underline;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 480px) {
+    .form-connexion {
+        padding: 2rem 1.5rem;
+    }
+
+    .form-connexion h1 {
+        font-size: 1.75rem;
+    }
+
+    .input-box-connexion,
+    .form-connexion input {
+        padding: 0.75rem 0.875rem 0.75rem 2.75rem;
+        font-size: 0.9375rem;
+    }
+
+    .btn-submit-connexion {
+        padding: 0.875rem;
+    }
+}
+
+/* === ANIMATIONS SUPPLÉMENTAIRES === */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.input-container:has(input:invalid:not(:placeholder-shown)) {
+    animation: shake 0.4s;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}

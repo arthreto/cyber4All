@@ -1,0 +1,452 @@
+/* ========================================
+   cyber4all - Système de couleurs unifié
+   Fichier centralisé pour toutes les couleurs
+   ======================================== */
+
+:root {
+    /* ==========================================
+       COULEURS DE BASE
+       ========================================== */
+    --white: #ffffff;
+    --black: #000000;
+    --transparent: transparent;
+
+    /* ==========================================
+       PALETTE DE GRIS COMPLÈTE
+       ========================================== */
+    --gray-50: #f8fafc;
+    --gray-100: #f1f5f9;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-400: #9ca3af;
+    --gray-500: #6b7280;
+    --gray-600: #4b5563;
+    --gray-700: #374151;
+    --gray-800: #1f2937;
+    --gray-900: #111827;
+
+    /* Grays spécifiques du design */
+    --gray-text-light: #5a6c7d;
+    --gray-text-dark: #4a5568;
+    --gray-text-darker: #34495e;
+    --gray-title: #2c3e50;
+    --gray-title-dark: #2d3748;
+    --gray-title-darker: #1a202c;
+    --gray-border: rgba(74, 85, 104, 0.2);
+
+    /* Alias pour compatibilité */
+    --color-gray-dark: #1a202c;
+    --color-gray-medium: #4a5568;
+    --color-gray-light: #26323e;
+
+    /* ==========================================
+       COULEURS PRIMAIRES DU THÈME
+       ========================================== */
+
+    /* Gradient principal - Bleu à Violet */
+    --color-primary-blue: #667eea;
+    --color-primary-purple: #764ba2;
+    --color-primary-blue-hover: #5a67d8;
+    --color-primary-purple-hover: #6b46c1;
+
+    /* Alias pour cohérence */
+    --purple-cosmic: #667eea;
+    --purple-cosmic-dark: #764ba2;
+
+    /* ==========================================
+       PALETTE BLEUE COMPLÈTE
+       ========================================== */
+    --blue-primary: #74b9ff;
+    --blue-primary-dark: #0984e3;
+    --blue-hover: #3498db;
+    --blue-link: #2b6cb0;
+    --blue-sky: #3498db;
+    --blue-sky-dark: #2980b9;
+    --blue-ocean: #74b9ff;
+    --blue-ocean-dark: #0984e3;
+    --blue-neon: #00f2fe;
+    --blue-neon-light: #4facfe;
+    --blue-arctic: #00d4ff;
+    --blue-arctic-dark: #090979;
+    --blue-royal: #3742fa;
+    --blue-royal-dark: #2f3542;
+    --blue-glacier: #7158e2;
+    --blue-glacier-dark: #3d5af1;
+    --blue-cyan: #54a0ff;
+    --blue-cyan-dark: #2e86de;
+    --blue-pervenche: #70a1ff;
+    --blue-pervenche-dark: #5352ed;
+    --blue-teal: #0abde3;
+    --blue-teal-dark: #006ba6;
+    --blue-marine: #1e3799;
+    --blue-marine-light: #3c6382;
+
+    /* ==========================================
+       PALETTE VIOLETTE/POURPRE
+       ========================================== */
+    --purple-primary: #7c3aed;
+    --purple-primary-dark: #5b21b6;
+    --purple-light: #a29bfe;
+    --purple-dark: #6c5ce7;
+    --purple-bordeaux: #8e44ad;
+    --purple-bordeaux-light: #9b59b6;
+    --purple-indigo: #6c5ce7;
+    --purple-indigo-dark: #5f3dc4;
+    --purple-lilas: #be2edd;
+    --purple-lilas-light: #9c88ff;
+
+    /* ==========================================
+       PALETTE ROSE
+       ========================================== */
+    --pink-primary: #fd79a8;
+    --pink-primary-dark: #e84393;
+    --pink-fuchsia: #fd79a8;
+    --pink-fuchsia-dark: #e84393;
+    --pink-fluo: #ff0084;
+    --pink-fluo-dark: #ff006e;
+    --pink-powder: #fda085;
+    --pink-powder-light: #f093fb;
+    --pink-peach: #ff9ff3;
+    --pink-peach-dark: #f368e0;
+    --pink-orchid: #f368e0;
+    --pink-orchid-light: #ff9ff3;
+    --pink-magenta: #e91e63;
+    --pink-magenta-dark: #ad1457;
+
+    /* ==========================================
+       PALETTE ROUGE
+       ========================================== */
+    --red-primary: #ff7675;
+    --red-primary-dark: #e17055;
+    --red-coral: #ff7675;
+    --red-coral-dark: #e17055;
+    --red-crimson: #eb2f06;
+    --red-crimson-dark: #ea2027;
+    --red-cherry: #ff3838;
+    --red-cherry-light: #ff9ff3;
+    --red-vermillion: #ff5722;
+    --red-vermillion-light: #ff9800;
+    --red-prune: #ff4757;
+    --red-prune-dark: #c44569;
+    --red-sunset: #ff8a80;
+    --red-sunset-dark: #ff5722;
+
+    /* ==========================================
+       PALETTE ORANGE
+       ========================================== */
+    --orange-primary: #fdcb6e;
+    --orange-primary-dark: #e17055;
+    --orange-amber: #ffa502;
+    --orange-amber-dark: #ff6348;
+    --orange-champagne: #f7b731;
+    --orange-champagne-dark: #fa8231;
+    --orange-golden: #f39c12;
+    --orange-golden-dark: #e67e22;
+    --orange-apricot: #ff9068;
+    --orange-apricot-dark: #fd3a84;
+    --orange-salmon: #fab1a0;
+    --orange-salmon-dark: #e17055;
+    --orange-terracotta: #cd6133;
+    --orange-terracotta-dark: #cc5500;
+
+    /* ==========================================
+       PALETTE VERTE
+       ========================================== */
+    --green-primary: #00cec9;
+    --green-primary-dark: #00b894;
+    --green-emerald: #2ecc71;
+    --green-emerald-dark: #27ae60;
+    --green-lime: #55efc4;
+    --green-lime-dark: #00b894;
+    --green-tropical: #56ab2f;
+    --green-tropical-light: #a8e6cf;
+    --green-apple: #7bed9f;
+    --green-apple-dark: #2ed573;
+    --green-jade: #7bed9f;
+    --green-jade-dark: #2ed573;
+    --green-mint: #81ecec;
+    --green-mint-dark: #00cec9;
+    --green-mint-ice: #7efff5;
+    --green-mint-ice-dark: #17c0eb;
+    --green-olive: #6ab04c;
+    --green-olive-dark: #218c74;
+    --green-forest: #00d2d3;
+    --green-forest-light: #54a0ff;
+    --green-aqua: #7fcdcd;
+    --green-aqua-dark: #2bcbba;
+    --green-turquoise: #16a085;
+    --green-turquoise-light: #1abc9c;
+
+    /* ==========================================
+       PALETTE JAUNE
+       ========================================== */
+    --yellow-primary: #fdcb6e;
+    --yellow-golden: #f39c12;
+    --yellow-golden-dark: #e67e22;
+    --yellow-champagne: #f7b731;
+    --yellow-champagne-dark: #fa8231;
+
+    /* ==========================================
+       COULEURS DE STATUT
+       ========================================== */
+    --state-success: #10b981;
+    --state-warning: #f59e0b;
+    --state-error: #ef4444;
+    --state-info: #3b82f6;
+
+    /* Alias pour compatibilité */
+    --color-success: #48bb78;
+    --color-error: #f56565;
+
+    /* ==========================================
+       COULEURS AVEC TRANSPARENCE
+       ========================================== */
+
+    /* Arrière-plans glassmorphism */
+    --bg-glass-light: rgba(255, 255, 255, 0.9);
+    --bg-glass-strong: rgba(255, 255, 255, 0.95);
+    --bg-glass-medium: rgba(255, 255, 255, 0.2);
+    --bg-glass-subtle: rgba(255, 255, 255, 0.15);
+    --bg-glass-ultra-subtle: rgba(255, 255, 255, 0.1);
+    --bg-glass-minimal: rgba(255, 255, 255, 0.05);
+
+    /* Alias */
+    --bg-primary: rgba(255, 255, 255, 0.9);
+    --bg-secondary: rgba(255, 255, 255, 0.95);
+    --bg-glass: rgba(255, 255, 255, 0.15);
+
+    /* Bordures transparentes */
+    --border-glass-light: rgba(255, 255, 255, 0.5);
+    --border-glass-medium: rgba(255, 255, 255, 0.3);
+    --border-glass-subtle: rgba(255, 255, 255, 0.2);
+    --border-light: rgba(255, 255, 255, 0.2);
+
+    /* Dividers / Séparateurs */
+    --border-divider-light: rgba(0, 0, 0, 0.05);
+    --border-divider-medium: rgba(0, 0, 0, 0.1);
+
+    /* RGBA spécifiques */
+    --rgba-white-02: rgba(255, 255, 255, 0.2);
+    --rgba-white-04: rgba(255, 255, 255, 0.4);
+    --rgba-white-07: rgba(255, 255, 255, 0.7);
+    --rgba-white-09: rgba(255, 255, 255, 0.9);
+    --rgba-white-095: rgba(255, 255, 255, 0.95);
+    --rgba-black-01: rgba(0, 0, 0, 0.1);
+    --rgba-black-015: rgba(0, 0, 0, 0.15);
+
+    /* ==========================================
+       COULEURS DE TEXTE
+       ========================================== */
+    --text-primary: #2d3748;
+    --text-secondary: #4a5568;
+    --text-tertiary: #6b7280;
+    --text-muted: #9ca3af;
+    --text-title: #1a202c;
+    --text-title-alt: #2c3e50;
+    --text-placeholder: #9ca3af;
+    --text-link: #7c3aed;
+    --text-link-hover: #5b21b6;
+    --text-white: #ffffff;
+    --text-dark: #1a202c;
+    --text-accent: #667eea;
+
+    /* Placeholders spécifiques */
+    --text-placeholder-focus: rgba(74, 85, 104, 0.5);
+    --text-placeholder-alt: rgba(74, 85, 104, 0.7);
+
+    /* ==========================================
+       COULEURS DE HOVER ET INTERACTIONS
+       ========================================== */
+    --bg-hover-primary: rgba(102, 126, 234, 0.1);
+    --bg-hover-success: rgba(72, 187, 120, 0.1);
+    --bg-hover-error: rgba(245, 101, 101, 0.1);
+
+    /* ==========================================
+       OMBRES (SHADOWS)
+       ========================================== */
+    --shadow-light: rgba(0, 0, 0, 0.1);
+    --shadow-medium: rgba(0, 0, 0, 0.15);
+    --shadow-dark: rgba(0, 0, 0, 0.3);
+    --shadow-colored: rgba(116, 185, 255, 0.4);
+    --shadow-purple: rgba(124, 58, 237, 0.3);
+    --shadow-form-focus: rgba(124, 58, 237, 0.1);
+
+    /* Alias pour compatibilité */
+    --shadow-primary: rgba(26, 32, 44, 0.27);
+    --shadow-button: rgba(102, 126, 234, 0.3);
+    --shadow-button-hover: rgba(102, 126, 234, 0.4);
+    --shadow-generic-light: rgba(0, 0, 0, 0.1);
+    --shadow-generic-medium: rgba(0, 0, 0, 0.15);
+
+    /* ==========================================
+       GRADIENTS
+       ========================================== */
+
+    /* Gradients principaux */
+    --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --gradient-primary-hover: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+
+    /* Gradients de fond */
+    --bg-gradient-footer: linear-gradient(135deg, #c8d6e5 0%, #ddd6fe 100%);
+    --bg-gradient-carousel: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+    /* Gradients pour boutons */
+    --btn-primary-bg: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+    --btn-primary-hover: linear-gradient(135deg, #5b21b6 0%, #7c3aed 100%);
+    --btn-secondary-bg: linear-gradient(135deg, #74b9ff, #0984e3);
+    --btn-secondary-hover: linear-gradient(135deg, #0984e3, #74b9ff);
+
+    /* Gradients pour effets */
+    --gradient-shimmer: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    --gradient-shimmer-button: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    --gradient-shine: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    --gradient-animated: linear-gradient(90deg, #00d4ff, #5b9bd5, #8a2be2, #ff6b9d, #ffa500);
+
+    /* ==========================================
+       COULEURS POUR CATÉGORIES (1-55)
+       ========================================== */
+    --category-1-start: #ff7675; --category-1-end: #e17055;
+    --category-2-start: #fd79a8; --category-2-end: #e84393;
+    --category-3-start: #fdcb6e; --category-3-end: #e17055;
+    --category-4-start: #a29bfe; --category-4-end: #6c5ce7;
+    --category-5-start: #00cec9; --category-5-end: #00b894;
+    --category-6-start: #ff6b6b; --category-6-end: #ee5a52;
+    --category-7-start: #a29bfe; --category-7-end: #6c5ce7;
+    --category-8-start: #74b9ff; --category-8-end: #0984e3;
+    --category-9-start: #fd79a8; --category-9-end: #e84393;
+    --category-10-start: #55efc4; --category-10-end: #00b894;
+    --category-11-start: #fdcb6e; --category-11-end: #e17055;
+    --category-12-start: #2d3436; --category-12-end: #636e72;
+    --category-13-start: #f39c12; --category-13-end: #e67e22;
+    --category-14-start: #16a085; --category-14-end: #1abc9c;
+    --category-15-start: #8e44ad; --category-15-end: #9b59b6;
+    --category-16-start: #ff7675; --category-16-end: #e17055;
+    --category-17-start: #3498db; --category-17-end: #2980b9;
+    --category-18-start: #2ecc71; --category-18-end: #27ae60;
+    --category-19-start: #fab1a0; --category-19-end: #e17055;
+    --category-20-start: #6c5ce7; --category-20-end: #5f3dc4;
+    --category-21-start: #81ecec; --category-21-end: #00cec9;
+    --category-22-start: #e91e63; --category-22-end: #ad1457;
+    --category-23-start: #6ab04c; --category-23-end: #218c74;
+    --category-24-start: #ff9ff3; --category-24-end: #f368e0;
+    --category-25-start: #54a0ff; --category-25-end: #2e86de;
+    --category-26-start: #c44569; --category-26-end: #f8b500;
+    --category-27-start: #00d2d3; --category-27-end: #54a0ff;
+    --category-28-start: #ff9068; --category-28-end: #fd3a84;
+    --category-29-start: #3742fa; --category-29-end: #2f3542;
+    --category-30-start: #7bed9f; --category-30-end: #2ed573;
+    --category-31-start: #ffa502; --category-31-end: #ff6348;
+    --category-32-start: #ff4757; --category-32-end: #c44569;
+    --category-33-start: #7fcdcd; --category-33-end: #2bcbba;
+    --category-34-start: #eb2f06; --category-34-end: #ea2027;
+    --category-35-start: #70a1ff; --category-35-end: #5352ed;
+    --category-36-start: #7bed9f; --category-36-end: #70a1ff;
+    --category-37-start: #ff3838; --category-37-end: #ff9ff3;
+    --category-38-start: #0abde3; --category-38-end: #006ba6;
+    --category-39-start: #f7b731; --category-39-end: #fa8231;
+    --category-40-start: #f368e0; --category-40-end: #ff9ff3;
+    --category-41-start: #1e3799; --category-41-end: #3c6382;
+    --category-42-start: #7efff5; --category-42-end: #17c0eb;
+    --category-43-start: #cd6133; --category-43-end: #cc5500;
+    --category-44-start: #be2edd; --category-44-end: #9c88ff;
+    --category-45-start: #7158e2; --category-45-end: #3d5af1;
+    --category-46-start: #7bed9f; --category-46-end: #2ed573;
+    --category-47-start: #ff5722; --category-47-end: #ff9800;
+    --category-48-start: #00d4ff; --category-48-end: #090979;
+    --category-49-start: #fda085; --category-49-end: #f093fb;
+    --category-50-start: #667eea; --category-50-end: #764ba2;
+    --category-51-start: #11998e; --category-51-end: #38ef7d;
+    --category-52-start: #ff8a80; --category-52-end: #ff5722;
+    --category-53-start: #4facfe; --category-53-end: #00f2fe;
+    --category-54-start: #ff0084; --category-54-end: #ff006e;
+    --category-55-start: #56ab2f; --category-55-end: #a8e6cf;
+
+    /* ==========================================
+       COULEURS POUR FORMULAIRES
+       ========================================== */
+    --bg-form: #f8fafc;
+    --bg-form-focus: #ffffff;
+    --border-input: #e5e7eb;
+    --border-input-focus: #7c3aed;
+
+    /* ==========================================
+       COULEURS POUR ÉTATS SPÉCIAUX
+       ========================================== */
+    --color-spinner-track: rgba(255, 255, 255, 0.3);
+    --color-spinner-active: #ffffff;
+    --color-focus-outline: rgba(255, 255, 255, 0.8);
+
+    /* ==========================================
+       AJOUTER POUR LE quiz
+       ========================================== */
+    --red-coral: #ff7675;
+    --red-coral-dark: #e17055;
+}
+
+/* ==========================================
+   CLASSES UTILITAIRES
+   ========================================== */
+
+/* Couleurs de texte */
+.text-primary { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-accent { color: var(--text-accent); }
+.text-white { color: var(--text-white); }
+.text-dark { color: var(--text-dark); }
+.text-muted { color: var(--text-muted); }
+.text-link { color: var(--text-link); }
+
+/* Arrière-plans */
+.bg-primary { background: var(--gradient-primary); }
+.bg-glass { background: var(--bg-glass-light); }
+.bg-hover { background: var(--bg-hover-primary); }
+.bg-glass-subtle { background: var(--bg-glass-subtle); }
+
+/* Bordures */
+.border-glass { border: 1px solid var(--border-glass-medium); }
+.border-light { border: 1px solid var(--border-light); }
+
+/* Ombres */
+.shadow-light { box-shadow: 0 2px 10px var(--shadow-light); }
+.shadow-medium { box-shadow: 0 4px 20px var(--shadow-medium); }
+.shadow-button { box-shadow: 0 4px 15px var(--shadow-button); }
+
+/* ==========================================
+   GUIDE D'UTILISATION
+   ========================================== */
+
+/*
+=== GUIDE D'UTILISATION ===
+
+1. IMPORTATION
+   Importez ce fichier en premier dans votre CSS principal :
+   @import url('./colors.css');
+
+2. UTILISATION DES VARIABLES
+   - background: var(--bg-glass-light);
+   - color: var(--text-primary);
+   - border: 1px solid var(--border-glass-medium);
+   - background: var(--gradient-primary);
+   - box-shadow: 0 4px 15px var(--shadow-button);
+
+3. CATÉGORIES DE COULEURS
+   Utilisez les catégories pour le lexique :
+   - background: linear-gradient(135deg, var(--category-1-start), var(--category-1-end));
+
+4. GLASSMORPHISM
+   Pour les effets de verre :
+   - background: var(--bg-glass-subtle);
+   - backdrop-filter: blur(20px);
+   - border: 1px solid var(--border-glass-light);
+
+5. GRADIENTS PRÊTS À L'EMPLOI
+   - background: var(--gradient-primary);
+   - background: var(--btn-primary-bg);
+
+=== AVANTAGES ===
+✓ Cohérence visuelle globale
+✓ Maintenance centralisée
+✓ Création facile de thèmes
+✓ Performance optimisée
+✓ Accessibilité améliorée
+*/

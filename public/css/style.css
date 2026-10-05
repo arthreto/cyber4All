@@ -1,0 +1,76 @@
+@import 'base/colors.css';
+@import 'base/footer.css';
+@import 'base/header.css';
+@import 'base/notifications.css';
+
+@import 'glossaire/caroussel.css';
+@import 'glossaire/motSeul.css';
+@import 'glossaire/topMots.css';
+@import 'glossaire/recherche.css';
+@import 'glossaire/glossaire.css';
+
+@import 'form/formMot.css';
+@import 'form/formLienUtile.css';
+@import 'form/monCompte.css';
+@import 'form/formConnexion.css';
+
+@import 'admin/tableMots.css';
+
+@import 'quiz/finishQuiz.css';
+@import 'quiz/quiz.css';
+@import 'quiz/questionsQuiz.css';
+@import 'quiz/reviserQuiz.css';
+
+@import 'lienUtile.css';
+@import 'communautaire.css';
+@import 'signalement.css';
+
+/* ========== VARIABLES CSS GLOBALES - cyber4all ========== */
+
+/* ========================================
+   cyber4all - Système de couleurs unifié
+   Fichier centralisé pour toutes les couleurs
+   ======================================== */
+
+*,
+::before,
+::after{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    scroll-behavior: smooth;
+
+}
+
+section{
+    height: fit-content;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+dialog{
+    margin: auto;
+}
+/* Animation pour le header fixe */
+@media (min-width: 769px) {
+    body {
+        padding-top: 80px; /* Compense le header fixe */
+    }
+}
+@media (max-width: 769px) {
+    body {
+        padding-top: 160px; /* Compense le header fixe */
+    }
+}
+

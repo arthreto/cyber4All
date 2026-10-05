@@ -1,0 +1,5 @@
+#.env
+writable/logs/*
+writable/debugar/*
+writable/session/*
+app/Config/Database.php

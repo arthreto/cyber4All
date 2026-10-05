@@ -1,0 +1,385 @@
+/* ================================================
+   PAGE MOT SEUL - LAYOUT PRINCIPAL
+   ================================================ */
+.mot-seul-page {
+    width: 80vw;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+/* ================================================
+   MESSAGE D'ERREUR (Aucun résultat)
+   ================================================ */
+.mot-seul-error {
+    background: var(--bg-glass-light, rgba(255, 255, 255, 0.9));
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 4rem 2rem;
+    text-align: center;
+    box-shadow: 0 8px 32px var(--shadow-light, rgba(0, 0, 0, 0.1));
+}
+
+.error-icon {
+    font-size: 4rem;
+    color: #ff7675;
+    margin-bottom: 1.5rem;
+}
+
+.error-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2d3436;
+    margin: 0 0 1rem 0;
+}
+
+.error-message {
+    font-size: 1.1rem;
+    color: #636e72;
+    margin: 0 0 2rem 0;
+}
+
+.btn-retour,
+.btn-tertiaire {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.875rem 2rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.btn-retour:hover,
+.btn-tertiaire:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+/* ================================================
+   ARTICLE PRINCIPAL
+   ================================================ */
+.mot-seul-article {
+    background: var(--bg-glass-light, rgba(255, 255, 255, 0.9));
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 3rem;
+    box-shadow: 0 8px 32px var(--shadow-light, rgba(0, 0, 0, 0.1));
+    position: relative;
+    overflow: hidden;
+}
+
+.mot-seul-article::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: var(--gradient-animated, linear-gradient(90deg, #667eea 0%, #764ba2 100%));
+    background-size: 300% 300%;
+    animation: gradientShift 8s ease infinite;
+}
+
+/* ================================================
+   EN-TÊTE (Titre + Vote)
+   ================================================ */
+.mot-seul-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 2px solid rgba(102, 126, 234, 0.1);
+}
+
+.mot-seul-title-wrapper {
+    flex: 1;
+}
+
+.mot-seul-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--gray-title, #1a1a2e);
+    margin: 0 0 0.75rem 0;
+    line-height: 1.2;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.mot-seul-date {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+    color: var(--gray-text-light, #666);
+    margin: 0;
+}
+
+.mot-seul-date i {
+    color: #667eea;
+}
+
+.mot-seul-vote {
+    flex-shrink: 0;
+}
+
+/* ================================================
+   CATÉGORIES
+   ================================================ */
+.mot-seul-categories {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+     padding: 1.5rem;
+    background: rgba(102, 126, 234, 0.05);
+    border-radius: 12px;
+    border-left: 4px solid #667eea;
+}
+
+.categories-label {
+    font-weight: 600;
+    color: var(--gray-title, #2d3436);
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.categories-label i {
+    color: #667eea;
+}
+
+.categories-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+/* ================================================
+   SECTIONS DE CONTENU
+   ================================================ */
+.mot-seul-section {
+    margin-bottom: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--gray-title, #2d3436);
+    margin: 0 0 1.25rem 0;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid rgba(102, 126, 234, 0.1);
+}
+
+.section-title i {
+    color: #667eea;
+    font-size: 1.3rem;
+}
+
+.mot-seul-definition {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: var(--gray-text-darker, #2d3436);
+    margin: 0;
+    text-align: justify;
+    font-weight: 500;
+}
+
+.mot-seul-definition-complete {
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--gray-text-light, #555);
+    text-align: justify;
+}
+
+.mot-seul-definition-complete p {
+    margin-bottom: 1rem;
+}
+
+/* ================================================
+   IMAGES
+   ================================================ */
+.mot-seul-images {
+    margin: 2.5rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.mot-seul-figure {
+    margin: 0;
+    background: rgba(102, 126, 234, 0.05);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+}
+
+.mot-seul-figure:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.mot-seul-image {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+    max-height: 500px;
+}
+
+.mot-seul-legend {
+    padding: 1rem 1.5rem;
+    font-size: 0.9rem;
+    font-style: italic;
+    color: var(--gray-text-light, #666);
+    text-align: center;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.mot-seul-legend i {
+    color: #667eea;
+}
+
+/* ================================================
+   PIED DE PAGE (Actions)
+   ================================================ */
+.mot-seul-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 2px solid rgba(102, 126, 234, 0.1);
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.mot-seul-share {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.share-label {
+    font-weight: 600;
+    color: var(--gray-text-light, #666);
+    font-size: 0.95rem;
+}
+
+.btn-share {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    font-size: 1.1rem;
+}
+
+.btn-share:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-share.copied {
+    background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+    box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
+}
+
+/* ================================================
+   RESPONSIVE
+   ================================================ */
+@media (max-width: 768px) {
+    .mot-seul-page {
+        padding: 1rem;
+    }
+
+    .mot-seul-article {
+        padding: 2rem 1.5rem;
+    }
+
+    .mot-seul-header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .mot-seul-title {
+        font-size: 2rem;
+    }
+
+    .mot-seul-categories {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .section-title {
+        font-size: 1.3rem;
+    }
+
+    .mot-seul-definition {
+        font-size: 1rem;
+    }
+
+    .mot-seul-footer {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .mot-seul-share {
+        width: 100%;
+        justify-content: space-between;
+    }
+}
+
+@media (max-width: 480px) {
+    .mot-seul-article {
+        padding: 1.5rem 1rem;
+    }
+
+    .mot-seul-title {
+        font-size: 1.75rem;
+    }
+
+    .section-title {
+        font-size: 1.2rem;
+        gap: 0.5rem;
+    }
+
+    .mot-seul-date {
+        font-size: 0.875rem;
+    }
+
+    .error-icon {
+        font-size: 3rem;
+    }
+
+    .error-title {
+        font-size: 1.5rem;
+    }
+}
