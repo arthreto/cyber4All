@@ -1,6 +1,5 @@
 <?= link_tag(base_url('/css/groupe_c_css/groupe_c_css.css')) ?>
-
-    <style>body { margin: 0; background: #f7f8fc; }</style>
+<style>body { margin: 0; background: #f7f8fc; }</style>
 <body>
 
 <div class="quiz-concept">
