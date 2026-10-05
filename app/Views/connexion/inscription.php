@@ -15,6 +15,10 @@ if (!isset($utilisateur)):?>
     ?>
     <h1>S'inscrire</h1>
 
+    <?php if (isset($erreur)): ?>
+        <h2><?= $erreur ?></h2>
+    <?php endif; ?>
+
     <div class="input-wrapper">
         <?= form_label('Identifiant', 'identifiant',
                 ['for' => 'identifiant',
@@ -131,6 +135,14 @@ if (!isset($utilisateur)):?>
             <br>• 1 chiffre • 1 symbole parmi .*?!%@=$£\[]+
             <br>• Ne doit pas contenir le pseudo
         </small>
+
+        <?php
+        // Affichage des erreurs de validation
+        if (isset($validation) && $validation->getErrors()): ?>
+            <div class="alert alert-danger">
+                <?= $validation->listErrors() ?>
+            </div>
+        <?php endif; ?>
     </div>
 
     <?= anchor(base_url('connexion'), "J'ai déjà un compte") ?>
