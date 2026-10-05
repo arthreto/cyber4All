@@ -1,0 +1,13 @@
+:root{
+    --grey_sous_titre: #d1d5db;
+    --black_font: #000000;
+    --blu_titre: #38a2d3;
+}
+
+
+.presentation{
+
+    top: 150px;
+    left: 150px;
+    font-size: 25px;
+}
