@@ -1,4 +1,4 @@
-#.env
+.env
 writable/logs/*
 writable/debugar/*
 writable/session/*
