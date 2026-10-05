@@ -15,8 +15,12 @@ if (!isset($utilisateur)):?>
         echo form_open('connexion', $dataForm);
         ?>
         <h1>Se connecter</h1>
-        <?php if (isset($_GET['erreur']) && $_GET['erreur'] == 99): ?>
-            <h2>Utilisateur non identifié, mot de passe ou pseudo incorrect</h2>
+
+<!--        --><?php //if (isset($_GET['erreur']) && $_GET['erreur'] == 99): ?>
+<!--            <h2>Utilisateur non identifié, mot de passe ou pseudo incorrect</h2>-->
+<!--        --><?php //endif; ?>
+        <?php if (isset($erreur)): ?>
+            <h2><?= $erreur ?></h2>
         <?php endif; ?>
 
         <div class="input-wrapper">
@@ -74,6 +78,14 @@ if (!isset($utilisateur)):?>
             </div>
             <small class="champIndication">Minimum 13 caractères</small>
         </div>
+
+        <?php
+        // Affichage des erreurs de validation
+        if (isset($validation) && $validation->getErrors()): ?>
+            <div class="alert alert-danger">
+                <?= $validation->listErrors() ?>
+            </div>
+        <?php endif; ?>
 
         <?php //= anchor(base_url(),'Mot de passe oublié ?') ?>
         <?php

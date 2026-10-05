@@ -25,6 +25,22 @@ class ConnexionController extends BaseController
     }
 
     /**
+     * Permet d'affiché des erreurs sur la page
+     * @since 1.0.0
+     * @package Cyber4all
+     *
+     */
+    public function errorOnPage($errorMessage) {
+        log_message('warning', 'Erreurs de validation connexion d Id: ' . $errorMessage);
+        return view('header', $data ?? [])
+            . view('notice')
+            . view('connexion/connexion', [
+                'erreur' => $errorMessage,
+            ])
+            . view('footer');
+    }
+
+    /**
      * Permet de connecter l'utilisateur à son compte s'il est identifié
      * @since 1.0.0
      * @package Cyber4all
@@ -33,10 +49,41 @@ class ConnexionController extends BaseController
     public function connexion()
     {
         // TO_DO
-        return view('header', $data ?? [])
-            . view('notice')
-            . view('connexion/connexion')
-            . view('footer');
+
+        $rulesConnexion = [
+            'identifiant' => [
+                'rules' => 'required|min_length[3]|max_length[13]',
+                'errors' => [
+                    'required' => 'Login obligatoire',
+                    'min_length' => '3 caractères minimum',
+                    'max_length' => '13 caractères maximum'
+                ]
+            ],
+            'mdp' => [
+                'rules' => 'required|min_length[13]',
+                'errors' => [
+                    'required' => 'Mot de passe obligatoire',
+                    'min_length' => '13 caractères minimum'
+                ]
+            ]
+        ];
+
+        if (!$this->validate($rulesConnexion)) {
+            log_message('warning', 'Erreurs de validation connexion: ' . json_encode($this->validator->getErrors()));
+            return view('header', $data ?? [])
+                . view('notice')
+                . view('connexion/connexion', [
+                    'validation' => $this->validator
+                ])
+                . view('footer');
+        }
+
+        return $this->errorOnPage('Utilisateur ou mail déjà utilisé');
+
+//        return view('header', $data ?? [])
+//            . view('notice')
+//            . view('connexion/connexion')
+//            . view('footer');
     }
 
     /**
