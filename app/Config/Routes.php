@@ -47,3 +47,8 @@ $routes->group('floribondant', static function ($routes) {
     $routes->post('signalement/supprimer', 'SignalementController::supprimerSignalement');
     $routes->match(['GET','POST'], 'utilisateurs', 'admin\AdminUtilisateurController::index');
 });
+// Gestion du GROUPE C
+$routes->group('groupeC', static function ($routes) {
+    $routes->match(['GET', 'POST'], '/', 'Groupe_C_Admin::GroupeC_Admin');
+
+});
