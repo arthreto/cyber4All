@@ -1,0 +1,355 @@
+/* ==========================================================================
+   QUIZ CONCEPT – panel d'administration (groupe C)
+
+   Comment ça marche :
+   - Tout le HTML du panel est dans <div class="quiz-concept"> ... </div>
+   - Chaque style est écrit sous la forme ".quiz-concept .nom"
+     -> ça ne change RIEN sur les pages des autres groupes.
+   - Pour changer une couleur, modifie les "COULEURS" juste en dessous.
+   ========================================================================== */
+
+
+/* ---------- 1. COULEURS (à modifier ici) ---------- */
+.quiz-concept {
+    --violet-1: #667eea;                       /* bleu-violet du site */
+    --violet-2: #764ba2;                       /* violet foncé du site */
+    --degrade: linear-gradient(135deg, #667eea, #764ba2);
+
+    --texte: #2d3748;       /* texte principal */
+    --gris: #718096;        /* texte secondaire */
+    --trait: #e8eaf3;       /* petites lignes de séparation */
+    --fond: #f7f8fc;        /* fond de la page */
+    --blanc: #ffffff;
+
+    --vert: #10b981;        /* badge "publié" */
+    --rouge: #e53e3e;       /* erreurs, bouton supprimer */
+    --rose-clair: #fee2e2;  /* fond du bouton supprimer */
+
+    /* Les 4 concepts : couleur du texte + couleur du fond */
+    --couleur-d: #b7791f;   --fond-d: #fdf3dc;   /* Disponibilité  */
+    --couleur-i: #0f8a78;   --fond-i: #dcf5f0;   /* Intégrité      */
+    --couleur-c: #5a4bd6;   --fond-c: #e9e6fc;   /* Confidentialité */
+    --couleur-t: #c0306d;   --fond-t: #fde4ee;   /* Traçabilité    */
+
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 28px 20px 56px;
+    color: var(--texte);
+    font-family: "Segoe UI", Arial, sans-serif;
+    line-height: 1.5;
+    box-sizing: border-box;
+}
+.quiz-concept *, .quiz-concept *::before, .quiz-concept *::after { box-sizing: border-box; }
+
+
+/* ---------- 2. EN-TÊTE (titre + bouton "Ajouter") ---------- */
+.quiz-concept .entete {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 26px;
+}
+.quiz-concept .petit-titre {            /* petite ligne au-dessus du titre */
+    margin: 0 0 6px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--violet-2);
+}
+.quiz-concept .titre {                  /* "Gestion des termes" */
+    margin: 0;
+    font-size: 38px;
+    font-weight: 800;
+    line-height: 1.1;
+}
+.quiz-concept .sous-titre {             /* phrase sous le titre */
+    margin: 8px 0 0;
+    max-width: 56ch;
+    color: var(--gris);
+}
+
+
+/* ---------- 3. BOUTONS ---------- */
+.quiz-concept .bouton {                 /* base de tous les boutons */
+    display: inline-block;
+    padding: 10px 20px;
+    border: 0;
+    border-radius: 999px;
+    font: inherit;
+    font-weight: 600;
+    font-size: 15px;
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+}
+.quiz-concept .bouton-principal {       /* violet : Ajouter, Enregistrer */
+    color: #fff;
+    background: var(--degrade);
+    box-shadow: 0 6px 16px rgba(118, 75, 162, .28);
+}
+.quiz-concept .bouton-principal:hover { opacity: .9; }
+.quiz-concept .bouton-annuler {         /* blanc avec contour : Annuler */
+    color: var(--violet-1);
+    background: transparent;
+    border: 1.5px solid var(--trait);
+}
+.quiz-concept .bouton-annuler:hover { background: var(--fond); }
+.quiz-concept .bouton-modifier {        /* petit bouton bleu clair */
+    padding: 6px 14px;
+    font-size: 13px;
+    color: var(--violet-1);
+    background: #eef0fd;
+}
+.quiz-concept .bouton-supprimer {       /* petit bouton rose */
+    padding: 6px 14px;
+    font-size: 13px;
+    color: var(--rouge);
+    background: var(--rose-clair);
+}
+
+
+/* ---------- 4. DEUX COLONNES (liste à gauche, formulaire à droite) ---------- */
+.quiz-concept .colonnes {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 24px;
+    align-items: start;
+}
+.quiz-concept .carte {                  /* boîte blanche arrondie */
+    background: var(--blanc);
+    border-radius: 14px;
+    box-shadow: 0 4px 18px rgba(102, 126, 234, .12);
+    overflow: hidden;
+}
+
+
+/* ---------- 5. RECHERCHE + FILTRE ---------- */
+.quiz-concept .barre-outils {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 16px;
+    border-bottom: 1px solid var(--trait);
+}
+.quiz-concept .recherche { flex: 1 1 220px; }
+.quiz-concept .filtre {                 /* liste déroulante des catégories */
+    flex: 0 1 220px;
+    padding: 10px 14px;
+    font: inherit;
+    color: var(--texte);
+    background: var(--blanc);
+    border: 1.5px solid var(--trait);
+    border-radius: 999px;
+}
+
+
+/* ---------- 6. TABLEAU ---------- */
+.quiz-concept .tableau-defilant {       /* permet de faire défiler le tableau */
+    max-height: 560px;
+    overflow: auto;
+}
+.quiz-concept .tableau {
+    width: 100%;
+    min-width: 520px;
+    border-collapse: collapse;
+}
+.quiz-concept .tableau th {             /* ligne d'en-tête violette */
+    position: sticky;
+    top: 0;
+    padding: 13px 16px;
+    text-align: left;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: #fff;
+    background: var(--degrade);
+}
+.quiz-concept .tableau td {
+    padding: 14px 16px;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--trait);
+}
+.quiz-concept .tableau tr:hover td { background: #f9faff; }
+.quiz-concept .nom-terme {              /* nom du terme en bleu-violet */
+    margin: 0;
+    font-weight: 700;
+    color: var(--violet-1);
+}
+.quiz-concept .definition-terme {       /* petite définition en gris */
+    margin: 2px 0 0;
+    font-size: 14px;
+    color: var(--gris);
+}
+.quiz-concept .actions {                /* boutons Modifier / Supprimer */
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+
+/* ---------- 7. PUCES D / I / C / T ---------- */
+.quiz-concept .puces { display: flex; gap: 6px; flex-wrap: wrap; }
+.quiz-concept .puce {
+    display: inline-block;
+    min-width: 28px;
+    padding: 3px 8px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 800;
+}
+.quiz-concept .puce-d { color: var(--couleur-d); background: var(--fond-d); }
+.quiz-concept .puce-i { color: var(--couleur-i); background: var(--fond-i); }
+.quiz-concept .puce-c { color: var(--couleur-c); background: var(--fond-c); }
+.quiz-concept .puce-t { color: var(--couleur-t); background: var(--fond-t); }
+
+
+/* ---------- 8. PAGINATION (1 2 3 Next Last) ---------- */
+.quiz-concept .pagination {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    padding: 16px;
+    border-top: 1px solid var(--trait);
+}
+.quiz-concept .pagination a,
+.quiz-concept .pagination span {
+    min-width: 36px;
+    padding: 7px 10px;
+    border-radius: 999px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--texte);
+    text-decoration: none;
+}
+.quiz-concept .pagination a:hover { background: var(--fond); }
+.quiz-concept .pagination .page-actuelle {   /* page en cours */
+    color: #fff;
+    background: var(--degrade);
+}
+
+
+/* ---------- 9. FORMULAIRE (colonne de droite) ---------- */
+.quiz-concept .carte-titre {            /* bandeau violet en haut du formulaire */
+    padding: 16px 20px;
+    color: #fff;
+    background: var(--degrade);
+}
+.quiz-concept .carte-titre h2 { margin: 0; font-size: 18px; }
+.quiz-concept .carte-titre p  { margin: 2px 0 0; font-size: 13px; opacity: .85; }
+.quiz-concept .formulaire { padding: 8px 20px 22px; }
+.quiz-concept .champ { margin-top: 16px; }          /* un champ = étiquette + saisie */
+.quiz-concept .etiquette {                          /* texte au-dessus d'un champ */
+    display: block;
+    margin-bottom: 6px;
+    font-size: 14px;
+    font-weight: 600;
+}
+.quiz-concept .obligatoire { color: var(--rouge); } /* l'étoile * */
+.quiz-concept .saisie,                              /* ligne de texte */
+.quiz-concept .zone-texte {                         /* grande zone de texte */
+    width: 100%;
+    padding: 10px 14px;
+    font: inherit;
+    color: var(--texte);
+    background: var(--blanc);
+    border: 1.5px solid var(--trait);
+    border-radius: 10px;
+}
+.quiz-concept .zone-texte { min-height: 110px; resize: vertical; }
+.quiz-concept .saisie:focus,
+.quiz-concept .zone-texte:focus,
+.quiz-concept .filtre:focus {
+    outline: none;
+    border-color: var(--violet-1);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, .18);
+}
+.quiz-concept .aide   { margin: 6px 0 0; font-size: 13px; color: var(--gris); }
+.quiz-concept .erreur { margin: 6px 0 0; font-size: 13px; font-weight: 600; color: var(--rouge); }
+.quiz-concept .saisie.invalide,
+.quiz-concept .zone-texte.invalide { border-color: var(--rouge); }
+.quiz-concept .boutons-formulaire {                 /* Annuler + Enregistrer */
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 22px;
+    flex-wrap: wrap;
+}
+
+
+/* ---------- 10. CASES À COCHER DES 4 CONCEPTS ---------- */
+.quiz-concept .choix {                  /* grille 2 x 2 */
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+.quiz-concept .choix-case {             /* une case = un concept */
+    position: relative;
+    display: block;
+    cursor: pointer;
+}
+.quiz-concept .choix-case input {       /* la vraie case est cachée mais cliquable */
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+.quiz-concept .choix-contenu {          /* ce qu'on voit : lettre + nom + signe */
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    font-size: 14px;
+    font-weight: 600;
+    background: var(--blanc);
+    border: 1.5px solid var(--trait);
+    border-radius: 10px;
+}
+.quiz-concept .choix-contenu::after {   /* "+" quand non coché */
+    content: "+";
+    margin-left: auto;
+    color: var(--gris);
+}
+.quiz-concept .choix-case input:checked + .choix-contenu::after { content: "✓"; color: inherit; }
+.quiz-concept .lettre {                 /* le petit carré avec D, I, C ou T */
+    display: inline-block;
+    width: 26px;
+    padding: 2px 0;
+    border-radius: 7px;
+    text-align: center;
+    font-weight: 800;
+    font-size: 13px;
+}
+.quiz-concept .choix-d .lettre { color: var(--couleur-d); background: var(--fond-d); }
+.quiz-concept .choix-i .lettre { color: var(--couleur-i); background: var(--fond-i); }
+.quiz-concept .choix-c .lettre { color: var(--couleur-c); background: var(--fond-c); }
+.quiz-concept .choix-t .lettre { color: var(--couleur-t); background: var(--fond-t); }
+/* quand la case est cochée : le contour et le fond prennent la couleur du concept */
+.quiz-concept .choix-d input:checked + .choix-contenu { color: var(--couleur-d); border-color: var(--couleur-d); background: var(--fond-d); }
+.quiz-concept .choix-i input:checked + .choix-contenu { color: var(--couleur-i); border-color: var(--couleur-i); background: var(--fond-i); }
+.quiz-concept .choix-c input:checked + .choix-contenu { color: var(--couleur-c); border-color: var(--couleur-c); background: var(--fond-c); }
+.quiz-concept .choix-t input:checked + .choix-contenu { color: var(--couleur-t); border-color: var(--couleur-t); background: var(--fond-t); }
+
+
+/* ---------- 11. MESSAGES (succès / erreur) ---------- */
+.quiz-concept .message { margin-bottom: 18px; padding: 12px 16px; border-radius: 10px; font-weight: 600; font-size: 14px; }
+.quiz-concept .message-ok     { color: #0b6b4b; background: #d1fae5; }
+.quiz-concept .message-erreur { color: var(--rouge); background: var(--rose-clair); }
+
+
+/* ---------- 12. TÉLÉPHONE / PETIT ÉCRAN ---------- */
+@media (max-width: 960px) {
+    .quiz-concept .colonnes { grid-template-columns: 1fr; }   /* le formulaire passe en dessous */
+}
+@media (max-width: 520px) {
+    .quiz-concept { padding: 18px 12px 40px; }
+    .quiz-concept .choix { grid-template-columns: 1fr; }
+    .quiz-concept .entete .bouton { width: 100%; }
+}
