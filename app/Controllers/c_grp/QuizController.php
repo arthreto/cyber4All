@@ -13,4 +13,5 @@ class QuizController extends BaseController
             . view('footer');
 
     }
+
 }
