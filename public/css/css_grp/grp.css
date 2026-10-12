@@ -1,13 +1,176 @@
 :root{
     --grey_sous_titre: #d1d5db;
     --black_font: #000000;
-    --blu_titre: #38a2d3;
+    --blu_quiz: #38a2d3;
+    --blu_background: #9fd3e8;
+
+}
+
+/* css/css_grp/grp.css */
+
+
+
+main {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.presentation {
+    flex: 0 0 50%;            /* exactement la moitié, pas flex: 1 */
+    max-width: 50%;
+    margin: 0;                /* pas de marge : elle ferait dépasser 100% */
+    padding: 50px;            /* l'espace passe en padding (box-sizing: border-box est déjà global) */
 }
 
 
-.presentation{
-
-    top: 150px;
-    left: 150px;
-    font-size: 25px;
+.image_dict {
+    flex: 1;
+    max-width: 50%;
 }
+
+/* 3. Les blocs internes */
+.titre_quiz {
+
+    text-align: left;
+    font-size: 30px;
+}
+.sous_titre{
+
+    text-align: left;
+    font-size: 20px;
+}
+.nom_train{
+    font-size: 15px;
+    color : var(--blu_quiz)
+}
+.span_titre{
+    color : var(--blu_quiz);
+}
+
+
+.image_dict {
+    flex: 0 0 50%;            /* l'autre moitié */
+    max-width: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* panneau */
+.panneau {
+    flex: none;
+    width: 100%;
+    max-width: 1500px;
+    margin: 40px auto;        /* centré */
+    padding: 30px;
+    background: white;
+    border: 1px solid #243038;
+    border-radius: 12px;
+    color: black;
+}
+
+
+.cartes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+
+
+.carte {
+    --c: #f5a623;                 /* couleur par défaut */
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px;
+    border: 1px solid var(--c);
+    border-radius: 8px;
+
+}
+
+.carte--d { --c: #f5a623; }
+.carte--i { --c: #2fb89a; }
+.carte--c { --c: #7c6cf0; }
+.carte--t { --c: #e85d9c; }
+
+.lettre {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--c) 20%, transparent);
+    color: var(--c);
+    font-weight: bold;
+}
+
+/* ===== LIGNE 1 : texte à gauche, choix à droite ===== */
+.ligne-duree {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-top: 24px;
+}
+
+.ligne-duree h2 {
+    font-size: 22px;
+    color: black    ;
+}
+
+/* ===== CHOIX 5 / 10 / Tout ===== */
+.duree {
+    display: flex;
+    margin-left: auto;               /* collé à droite */
+    padding: 4px;
+    border: 1px solid #243038;
+    border-radius: 6px;
+}
+
+.duree input {
+    display: none;
+}
+
+.duree span {
+    display: block;
+    padding: 10px 22px;
+    border-radius: 4px;
+    color: #5b8aa0;
+    cursor: pointer;
+}
+
+.duree input:checked + span {
+    background: var(--blu_background);
+    color: black;
+    font-weight: bold;
+}
+
+/* ===== LIGNE 2 : bouton seul, en dessous, à droite ===== */
+.ligne-bouton {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+    margin-top: 24px;
+}
+
+.btn-lancer {
+    padding: 14px 24px;
+    background: var(--blu_background);
+    color: black;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.btn-lancer:hover {
+    filter: brightness(1.1);
+}
+
+
