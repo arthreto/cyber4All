@@ -11,7 +11,7 @@
             <h1 class="titre">Gestion des termes</h1>
             <p class="sous-titre">Ajoute, modifie et classe les termes utilisés dans le quiz DICT.</p>
         </div>
-        <a href="#formulaire" class="bouton bouton-principal">+ Ajouter un terme</a>
+        <a href="?creer=1#formulaire" class="bouton bouton-principal">+ Ajouter un terme</a>
     </div>
 
     <div class="colonnes">
@@ -38,15 +38,12 @@
                     <thead>
                     <tr><th>Terme et définition</th><th>Catégories</th><th>Actions</th></tr>
                     </thead>
+                    <tbody>
                     <?php foreach ($mots as $mot_cle) : ?>
-                        <?php $conceptCyber = $concept[$mot_cle['id']] ?? null;
-                        if (!$conceptCyber ||
-                                        !($conceptCyber['DISPONIBILITE'] ||
-                                        !$conceptCyber['INTEGRITE'] ||
-                                        !$conceptCyber['CONFIDENTIALITE'] ||
-                                        !$conceptCyber['TRACABILITE'])) continue;
+                        <?php
+                        $conceptCyber = $concept[$mot_cle['id']] ?? null;
+                        if (!$conceptCyber) continue;
                         ?>
-
                         <tr>
                             <td>
                                 <p class="nom-terme"><?= esc($mot_cle['mot']) ?></p>
@@ -54,24 +51,23 @@
                             </td>
                             <td>
                                 <div class="puces">
-                                    <?php if ($conceptCyber && $conceptCyber['DISPONIBILITE'] == 1): ?>
+                                    <?php if ($conceptCyber['DISPONIBILITE'] == 1): ?>
                                         <span class="puce puce-d">D</span>
                                     <?php endif; ?>
-                                    <?php if ($conceptCyber && $conceptCyber['INTEGRITE'] == 1): ?>
+                                    <?php if ($conceptCyber['INTEGRITE'] == 1): ?>
                                         <span class="puce puce-i">I</span>
                                     <?php endif; ?>
-                                    <?php if ($conceptCyber && $conceptCyber['CONFIDENTIALITE'] == 1): ?>
+                                    <?php if ($conceptCyber['CONFIDENTIALITE'] == 1): ?>
                                         <span class="puce puce-c">C</span>
                                     <?php endif; ?>
-                                    <?php if ($conceptCyber && $conceptCyber['TRACABILITE'] == 1): ?>
+                                    <?php if ($conceptCyber['TRACABILITE'] == 1): ?>
                                         <span class="puce puce-t">T</span>
                                     <?php endif; ?>
                                 </div>
                             </td>
                             <td>
                                 <div class="actions">
-                                    <button class="bouton bouton-modifier">Modifier</button>
-                                    <button class="bouton bouton-supprimer">Supprimer</button>
+                                    <a href="?modifier=<?= $mot_cle['id'] ?>#formulaire" class="bouton bouton-modifier">Modifier</a>
                                 </div>
                             </td>
                         </tr>
@@ -82,69 +78,126 @@
 
         </div>
 
-        <!-- ===== COLONNE DROITE : le formulaire ===== -->
-        <div class="carte" id="formulaire">
+        <!-- ===== COLONNE DROITE ===== -->
+        <?php if (!empty($edition)): ?>
 
-            <div class="carte-titre">
-                <h2>Ajouter un terme</h2>
-                <p>Nouveau contenu pour le quiz</p>
-            </div>
+            <!-- Modification des catégories d'un terme -->
+            <div class="carte" id="formulaire">
 
-            <div class="formulaire">
-
-                <div class="champ">
-                    <label class="etiquette" for="nom">Nom du terme <span class="obligatoire">*</span></label>
-                    <input class="saisie" id="nom" type="text" placeholder="Ex. : Journalisation">
+                <div class="carte-titre">
+                    <h2>Modifier les concepts cyber</h2>
+                    <p><?= esc($edition['mot']) ?></p>
                 </div>
 
-                <div class="champ">
-                    <label class="etiquette" for="definition">Définition <span class="obligatoire">*</span></label>
-                    <textarea class="zone-texte" id="definition" placeholder="Une phrase claire, niveau débutant"></textarea>
-                </div>
+                <form class="formulaire" method="post" action="<?= base_url('groupe_c/admin/modifier') ?>">
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="id_mot_cle" value="<?= esc($edition['id']) ?>">
 
-                <div class="champ">
-                    <span class="etiquette">Catégorie(s) associée(s) <span class="obligatoire">*</span></span>
-                    <div class="choix">
-
-                        <label class="choix-case choix-d">
-                            <input type="checkbox" name="categories[]" value="1">
-                            <span class="choix-contenu"><span class="lettre">D</span> Disponibilité</span>
-                        </label>
-
-                        <label class="choix-case choix-i">
-                            <input type="checkbox" name="categories[]" value="2">
-                            <span class="choix-contenu"><span class="lettre">I</span> Intégrité</span>
-                        </label>
-
-                        <label class="choix-case choix-c">
-                            <input type="checkbox" name="categories[]" value="3">
-                            <span class="choix-contenu"><span class="lettre">C</span> Confidentialité</span>
-                        </label>
-
-                        <label class="choix-case choix-t">
-                            <input type="checkbox" name="categories[]" value="4">
-                            <span class="choix-contenu"><span class="lettre">T</span> Traçabilité</span>
-                        </label>
-
+                    <div class="champ">
+                        <div class="choix">
+                            <label class="choix-case choix-d">
+                                <input type="checkbox" name="DISPONIBILITE" value="1"
+                                        <?= !empty($conceptEdition['DISPONIBILITE']) ? 'checked' : '' ?>>
+                                <span class="choix-contenu"><span class="lettre">D</span> Disponibilité</span>
+                            </label>
+                            <label class="choix-case choix-i">
+                                <input type="checkbox" name="INTEGRITE" value="1"
+                                        <?= !empty($conceptEdition['INTEGRITE']) ? 'checked' : '' ?>>
+                                <span class="choix-contenu"><span class="lettre">I</span> Intégrité</span>
+                            </label>
+                            <label class="choix-case choix-c">
+                                <input type="checkbox" name="CONFIDENTIALITE" value="1"
+                                        <?= !empty($conceptEdition['CONFIDENTIALITE']) ? 'checked' : '' ?>>
+                                <span class="choix-contenu"><span class="lettre">C</span> Confidentialité</span>
+                            </label>
+                            <label class="choix-case choix-t">
+                                <input type="checkbox" name="TRACABILITE" value="1"
+                                        <?= !empty($conceptEdition['TRACABILITE']) ? 'checked' : '' ?>>
+                                <span class="choix-contenu"><span class="lettre">T</span> Traçabilité</span>
+                            </label>
+                        </div>
                     </div>
-                    <p class="aide">Un terme peut avoir plusieurs catégories.</p>
-                </div>
 
-                <div class="champ">
-                    <label class="etiquette" for="pourquoi">Pourquoi ces catégories ?</label>
-                    <textarea class="zone-texte" id="pourquoi" placeholder="Explication affichée après la réponse du quiz"></textarea>
-                </div>
-
-                <div class="boutons-formulaire">
-                    <button type="button" class="bouton bouton-annuler">Annuler</button>
-                    <button type="submit" class="bouton bouton-principal">Enregistrer</button>
-                </div>
-
+                    <div class="boutons-formulaire">
+                        <a href="<?= current_url() ?>" class="bouton bouton-annuler">Annuler</a>
+                        <button type="submit" class="bouton bouton-principal">Enregistrer</button>
+                    </div>
+                </form>
             </div>
-        </div>
+
+        <?php elseif ($creation): ?>
+
+            <!-- Création d'un terme -->
+            <div class="carte" id="formulaire">
+
+                <div class="carte-titre">
+                    <h2>Ajouter un terme</h2>
+                    <p>Nouveau contenu pour le quiz</p>
+                </div>
+
+                <div class="formulaire">
+
+                    <div class="champ">
+                        <label class="etiquette" for="nom">Nom du terme <span class="obligatoire">*</span></label>
+                        <input class="saisie" id="nom" type="text" placeholder="Ex. : Journalisation">
+                    </div>
+
+                    <div class="champ">
+                        <label class="etiquette" for="definition">Définition <span class="obligatoire">*</span></label>
+                        <textarea class="zone-texte" id="definition" placeholder="Une phrase claire, niveau débutant"></textarea>
+                    </div>
+
+                    <div class="champ">
+                        <span class="etiquette">Catégorie(s) associée(s) <span class="obligatoire">*</span></span>
+                        <div class="choix">
+                            <label class="choix-case choix-d">
+                                <input type="checkbox" name="categories[]" value="1">
+                                <span class="choix-contenu"><span class="lettre">D</span> Disponibilité</span>
+                            </label>
+                            <label class="choix-case choix-i">
+                                <input type="checkbox" name="categories[]" value="2">
+                                <span class="choix-contenu"><span class="lettre">I</span> Intégrité</span>
+                            </label>
+                            <label class="choix-case choix-c">
+                                <input type="checkbox" name="categories[]" value="3">
+                                <span class="choix-contenu"><span class="lettre">C</span> Confidentialité</span>
+                            </label>
+                            <label class="choix-case choix-t">
+                                <input type="checkbox" name="categories[]" value="4">
+                                <span class="choix-contenu"><span class="lettre">T</span> Traçabilité</span>
+                            </label>
+                        </div>
+                        <p class="aide">Un terme peut avoir plusieurs catégories.</p>
+                    </div>
+
+                    <div class="champ">
+                        <label class="etiquette" for="pourquoi">Pourquoi ces catégories ?</label>
+                        <textarea class="zone-texte" id="pourquoi" placeholder="Explication affichée après la réponse du quiz"></textarea>
+                    </div>
+
+                    <div class="boutons-formulaire">
+                        <a href="<?= current_url() ?>" class="bouton bouton-annuler">Annuler</a>
+                        <button type="submit" class="bouton bouton-principal">Enregistrer</button>
+                    </div>
+
+                </div>
+            </div>
+
+        <?php else: ?>
+
+            <!-- Écran par défaut -->
+            <div class="carte" id="formulaire">
+                <div class="vide">
+                    <div class="vide-icone">+</div>
+                    <h2>Sélectionne un terme</h2>
+                    <p>Choisis une ligne à modifier ou crée une nouvelle notion.</p>
+                    <a href="?creer=1#formulaire" class="bouton bouton-principal">Créer un terme</a>
+                </div>
+            </div>
+
+        <?php endif; ?>
 
     </div>
 </div>
 
 </body>
-
