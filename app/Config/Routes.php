@@ -17,6 +17,11 @@ $routes->group('glossaire', static function ($routes) {
     $routes->match(['GET', 'POST'], 'categorie/(:num)', 'GlossaireController::afficherCategorie/$1');
 });
 
+//Quiz
+$routes->group('quiz', static function ($routes) {
+    $routes->get('/', 'c_grp\QuizController::AfficherQuiz');
+});
+
 //Gestion de l'espace de connexion
 $routes->match(['GET', 'POST'], '/connexion', 'ConnexionController::connexion');
 $routes->get('/deconnexion', 'ConnexionController::deconnexion');

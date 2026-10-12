@@ -104,6 +104,16 @@ endif;
                                 ]
                         ) ?>
                     </li>
+                    <li class="menu-nav__item">
+                            <?= anchor(
+                                    base_url('quiz'),
+                                    'Quiz',
+                                    [
+                                            'title'=>"Tout le lexique de la cybersécurité",
+                                            'class'=>"menu-nav__lien"
+                                    ]
+                            ) ?>
+                    </li>
                     <?php endif; ?>
                 </ul>
             </nav>
