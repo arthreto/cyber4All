@@ -89,7 +89,7 @@
                     <p><?= esc($edition['mot']) ?></p>
                 </div>
 
-                <form class="formulaire" method="post" action="<?= base_url('groupe_c/admin/modifier') ?>">
+                <form class="formulaire" method="post" action="<?= base_url('floribondant/groupe_c/admin/modifier') ?>">
                     <?= csrf_field() ?>
                     <input type="hidden" name="id_mot_cle" value="<?= esc($edition['id']) ?>">
 

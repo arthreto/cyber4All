@@ -74,6 +74,6 @@ class Groupe_C_Admin extends BaseController
             'TRACABILITE'     => $this->request->getPost('TRACABILITE') ? 1 : 0,
         ]);
 
-        return redirect()->to(base_url('groupe_c/groupe_c_ADMIN/groupe_c_admin'));
+        return redirect()->to(base_url('floribondant/QuizzConcept'));
     }
 }
