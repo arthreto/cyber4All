@@ -40,7 +40,7 @@
 
                 <span class="lettre">D</span>
                 <span><strong>Disponibilité</strong><br><small>Est-ce accessible ?</small>
-
+                    $nbD
                 </span>
             </label>
             <label class="carte carte--i">
