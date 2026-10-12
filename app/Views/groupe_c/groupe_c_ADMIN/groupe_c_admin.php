@@ -35,68 +35,37 @@
                     <thead>
                     <tr><th>Terme et définition</th><th>Catégories</th><th>Actions</th></tr>
                     </thead>
-                    <tbody>
-
-                    <tr>
-                        <td>
-                            <p class="nom-terme">Chiffrement AES</p>
-                            <p class="definition-terme">Algorithme qui transforme des données en texte illisible sans la clé.</p>
-                        </td>
-                        <td><div class="puces"><span class="puce puce-c">C</span></div></td>
-                        <td><div class="actions">
-                                <button class="bouton bouton-modifier">Modifier</button>
-                                <button class="bouton bouton-supprimer">Supprimer</button>
-                            </div></td>
-                    </tr>
-
-                    <tr>
-                        <td>
-                            <p class="nom-terme">Hash SHA-256</p>
-                            <p class="definition-terme">Empreinte de taille fixe calculée à partir d'un fichier ou d'un message.</p>
-                        </td>
-                        <td><div class="puces"><span class="puce puce-i">I</span></div></td>
-                        <td><div class="actions">
-                                <button class="bouton bouton-modifier">Modifier</button>
-                                <button class="bouton bouton-supprimer">Supprimer</button>
-                            </div></td>
-                    </tr>
-
-                    <tr>
-                        <td>
-                            <p class="nom-terme">Attaque DDoS</p>
-                            <p class="definition-terme">Des milliers de machines saturent un service de requêtes.</p>
-                        </td>
-                        <td><div class="puces"><span class="puce puce-d">D</span></div></td>
-                        <td><div class="actions">
-                                <button class="bouton bouton-modifier">Modifier</button>
-                                <button class="bouton bouton-supprimer">Supprimer</button>
-                            </div></td>
-                    </tr>
-
-                    <tr>
-                        <td>
-                            <p class="nom-terme">Signature numérique</p>
-                            <p class="definition-terme">Preuve qu'un document vient bien de son auteur et n'a pas bougé.</p>
-                        </td>
-                        <td><div class="puces"><span class="puce puce-i">I</span><span class="puce puce-t">T</span></div></td>
-                        <td><div class="actions">
-                                <button class="bouton bouton-modifier">Modifier</button>
-                                <button class="bouton bouton-supprimer">Supprimer</button>
-                            </div></td>
-                    </tr>
-
-                    <tr>
-                        <td>
-                            <p class="nom-terme">Ransomware</p>
-                            <p class="definition-terme">Logiciel qui chiffre les fichiers et réclame une rançon.</p>
-                        </td>
-                        <td><div class="puces"><span class="puce puce-d">D</span><span class="puce puce-c">C</span></div></td>
-                        <td><div class="actions">
-                                <button class="bouton bouton-modifier">Modifier</button>
-                                <button class="bouton bouton-supprimer">Supprimer</button>
-                            </div></td>
-                    </tr>
-
+                    <?php foreach ($mots as $mot_cle) : ?>
+                        <?php $conceptCyber = $concept[$mot_cle['id']] ?? null; ?>
+                        <tr>
+                            <td>
+                                <p class="nom-terme"><?= esc($mot_cle['mot']) ?></p>
+                                <p class="definition-terme"><?= esc($mot_cle['definition']) ?></p>
+                            </td>
+                            <td>
+                                <div class="puces">
+                                    <?php if ($conceptCyber && $conceptCyber['DISPONIBILITE'] == 1): ?>
+                                        <span class="puce puce-d">D</span>
+                                    <?php endif; ?>
+                                    <?php if ($conceptCyber && $conceptCyber['INTEGRITE'] == 1): ?>
+                                        <span class="puce puce-i">I</span>
+                                    <?php endif; ?>
+                                    <?php if ($conceptCyber && $conceptCyber['CONFIDENTIALITE'] == 1): ?>
+                                        <span class="puce puce-c">C</span>
+                                    <?php endif; ?>
+                                    <?php if ($conceptCyber && $conceptCyber['TRACABILITE'] == 1): ?>
+                                        <span class="puce puce-t">T</span>
+                                    <?php endif; ?>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="actions">
+                                    <button class="bouton bouton-modifier">Modifier</button>
+                                    <button class="bouton bouton-supprimer">Supprimer</button>
+                                </div>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
                     </tbody>
                 </table>
             </div>
