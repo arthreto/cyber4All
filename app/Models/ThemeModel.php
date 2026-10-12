@@ -17,9 +17,9 @@ class ThemeModel extends Model
 {
     protected $DBGroup = 'tracabilite';
     protected $table = 'theme';
-    protected $primaryKey = 'idTheme';
+    protected $primaryKey = 'id';
     protected $useAutoIncrement = true;
-    protected $allowedFields = ['idTheme', 'nomTheme'];
+    protected $allowedFields = ['id', 'nom'];
     protected $returnType = \App\Entities\Theme::class;
 
     /**
@@ -42,7 +42,7 @@ class ThemeModel extends Model
         // Requête ordonnée par le champ mot en ASC
         try {
             log_message('error',count($this->findAll()));
-            return $this->orderBy('nomTheme', 'ASC')->findAll();
+            return $this->orderBy('nom', 'ASC')->findAll();
         } catch (DatabaseException $e) {
             log_message('error',"Erreur getAllCategories : " . $e->getMessage());
             return [];

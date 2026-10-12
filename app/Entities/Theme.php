@@ -18,16 +18,16 @@ class Theme extends Entity
      * Définition des types des attributs
      */
     protected $casts = [
-        'idTheme'            => 'integer', // ID du thème
-        'nomTheme'           => 'string',  // Nom du thème
+        'id'            => 'integer', // ID du thème
+        'nom'           => 'string',  // Nom du thème
     ];
 
     /**
      * Valeurs par défaut des attributs
      */
     protected $attributes = [
-        'idTheme'            => null,      // Valeur initiale nulle
-        'nomTheme'           => null,
+        'id'            => null,      // Valeur initiale nulle
+        'nom'           => null,
     ];
 
     /**
@@ -38,7 +38,7 @@ class Theme extends Entity
      */
     public function setNom(string $nom): self
     {
-        $this->attributes['nomTheme'] = $nom;
+        $this->attributes['nom'] = $nom;
         return $this;
     }
 
@@ -49,6 +49,6 @@ class Theme extends Entity
      */
     public function getNom(): ?string
     {
-        return $this->attributes['nomTheme'];
+        return $this->attributes['nom'];
     }
 }

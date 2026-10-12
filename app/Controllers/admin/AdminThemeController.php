@@ -56,11 +56,43 @@ class AdminThemeController extends BaseController
      */
     public function index()
     {
-        $data = [''];
+        $data = ['onglet' => 'questions'];
+
+        return view('header')
+            . view('notice')
+            . view('admin/tracabilite/onglets', $data)
+            . view('admin/tracabilite/adminQuestions')
+            . view('footer');
+    }
+
+    public function questionAjouter()
+    {
+
+        return view('header')
+            . view('notice')
+            . view('admin/tracabilite/formQuestion')
+            . view('footer');
+    }
+
+    public function quizSection()
+    {
+        $data = ['onglet' => 'quiz'];
 
         return view('header', $data)
             . view('notice')
-            . view('admin/tracabilite/adminSio')
+            . view('admin/tracabilite/onglets', $data)
+            . view('admin/tracabilite/adminQuiz')
+            . view('footer');
+    }
+
+    public function leconsSection()
+    {
+        $data = ['onglet' => 'lecons'];
+
+        return view('header', $data)
+            . view('notice')
+            . view('admin/tracabilite/onglets', $data)
+            . view('admin/tracabilite/adminLecons')
             . view('footer');
     }
 }

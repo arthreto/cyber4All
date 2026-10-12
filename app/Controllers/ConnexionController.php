@@ -143,6 +143,11 @@ class ConnexionController extends BaseController
         // TO_DO
         if (!$this->validate($this->rulesConnexion)) {
             log_message('warning', 'Erreurs de validation inscription: ' . json_encode($this->validator->getErrors()));
+
+            $data = [
+                'themeList' => $this->theme_model->getAllThemes(),
+            ];
+
             return view('header', $data ?? [])
                 . view('notice')
                 . view('connexion/inscription', [

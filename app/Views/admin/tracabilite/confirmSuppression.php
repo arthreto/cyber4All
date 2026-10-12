@@ -14,12 +14,12 @@
         <p>Elle sera retirée de tous ses quiz et les réponses déjà données seront supprimées. Cette action est irréversible.</p>
 
         <div class="sio-admin__ligne">
-            <?= form_open(base_url('floribondant/sio/questions/supprimer')) ?>
+            <?= form_open(base_url('floribondant/theme/questions/supprimer')) ?>
                 <?= form_hidden('id_question', '12') ?>
                 <?= form_hidden('confirmation', '1') ?>
                 <button type="submit" class="glossary-form__submit glossary-form__submit--refuser">Supprimer définitivement</button>
             <?= form_close() ?>
-            <a href="<?= base_url('floribondant/sio/questions') ?>" class="sio-admin__btn-secondaire">Annuler</a>
+            <a href="<?= base_url('floribondant/theme') ?>" class="sio-admin__btn-secondaire">Annuler</a>
         </div>
     </div>
 </div>

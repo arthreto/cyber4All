@@ -289,3 +289,54 @@
     outline: 2px solid var(--color-primary-blue);
     outline-offset: 2px;
 }
+
+/* ==========================================
+   Correctifs
+   ========================================== */
+
+/* Filtre : le bouton « Filtrer » reste à côté de la liste déroulante */
+.sio-admin__filtre {
+    flex-wrap: nowrap;
+}
+
+.sio-admin__filtre .sio-admin__champ {
+    flex: 0 1 300px;
+    min-width: 0;
+}
+
+.sio-admin__filtre .sio-admin__select {
+    min-width: 220px;
+}
+
+@media (max-width: 480px) {
+    .sio-admin__filtre {
+        flex-wrap: wrap;
+    }
+
+    .sio-admin__filtre .sio-admin__select {
+        min-width: 0;
+    }
+}
+
+/* Formulaire : .glossary-form (formMot.css) fait 1200px de large et sa grille
+   est prévue pour le formulaire des mots. On les neutralise dans l'admin SIO. */
+.sio-admin .glossary-form {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+}
+
+.sio-admin .glossary-form__header {
+    padding: 0 0 1rem;
+}
+
+.sio-admin .glossary-form__form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* Le bouton « Ajouter … » est un lien : pas de soulignement */
+.sio-admin .glossary-form__trigger {
+    text-decoration: none;
+}

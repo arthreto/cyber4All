@@ -14,19 +14,20 @@
 ?>
 <div class="sio-admin sio-admin--formulaire">
 
-    <a href="<?= base_url('floribondant/sio/questions') ?>" class="sio-admin__retour">← Retour aux questions</a>
+    <a href="<?= base_url('floribondant/theme') ?>" class="sio-admin__retour">← Retour aux questions</a>
 
     <div class="glossary-form">
         <div class="glossary-form__header">
-            <h2 class="glossary-form__dialog-title">Modifier la question</h2> <!-- À brancher : « Ajouter une question » si $question est vide -->
+            <h2 class="glossary-form__dialog-title"><?= (isset($question)) ? 'Modifier la question' : 'Ajouter une question' ?></h2>
         </div>
 
         <!-- Exemple d'erreur de validation (à afficher seulement si $errors n'est pas vide) -->
+
         <div class="sio-admin__erreur-globale" role="alert">
             <strong>Le formulaire contient 1 erreur.</strong> Corrigez le champ signalé puis enregistrez.
         </div>
 
-        <?= form_open_multipart(base_url('floribondant/sio/questions/update/12'), ['class' => 'glossary-form__form']) ?>
+        <?= form_open_multipart(base_url('floribondant/theme/questions/update/12'), ['class' => 'glossary-form__form']) ?>
 
         <!-- Quiz de la question -->
         <fieldset class="sio-admin__bloc-quiz">

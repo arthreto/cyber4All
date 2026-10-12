@@ -43,13 +43,18 @@ $routes->match(['GET', 'POST'], '/ajoutLien', 'LienUtileController::insert');
 // Gestion de l'espace administrateur'
 $routes->group('floribondant', static function ($routes) {
     $routes->match(['GET', 'POST'], 'mots', 'admin\AdminMotController::index');
-    $routes->match(['GET', 'POST'], 'theme', 'admin\AdminThemeController::index');
     $routes->match(['GET', 'POST'], 'mots/ajouter', 'admin\AdminMotController::addMotCle');
     $routes->match(['GET', 'POST'], 'mots/update/(:num)', 'admin\AdminMotController::updateMotCle/$1');
     $routes->match(['GET', 'POST'], 'mots/suppMot', 'admin\AdminMotController::suppMotCle');
     $routes->post('mots/switchStatutMotCle', 'admin\AdminMotController::switchStatutMotCle');
     $routes->match(['GET', 'POST'], 'mots/validations', 'admin\AdminMotController::afficherValidations');
     $routes->match(['GET', 'POST'], 'mots/validation/decision/(:num)', 'admin\AdminMotController::decisionMotCle/$1');
+
+    $routes->match(['GET', 'POST'], 'theme', 'admin\AdminThemeController::index');
+    $routes->match(['GET', 'POST'], 'theme/quiz', 'admin\AdminThemeController::quizSection');
+    $routes->match(['GET', 'POST'], 'theme/lecons', 'admin\AdminThemeController::leconsSection');
+    $routes->match(['GET', 'POST'], 'theme/questions/ajouter', 'admin\AdminThemeController::questionAjouter');
+
     $routes->post('signalement/supprimer', 'SignalementController::supprimerSignalement');
     $routes->match(['GET','POST'], 'utilisateurs', 'admin\AdminUtilisateurController::index');
 });
