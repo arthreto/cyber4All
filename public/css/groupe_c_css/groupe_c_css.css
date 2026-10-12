@@ -148,7 +148,7 @@
 
 /* ---------- 6. TABLEAU ---------- */
 .quiz-concept .tableau-defilant {       /* permet de faire défiler le tableau */
-    max-height: 560px;
+    max-height: 675px;
     overflow: auto;
 }
 .quiz-concept .tableau {

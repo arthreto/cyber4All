@@ -19,16 +19,19 @@
         <!-- ===== COLONNE GAUCHE : la liste ===== -->
         <div class="carte">
 
-            <div class="barre-outils">
-                <input class="saisie recherche" type="search" placeholder="Rechercher un terme ou une définition…">
-                <select class="filtre">
-                    <option>Toutes les catégories</option>
-                    <option>Disponibilité</option>
-                    <option>Intégrité</option>
-                    <option>Confidentialité</option>
-                    <option>Traçabilité</option>
+            <form method="get" class="barre-outils">
+                <input class="saisie recherche" type="search" name="recherche"
+                       value="<?= esc($_GET['recherche'] ?? '') ?>"
+                       placeholder="Rechercher un terme…">
+
+                <select class="filtre" name="concept" onchange="this.form.submit()">
+                    <option value="">Toutes les catégories</option>
+                    <option value="DISPONIBILITE" <?= ($_GET['concept'] ?? '') === 'DISPONIBILITE' ? 'selected' : '' ?>>Disponibilité</option>
+                    <option value="INTEGRITE" <?= ($_GET['concept'] ?? '') === 'INTEGRITE' ? 'selected' : '' ?>>Intégrité</option>
+                    <option value="CONFIDENTIALITE" <?= ($_GET['concept'] ?? '') === 'CONFIDENTIALITE' ? 'selected' : '' ?>>Confidentialité</option>
+                    <option value="TRACABILITE" <?= ($_GET['concept'] ?? '') === 'TRACABILITE' ? 'selected' : '' ?>>Traçabilité</option>
                 </select>
-            </div>
+            </form>
 
             <div class="tableau-defilant">
                 <table class="tableau">
@@ -36,7 +39,14 @@
                     <tr><th>Terme et définition</th><th>Catégories</th><th>Actions</th></tr>
                     </thead>
                     <?php foreach ($mots as $mot_cle) : ?>
-                        <?php $conceptCyber = $concept[$mot_cle['id']] ?? null; ?>
+                        <?php $conceptCyber = $concept[$mot_cle['id']] ?? null;
+                        if (!$conceptCyber ||
+                                        !($conceptCyber['DISPONIBILITE'] ||
+                                        !$conceptCyber['INTEGRITE'] ||
+                                        !$conceptCyber['CONFIDENTIALITE'] ||
+                                        !$conceptCyber['TRACABILITE'])) continue;
+                        ?>
+
                         <tr>
                             <td>
                                 <p class="nom-terme"><?= esc($mot_cle['mot']) ?></p>
@@ -70,13 +80,6 @@
                 </table>
             </div>
 
-            <div class="pagination">
-                <span class="page-actuelle">1</span>
-                <a href="#">2</a>
-                <a href="#">3</a>
-                <a href="#">Next</a>
-                <a href="#">Last</a>
-            </div>
         </div>
 
         <!-- ===== COLONNE DROITE : le formulaire ===== -->
