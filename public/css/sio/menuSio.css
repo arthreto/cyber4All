@@ -1,0 +1,96 @@
+/* ==========================================
+   Espace compréhension SIO
+   Menu déroulant « Comprendre les accès » du header
+   Sans JavaScript : <details>/<summary>, utilisable au clavier
+   (Entrée ou Espace sur le titre pour ouvrir / fermer).
+   Réutilise .menu-nav__lien et .dropdown-menu__item de header.css.
+   ========================================== */
+
+.menu-sio {
+    position: relative;
+}
+
+/* Titre du menu (le <summary>) */
+.menu-sio__titre {
+    cursor: pointer;
+    list-style: none;          /* retire le triangle natif (Firefox, Chrome) */
+    user-select: none;
+    white-space: nowrap;       /* le titre reste sur une ligne : le header ne bouge pas */
+}
+
+.menu-sio__titre::-webkit-details-marker {
+    display: none;             /* retire le triangle natif (Safari) */
+}
+
+.menu-sio__titre::after {
+    content: '▼';
+    display: inline-block;
+    font-size: 12px;
+    margin-left: 8px;
+    transition: transform 0.3s ease;
+}
+
+.menu-sio[open] > .menu-sio__titre {
+    color: var(--color-primary-blue);
+    background: var(--bg-hover-primary);
+}
+
+.menu-sio[open] > .menu-sio__titre::after {
+    transform: rotate(180deg);
+}
+
+.menu-sio__titre:focus-visible {
+    outline: 2px solid var(--color-primary-blue);
+    outline-offset: 2px;
+}
+
+/* Liste déroulante */
+.menu-sio__liste {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    z-index: 1001;
+    min-width: 260px;
+    margin: 0;
+    padding: 8px 0;
+    list-style: none;
+    background: var(--white);  /* fond opaque : le flou du header ne s'applique pas à un enfant */
+    border: 1px solid var(--border-glass-light);
+    border-radius: 12px;
+    box-shadow: 0 10px 40px var(--shadow-medium);
+}
+
+.menu-sio__liste li + li {
+    border-top: 1px solid var(--border-divider-light);
+}
+
+/* Séparateur avant l'entrée Quiz */
+.menu-sio__liste .menu-sio__separateur {
+    border-top-color: var(--border-divider-medium);
+}
+
+.menu-sio__quiz {
+    font-weight: 600;
+}
+
+.menu-sio__liste .dropdown-menu__item:focus-visible {
+    outline: 2px solid var(--color-primary-blue);
+    outline-offset: -2px;
+}
+
+/* Mobile : la liste s'ouvre dans le flux du menu hamburger */
+@media (max-width: 768px) {
+    .menu-sio__liste {
+        position: static;
+        min-width: 0;
+        padding: 0;
+        background: var(--bg-hover-primary);
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    .menu-sio__liste .dropdown-menu__item {
+        padding: 12px 40px;
+    }
+}

@@ -9,6 +9,7 @@ use App\Models\LienUtileModel;
 use App\Models\MotCle\GlossaireModel;
 use App\Models\MotCle\MotCleModel;
 use App\Models\MotCle\MotCleVoteModel;
+use App\Models\ThemeModel;
 use CodeIgniter\Exceptions\PageNotFoundException;
 use CodeIgniter\Session\Session;
 
@@ -27,6 +28,7 @@ class AccueilController extends BaseController
     protected Session $session;
     protected ?Utilisateur $utilisateur = null;
     protected MotCleVoteModel $motCleVote_model;
+    protected ThemeModel $theme_model;
 
 
     public function __construct()
@@ -36,6 +38,7 @@ class AccueilController extends BaseController
         $this->motCleVote_model = new motCleVoteModel();
         $this->glossaire_model = new GlossaireModel();
         $this->lienUtile_model = new LienUtileModel();
+        $this->theme_model = new ThemeModel();
         $this->session = session();
         $utilisateur = $this->session->get('utilisateur');
         if ($utilisateur && in_array($utilisateur->role, ['contributeur', 'admin'], true)) {
@@ -57,11 +60,16 @@ class AccueilController extends BaseController
      */
     public function index(): string
     {
+        error_log('contact');
+
         $data = [
             'motsAleatoires' => $this->glossaire_model->getGlossaireRand(10),
             'liensUtiles' => $this->lienUtile_model->getAllLiensUtiles(),
             'topMots' => $this->motCleVote_model->getMotsPopulairesSemainePrecedente(5),
+            'themeList' => $this->theme_model->getAllThemes(),
         ];
+
+        log_message('error',json_encode($data['themeList']));
 
         return view('header', $data)
             . view('notice')

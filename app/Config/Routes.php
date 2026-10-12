@@ -17,6 +17,11 @@ $routes->group('glossaire', static function ($routes) {
     $routes->match(['GET', 'POST'], 'categorie/(:num)', 'GlossaireController::afficherCategorie/$1');
 });
 
+// Gestion des leçons et thèmes
+$routes->group('theme', static function ($routes) {
+    $routes->get('/(:num)', 'ThemeController::afficherPageLecon/$1');
+});
+
 //Gestion de l'espace de connexion
 $routes->match(['GET', 'POST'], '/connexion', 'ConnexionController::connexion');
 $routes->get('/deconnexion', 'ConnexionController::deconnexion');
@@ -38,6 +43,7 @@ $routes->match(['GET', 'POST'], '/ajoutLien', 'LienUtileController::insert');
 // Gestion de l'espace administrateur'
 $routes->group('floribondant', static function ($routes) {
     $routes->match(['GET', 'POST'], 'mots', 'admin\AdminMotController::index');
+    $routes->match(['GET', 'POST'], 'theme', 'admin\AdminThemeController::index');
     $routes->match(['GET', 'POST'], 'mots/ajouter', 'admin\AdminMotController::addMotCle');
     $routes->match(['GET', 'POST'], 'mots/update/(:num)', 'admin\AdminMotController::updateMotCle/$1');
     $routes->match(['GET', 'POST'], 'mots/suppMot', 'admin\AdminMotController::suppMotCle');

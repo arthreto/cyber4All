@@ -23,6 +23,9 @@ endif;
     <!-- CSS -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?= link_tag(base_url('/css/style.css')) ?>
+    <?= link_tag(base_url('/css/sio/menuSio.css')) ?>
+    <?= link_tag(base_url('/css/sio/lecon.css')) ?>
+    <?= link_tag(base_url('/css/sio/adminSio.css')) ?>
     <script src="<?= base_url('/js/script.js')?>" defer></script>
     <link rel="icon" type="image/x-icon" href="<?= base_url("images/logos/cyber4all_nobg_notxt.png")?>">
 </head>
@@ -79,6 +82,16 @@ endif;
                                     ]
                             ) ?>
                         </li>
+                        <li class="menu-nav__item">
+                            <?= anchor(
+                                    base_url('floribondant/theme'),
+                                    'Traçabilité',
+                                    [
+                                            'title'=>"Se diriger vers l'espace d'administration",
+                                            'class'=>"menu-nav__lien"
+                                    ]
+                            ) ?>
+                        </li>
                     <?php else: ?>
 
                     <?php
@@ -103,6 +116,18 @@ endif;
                                         'class'=>"menu-nav__lien"
                                 ]
                         ) ?>
+                    </li>
+                    <!-- Espace compréhension SIO : menu déroulant sans JavaScript -->
+                    <li class="menu-nav__item menu-nav__item--sio">
+                        <details class="menu-sio">
+                            <summary class="menu-nav__lien menu-sio__titre">Comprendre les accès</summary>
+                            <ul class="menu-sio__liste">
+                                <?php foreach($themeList as $theme) {
+                                    echo '<li><a href="#" class="dropdown-menu__item" title="Première leçon du thème ', $theme->nomTheme, '">', $theme->nomTheme, '</a></li>';
+                                }; ?>
+                                <li class="menu-sio__separateur"><a href="#" class="dropdown-menu__item menu-sio__quiz" title="Choisir un quiz Vrai / Faux">Quiz Vrai / Faux</a></li>
+                            </ul>
+                        </details>
                     </li>
                     <?php endif; ?>
                 </ul>

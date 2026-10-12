@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use App\Entities\Utilisateur;
+use App\Models\ThemeModel;
 use App\Models\UtilisateurModel;
 use CodeIgniter\Config\Services;
 use CodeIgniter\HTTP\RedirectResponse;
@@ -20,6 +21,7 @@ use Config\App;
 class ConnexionController extends BaseController
 {
     protected Session $session;
+    protected ThemeModel $theme_model;
 
     protected array $rulesConnexion = [
         'identifiant' => [
@@ -42,6 +44,7 @@ class ConnexionController extends BaseController
     public function __construct()
     {
         $this->session = Services::session();
+        $this->theme_model = new ThemeModel();
     }
 
 
@@ -54,6 +57,11 @@ class ConnexionController extends BaseController
      */
     public function errorOnPage($page, $errorMessage) {
         log_message('warning', 'Erreurs de validation connexion d Id: ' . $errorMessage);
+
+        $data = [
+            'themeList' => $this->theme_model->getAllThemes(),
+        ];
+
         return view('header', $data ?? [])
             . view('notice')
             . view($page, [
@@ -74,6 +82,11 @@ class ConnexionController extends BaseController
 
         if (!$this->validate($this->rulesConnexion)) {
             log_message('warning', 'Erreurs de validation connexion: ' . json_encode($this->validator->getErrors()));
+
+            $data = [
+                'themeList' => $this->theme_model->getAllThemes(),
+            ];
+
             return view('header', $data ?? [])
                 . view('notice')
                 . view('connexion/connexion', [
@@ -94,7 +107,11 @@ class ConnexionController extends BaseController
 
         session()->set('utilisateur', $utilisateur);
 
-        return view('header', $data ?? [])
+        $data = [
+            'themeList' => $this->theme_model->getAllThemes(),
+        ];
+
+        return view('header', $data)
             . view('notice')
             . view('compte/compte')
             . view('footer');
@@ -148,7 +165,8 @@ class ConnexionController extends BaseController
             'pseudo' => $identifiant,
             'email' => $email,
             'mot_de_passe' => $mdp,
-            'role' => 'contributeur'
+            'role' => 'contributeur',
+            'themeList' => $this->theme_model->getAllThemes(),
         ];
         $utilisateurEntity = new Utilisateur();
         $utilisateur = $utilisateurEntity::creer($identifiant, $mdp, 'contributeur', $this->request->getPost('email'));
