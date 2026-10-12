@@ -51,4 +51,9 @@ $routes->group('floribondant', static function ($routes) {
     $routes->match(['GET', 'POST'], 'mots/validation/decision/(:num)', 'admin\AdminMotController::decisionMotCle/$1');
     $routes->post('signalement/supprimer', 'SignalementController::supprimerSignalement');
     $routes->match(['GET','POST'], 'utilisateurs', 'admin\AdminUtilisateurController::index');
+    $routes->match(['GET', 'POST'], 'QuizzConcept', 'Controllers_groupe_C\Groupe_C_Admin::GroupeC_Admin'); //ROUTE POUR L'ADMIN DU QUIZZ CONCEPT
+    $routes->post('groupe_c/admin/modifier', 'Controllers_groupe_C\Groupe_C_Admin::GroupeC_Modifier');
 });
+
+
+
