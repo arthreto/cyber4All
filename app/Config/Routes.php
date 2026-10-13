@@ -18,9 +18,8 @@ $routes->group('glossaire', static function ($routes) {
 });
 
 // Gestion des leçons et thèmes
-$routes->group('theme', static function ($routes) {
-    $routes->get('/(:num)', 'ThemeController::afficherPageLecon/$1');
-});
+$routes->get('theme/(:num)', 'ThemeController::afficherPageLecon/$1');
+$routes->get('theme/(:num)/(:num)', 'ThemeController::afficherPageLecon/$1/$2');
 
 //Gestion de l'espace de connexion
 $routes->match(['GET', 'POST'], '/connexion', 'ConnexionController::connexion');

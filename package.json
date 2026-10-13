@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "markdown-to-txt": "^2.0.1"
+  }
+}
