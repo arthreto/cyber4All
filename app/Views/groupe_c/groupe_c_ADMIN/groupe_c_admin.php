@@ -11,7 +11,7 @@
             <h1 class="titre">Gestion des termes</h1>
             <p class="sous-titre">Ajoute, modifie et classe les termes utilisés dans le quiz DICT.</p>
         </div>
-        <a href="?creer=1#formulaire" class="bouton bouton-principal">+ Ajouter un terme</a>
+        <a href="?creer=1" class="bouton bouton-principal">+ Ajouter un terme</a>
     </div>
 
     <div class="colonnes">
@@ -67,7 +67,7 @@
                             </td>
                             <td>
                                 <div class="actions">
-                                    <a href="?modifier=<?= $mot_cle['id'] ?>#formulaire" class="bouton bouton-modifier">Modifier</a>
+                                    <a href="?modifier=<?= $mot_cle['id'] ?>" class="bouton bouton-modifier">Modifier</a>
                                 </div>
                             </td>
                         </tr>
@@ -191,7 +191,7 @@
                     <div class="vide-icone">+</div>
                     <h2>Sélectionne un terme</h2>
                     <p>Choisis une ligne à modifier ou crée une nouvelle notion.</p>
-                    <a href="?creer=1#formulaire" class="bouton bouton-principal">Créer un terme</a>
+                    <a href="?creer=1" class="bouton bouton-principal">Créer un terme</a>
                 </div>
             </div>
 
