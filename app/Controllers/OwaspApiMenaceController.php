@@ -7,7 +7,7 @@ use App\Models\OwaspApiMenaceModel;
 class OwaspApiMenaceController extends BaseController
 {
     protected OwaspApiMenaceModel $apiMenace;
-    public function __constrctu()
+    public function __construct()
     {
         $this->apiMenace = new OwaspApiMenaceModel();
     }
