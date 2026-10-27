@@ -1,15 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="LaravelPint">
-    <laravel_pint_settings>
-      <laravel_pint_by_interpreter asDefaultInterpreter="true" interpreter_id="cfdd6808-4fba-473e-8961-a4c583704d00">
-        <option name="timeout" value="30000" />
-      </laravel_pint_by_interpreter>
-    </laravel_pint_settings>
-  </component>
   <component name="MessDetector">
     <phpmd_settings>
-      <phpmd_by_interpreter asDefaultInterpreter="true" interpreter_id="cfdd6808-4fba-473e-8961-a4c583704d00" timeout="30000" />
+      <phpmd_by_interpreter asDefaultInterpreter="true" interpreter_id="4529a604-bbb8-4efe-868a-e5446806bd33" timeout="30000" />
     </phpmd_settings>
   </component>
   <component name="MessDetectorOptionsConfiguration">
@@ -29,10 +22,10 @@
   </component>
   <component name="PhpCodeSniffer">
     <phpcs_settings>
-      <phpcs_by_interpreter asDefaultInterpreter="true" interpreter_id="cfdd6808-4fba-473e-8961-a4c583704d00" timeout="30000" />
+      <phpcs_by_interpreter asDefaultInterpreter="true" interpreter_id="4529a604-bbb8-4efe-868a-e5446806bd33" timeout="30000" />
     </phpcs_settings>
   </component>
-  <component name="PhpProjectSharedConfiguration" php_language_level="8.1" />
+  <component name="PhpProjectSharedConfiguration" php_language_level="8.5" />
   <component name="PhpStan">
     <PhpStan_settings>
       <phpstan_by_interpreter asDefaultInterpreter="true" interpreter_id="cfdd6808-4fba-473e-8961-a4c583704d00" timeout="60000" />
