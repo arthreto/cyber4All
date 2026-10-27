@@ -261,6 +261,80 @@
 }
 
 /* ================================================
+   CHOIX DU TOP 10
+   ================================================ */
+.top10-choix {
+    width: 100%;
+}
+
+.top10-eyebrow {
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #667eea;
+    margin: 0 0 0.5rem 0;
+}
+
+.top10-intro {
+    font-size: 1rem;
+    color: var(--gray-text-light, #666);
+    margin: 0 0 1.5rem 0;
+}
+
+.top10-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    width: 100%;
+}
+
+.top10-card {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1.75rem;
+    border-radius: 16px;
+    border: 1px solid rgba(102, 126, 234, 0.15);
+    text-decoration: none;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+}
+
+.top10-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.top10-card--web {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(255, 255, 255, 0.9));
+}
+
+.top10-card--api {
+    background: linear-gradient(135deg, rgba(255, 118, 117, 0.1), rgba(255, 255, 255, 0.9));
+}
+
+.top10-tag {
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gray-text-light, #666);
+}
+
+.top10-card h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--gray-title, #2d3436);
+}
+
+.top10-link {
+    font-weight: 600;
+    color: #667eea;
+}
+
+/* ================================================
    PIED DE PAGE (Actions)
    ================================================ */
 .mot-seul-footer {
