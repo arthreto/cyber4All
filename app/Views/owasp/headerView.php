@@ -24,7 +24,7 @@
 
         <section class="release-introduction">
             <div class="release-lead">
-                <p>L'OWASP API SECURITY Top 10 sensibilise les équipes de développemennt et sécurité
+                <p>L'OWASP API Security Top 10 sensibilise les équipes de développemennt et sécurité
                 aux principales faiblesses rencontrées dans la conception, l'implémentation et l'exploitation des API.</p>
             </div>
             <div class="api-release-note">
