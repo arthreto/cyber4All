@@ -5,12 +5,21 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1a4065f7-ed27-4364-ae71-5b4cd082b4f1" name="Changes" comment="">
+<<<<<<< HEAD
       <change afterPath="$PROJECT_DIR$/public/css/lecon/lecon.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/Controllers/ThemeController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Controllers/ThemeController.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/Models/LeconModel.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Models/LeconModel.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/Models/ThemeModel.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Models/ThemeModel.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/Views/lecon/lecon.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Views/lecon/lecon.php" afterDir="false" />
+=======
+      <change afterPath="$PROJECT_DIR$/app/Models/QuestionModel.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/Models/QuizQuestionModel.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/Controllers/admin/AdminThemeController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Controllers/admin/AdminThemeController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/Entities/QuestionForm.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Entities/QuestionForm.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/Views/admin/tracabilite/formQuestion.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Views/admin/tracabilite/formQuestion.php" afterDir="false" />
+>>>>>>> 9bbcd33893c137b929f1e8bcfc2075be5ce086b9
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -55,6 +64,7 @@
     <commands />
     <urls />
   </component>
+<<<<<<< HEAD
   <component name="NextEditCompletionFeaturesState">
     <decayedCancelled>
       <entry key="MS100" value="1.0" />
@@ -115,6 +125,9 @@
     </decayedShown>
   </component>
   <component name="PhpWorkspaceProjectConfiguration" interpreter_name="PHP_8.2" />
+=======
+  <component name="PhpWorkspaceProjectConfiguration" interpreter_name="PHP" />
+>>>>>>> 9bbcd33893c137b929f1e8bcfc2075be5ce086b9
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
   &quot;associatedIndex&quot;: 5
@@ -132,11 +145,18 @@
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+<<<<<<< HEAD
+=======
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+>>>>>>> 9bbcd33893c137b929f1e8bcfc2075be5ce086b9
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
     "git-widget-placeholder": "Groupe-B",
     "junie.onboarding.icon.badge.shown": "true",
     "last_opened_file_path": "C:/wamp64/www/cyber4All",
+<<<<<<< HEAD
     "list.type.of.created.stylesheet": "CSS",
+=======
+>>>>>>> 9bbcd33893c137b929f1e8bcfc2075be5ce086b9
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -149,8 +169,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-PS-253.31033.138" />
-        <option value="bundled-php-predefined-a98d8de5180a-0e0d91225499-com.jetbrains.php.sharedIndexes-PS-253.31033.138" />
+        <option value="bundled-js-predefined-d6986cc7102b-4abd2a77f808-JavaScript-PS-262.10315.130" />
+        <option value="bundled-php-predefined-a98d8de5180a-9522f28f0b20-com.jetbrains.php.sharedIndexes-PS-262.10315.130" />
       </set>
     </attachedChunks>
   </component>
@@ -166,6 +186,7 @@
       <workItem from="1791806047228" duration="9343000" />
       <workItem from="1791880594555" duration="1191000" />
       <workItem from="1791881825077" duration="3513000" />
+      <workItem from="1793622266657" duration="4990000" />
     </task>
     <servers />
   </component>

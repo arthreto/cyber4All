@@ -18,7 +18,7 @@ class QuestionForm extends Entity
         'id_theme' => null,
         'id_quiz_ajout' => null,
         'quiz' => [],
-        'enonce' => '',
+        'libelle' => '',
         'image' => '',
         'detail' => '',
         'bonne_reponse' => '0',
