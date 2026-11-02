@@ -132,7 +132,7 @@ $utilisateur = session()->get("utilisateur");
                                 <span class="top10-link">Consulter le classement</span>
                             </a>
 
-                            <a href="<?= base_url('glossaire/top10/api') ?>" class="top10-card top10-card--api">
+                            <a href="<?= base_url('top10/api') ?>" class="top10-card top10-card--api">
                                 <span class="top10-tag">API · 2023</span>
                                 <h3>Top 10 Vulnérabilités API</h3>
                                 <span class="top10-link">Consulter le classement</span>

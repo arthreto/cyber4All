@@ -47,3 +47,7 @@ $routes->group('floribondant', static function ($routes) {
     $routes->post('signalement/supprimer', 'SignalementController::supprimerSignalement');
     $routes->match(['GET','POST'], 'utilisateurs', 'admin\AdminUtilisateurController::index');
 });
+
+$routes->group('top10', static function ($routes) {
+    $routes->match(['GET', 'POST'], 'api', 'OwaspController::getMenaces');
+});

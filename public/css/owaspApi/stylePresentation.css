@@ -86,7 +86,7 @@ body {
     line-height: 1.6;
 }
 
-/* Block d'introduction & Note */
+/* Bloc d'introduction & Note */
 .release-introduction {
     padding: 20px 0 12px;
 }
@@ -138,6 +138,7 @@ body {
     border-bottom: 2px solid #e7ebfa;
     color: #30343b;
     font-size: 23px;
+    font-weight: 400;              /* ← ajouté */
 }
 
 .section-heading p {
@@ -186,6 +187,7 @@ body {
 
 .risk-list-code {
     display: inline-block;
+    justify-self: start;           /* ← ajouté */
     padding: 6px 10px;
     border-radius: 7px;
     color: #fff;
@@ -223,7 +225,7 @@ body {
     transform: translateX(3px);
 }
 
-/* Pied de page et Boutons */
+/* Pied de page et boutons */
 .detail-footer-actions {
     display: flex;
     align-items: center;
@@ -268,7 +270,7 @@ body {
     background: #f0f2ff;
 }
 
-/* Responsive (Mobile / Tablette) */
+/* Responsive (mobile / tablette) */
 @media (max-width: 800px) {
     .detail-page {
         padding: 24px 16px;
