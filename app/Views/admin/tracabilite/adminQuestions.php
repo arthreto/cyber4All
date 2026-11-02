@@ -12,18 +12,23 @@
 
     <!-- Barre d'actions : filtre + ajout -->
     <div class="sio-admin__actions">
-        <?= form_open(base_url('floribondant/theme'), ['method' => 'get', 'class' => 'sio-admin__filtre']) ?>
+        <?= form_open(base_url('floribondant/theme'), ['method' => 'post', 'class' => 'sio-admin__filtre']) ?>
             <div class="sio-admin__champ">
-                <label for="filtre-quiz" class="glossary-form__label">Quiz</label>
-                <select id="filtre-quiz" name="id_quiz" class="sio-admin__select">
+                <label for="champ-theme" class="glossary-form__label">Quiz</label>
+                <select id="champ-theme" name="id_theme" class="sio-admin__select">
                     <!-- À brancher : foreach ($quizList as $quiz) -->
-                    <option value="">Tous les quiz</option>
-                    <option value="3">Reconnaître un token valide</option>
-                    <option value="4">JWT : structure et signature</option>
-                    <option value="5">Cookies et attributs de session</option>
+
+                    <option value="-1" <?= $themeSelect == -1 ? 'selected' : '' ?>>Tous les quiz</option>
+                    <?php foreach ($themeList as $theme): ?>
+                        <option value="<?= esc($theme->id) ?>" <?= $themeSelect == $theme->id ? 'selected' : '' ?>>
+                            <?= esc($theme->nom) ?>
+                        </option>
+                    <?php endforeach; ?>
                 </select>
             </div>
-            <button type="submit" class="sio-admin__btn-secondaire">Filtrer</button>
+            <noscript>
+                <button type="submit" name="action" value="choisir_theme" class="sio-admin__btn-secondaire">Afficher les quiz</button>
+            </noscript>
         <?= form_close() ?>
 
         <a href="<?= base_url('floribondant/theme/questions/ajouter') ?>" class="glossary-form__trigger">Ajouter une question</a>
@@ -148,3 +153,5 @@
         </div>
     </div>
 </div>
+
+<script src="<?= base_url('js/sio-admin-theme.js') ?>" defer></script>

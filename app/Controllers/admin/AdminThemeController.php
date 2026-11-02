@@ -70,12 +70,21 @@ class AdminThemeController extends BaseController
      */
     public function index()
     {
-        $data = ['onglet' => 'questions'];
+        $data = ['onglet' => 'questions',
+            'themeList' => $this->theme_model->getAllThemes(),
+            'themeSelect' => -1];
+
+        if ($this->request->is('post')) {
+            $data['themeSelect'] = $this->request->getPost('id_theme');
+            log_message('debug', 'Theme selected: ' . $data['themeSelect']);
+        } else {
+            log_message('debug', 'Theme selected: ' . $data['themeSelect']);
+        }
 
         return view('header')
             . view('notice')
             . view('admin/tracabilite/onglets', $data)
-            . view('admin/tracabilite/adminQuestions')
+            . view('admin/tracabilite/adminQuestions', $data)
             . view('footer');
     }
 
@@ -188,6 +197,11 @@ class AdminThemeController extends BaseController
                             $this->quiz_question_model->creerLiaison($newId, $quizId);
                         }
                     }
+
+                    $this->session->remove('questionForm');
+
+                    return redirect()->to(base_url('floribondant/theme'))
+                        ->with('success', 'Question créée avec succès !');
                 }
             }
 
@@ -222,7 +236,10 @@ class AdminThemeController extends BaseController
 
     public function quizSection()
     {
-        $data = ['onglet' => 'quiz'];
+        $data = [
+            'onglet' => 'quiz',
+            'themeList' => $this->theme_model->getAllThemes(),
+        ];
 
         return view('header', $data)
             . view('notice')

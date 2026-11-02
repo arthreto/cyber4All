@@ -5,12 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1a4065f7-ed27-4364-ae71-5b4cd082b4f1" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/app/Models/QuestionModel.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/Models/QuizQuestionModel.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/Controllers/admin/AdminThemeController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Controllers/admin/AdminThemeController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/Entities/QuestionForm.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Entities/QuestionForm.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/Views/admin/tracabilite/formQuestion.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Views/admin/tracabilite/formQuestion.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/Views/admin/tracabilite/adminQuestions.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Views/admin/tracabilite/adminQuestions.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -100,12 +97,23 @@
       <workItem from="1791806047228" duration="9343000" />
       <workItem from="1791880594555" duration="1191000" />
       <workItem from="1791881825077" duration="3513000" />
-      <workItem from="1793622266657" duration="4990000" />
+      <workItem from="1793622266657" duration="9171000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
