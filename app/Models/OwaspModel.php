@@ -4,10 +4,10 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class OwaspApiMenaceModel extends Model
+class OwaspModel extends Model
 {
 
-    protected $DBGroup = 'usersDB';
+    protected $DBGroup = 'owasp';
     protected $table = 'menace';
     protected $primaryKey = 'id_menace';
     protected $allowedFields = [
@@ -16,10 +16,10 @@ class OwaspApiMenaceModel extends Model
         'nom_menace',
         'prog_menace'
     ];
-    public function getMenace()
+    public function getMenaces()
     {
-        $db = db_connect('usersDB');
-        $query = $db->select()->where('id_menace >', 10)->getResult();
+        $db = db_connect('owasp');
+        $query = $db->table('menace')->where('id_menace >', 10)->get()->getResult();
         return $query;
     }
 
