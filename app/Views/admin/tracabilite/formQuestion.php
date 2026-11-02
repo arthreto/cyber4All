@@ -22,11 +22,20 @@
         </div>
 
         <!-- Exemple d'erreur de validation (à afficher seulement si $errors n'est pas vide) -->
-        <?php if(isset($error)):
-        echo '<div class="sio-admin__erreur-globale" role="alert">
-            <strong>Le formulaire contient 1 erreur.</strong> Corrigez le champ signalé puis enregistrez.
-        </div>';
-        endif; ?>
+
+        <?php if (!empty($errors)): ?>
+            <div class="sio-admin__erreur-globale" role="alert">
+                <strong>Le formulaire contient <?= count($errors) ?> erreur(s).</strong>
+
+                <ul>
+                    <?php foreach ($errors as $error): ?>
+                        <li style="margin-left: 5%;"><?= esc($error) ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+        <?php endif; ?>
+
+
         <?= form_open(base_url('floribondant/theme/questions/ajouter'), ['class' => 'glossary-form__form']) ?>
 
         <!-- Quiz de la question -->
@@ -84,23 +93,41 @@
 
         <!-- Énoncé -->
         <div class="glossary-form__field">
-            <label for="champ-enonce" class="glossary-form__label glossary-form__label--required">Énoncé</label>
-            <textarea id="champ-enonce" name="enonce" rows="3" class="glossary-form__input" required><?= esc($form->enonce) ?></textarea>
+            <label for="champ-libelle" class="glossary-form__label glossary-form__label--required">Libelle</label>
+            <textarea id="champ-libelle" name="libelle" rows="3" class="glossary-form__input <?= isset($errors['libelle']) ? 'sio-admin__input--erreur' : '' ?>" required><?= esc($form->libelle) ?></textarea>
+
+            <?php if (isset($errors['libelle'])): ?>
+            <p id="erreur-libelle" class="sio-admin__erreur">
+                <?= esc($errors['libelle']) ?>
+            </p>
+            <?php endif; ?>
         </div>
 
         <!-- Image -->
         <div class="glossary-form__field">
             <label for="champ-image" class="glossary-form__label">Chemin de l'image (facultatif)</label>
             <input type="text" id="champ-image" name="image" value="<?= esc($form->image ?? '') ?>"
-                   placeholder="images/questions/jwt-expire.png" class="glossary-form__input" aria-describedby="aide-image">
+                   placeholder="images/questions/jwt-expire.png" class="glossary-form__input <?= isset($errors['image']) ? 'sio-admin__input--erreur' : '' ?>" aria-describedby="aide-image">
             <p id="aide-image" class="glossary-form__help">Chemin de l'image à partir du dossier public (PNG ou JPG). Affichée au-dessus de l'énoncé.</p>
+
+            <?php if (isset($errors['image'])): ?>
+                <p id="erreur-image" class="sio-admin__erreur">
+                    <?= esc($errors['image']) ?>
+                </p>
+            <?php endif; ?>
         </div>
 
         <!-- Détail -->
         <div class="glossary-form__field">
             <label for="champ-detail" class="glossary-form__label">Détail (facultatif)</label>
-            <textarea id="champ-detail" name="detail" rows="6" class="glossary-form__input sio-admin__code" aria-describedby="aide-detail"><?= $form->detail ?></textarea>
+            <textarea id="champ-detail" name="detail" rows="6" class="glossary-form__input sio-admin__code <?= isset($errors['detail']) ? 'sio-admin__input--erreur' : '' ?>" aria-describedby="aide-detail"><?= $form->detail ?></textarea>
             <p id="aide-detail" class="glossary-form__help">Exemple affiché en police à chasse fixe au-dessus de l'énoncé : token, requête, ligne de log…</p>
+
+            <?php if (isset($errors['detail'])): ?>
+                <p id="erreur-detail" class="sio-admin__erreur">
+                    <?= esc($errors['detail']) ?>
+                </p>
+            <?php endif; ?>
         </div>
 
         <!-- Bonne réponse -->
@@ -119,10 +146,25 @@
         </fieldset>
 
         <!-- Explication (exemple en erreur) -->
+
         <div class="glossary-form__field">
-            <label for="champ-explication" class="glossary-form__label glossary-form__label--required">Explication</label>
-            <textarea id="champ-explication" name="explication" rows="4" class="glossary-form__input sio-admin__input--erreur" aria-invalid="true" aria-describedby="erreur-explication" required><?= $form->explication ?></textarea>
-            <p id="erreur-explication" class="sio-admin__erreur">Erreur : l'explication est obligatoire. Indiquez pourquoi l'affirmation est vraie ou fausse.</p>
+            <label for="champ-explication" class="glossary-form__label glossary-form__label--required">
+                Explication
+            </label>
+
+            <textarea
+                    id="champ-explication"
+                    name="explication"
+                    rows="4"
+                    class="glossary-form__input <?= isset($errors['explication']) ? 'sio-admin__input--erreur' : '' ?>"
+                        <?= isset($errors['explication']) ? 'aria-invalid="true" aria-describedby="erreur-explication"' : '' ?>><?= esc($form->explication ?? '') ?>
+            </textarea>
+
+            <?php if (isset($errors['explication'])): ?>
+                <p id="erreur-explication" class="sio-admin__erreur">
+                <?= esc($errors['explication']) ?>
+            </p>
+            <?php endif; ?>
         </div>
 
         <!-- Active -->
