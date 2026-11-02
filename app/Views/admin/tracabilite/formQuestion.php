@@ -85,7 +85,7 @@
         <!-- Énoncé -->
         <div class="glossary-form__field">
             <label for="champ-enonce" class="glossary-form__label glossary-form__label--required">Énoncé</label>
-            <textarea id="champ-enonce" name="enonce" rows="3" class="glossary-form__input" required>Un JWT dont la date d'expiration (exp) est dépassée reste valide tant que sa signature est correcte.</textarea>
+            <textarea id="champ-enonce" name="enonce" rows="3" class="glossary-form__input" required><?= esc($form->enonce) ?></textarea>
         </div>
 
         <!-- Image -->
@@ -99,11 +99,7 @@
         <!-- Détail -->
         <div class="glossary-form__field">
             <label for="champ-detail" class="glossary-form__label">Détail (facultatif)</label>
-            <textarea id="champ-detail" name="detail" rows="6" class="glossary-form__input sio-admin__code" aria-describedby="aide-detail">{
-  "sub": 42,
-  "scope": "lecture",
-  "exp": 1791500000
-}</textarea>
+            <textarea id="champ-detail" name="detail" rows="6" class="glossary-form__input sio-admin__code" aria-describedby="aide-detail"><?= $form->detail ?></textarea>
             <p id="aide-detail" class="glossary-form__help">Exemple affiché en police à chasse fixe au-dessus de l'énoncé : token, requête, ligne de log…</p>
         </div>
 
@@ -111,15 +107,21 @@
         <fieldset class="glossary-form__field sio-admin__fieldset">
             <legend class="glossary-form__label glossary-form__label--required">Bonne réponse</legend>
             <div class="sio-admin__radios">
-                <label for="champ-vrai" class="sio-admin__choix"><input type="radio" id="champ-vrai" name="bonne_reponse" value="1"> Vrai</label>
-                <label for="champ-faux" class="sio-admin__choix"><input type="radio" id="champ-faux" name="bonne_reponse" value="0" checked> Faux</label>
+                <label for="champ-vrai" class="sio-admin__choix">
+                    <input type="radio" id="champ-vrai" name="bonne_reponse" value="1" <?= $form->bonne_reponse == 1 ? 'checked' : '' ?>>
+                    Vrai
+                </label>
+                <label for="champ-faux" class="sio-admin__choix">
+                    <input type="radio" id="champ-faux" name="mauvaise_reponse" value="0" <?= $form->bonne_reponse == 0 ? 'checked' : '' ?>>
+                    Faux
+                </label>
             </div>
         </fieldset>
 
         <!-- Explication (exemple en erreur) -->
         <div class="glossary-form__field">
             <label for="champ-explication" class="glossary-form__label glossary-form__label--required">Explication</label>
-            <textarea id="champ-explication" name="explication" rows="4" class="glossary-form__input sio-admin__input--erreur" aria-invalid="true" aria-describedby="erreur-explication" required></textarea>
+            <textarea id="champ-explication" name="explication" rows="4" class="glossary-form__input sio-admin__input--erreur" aria-invalid="true" aria-describedby="erreur-explication" required><?= $form->explication ?></textarea>
             <p id="erreur-explication" class="sio-admin__erreur">Erreur : l'explication est obligatoire. Indiquez pourquoi l'affirmation est vraie ou fausse.</p>
         </div>
 
@@ -127,7 +129,7 @@
         <div class="glossary-form__field">
             <label for="champ-actif" class="sio-admin__choix">
                 <input type="hidden" name="actif" value="0">
-                <input type="checkbox" id="champ-actif" name="actif" value="1" checked> Question active (visible dans les quiz)
+                <input type="checkbox" id="champ-actif" name="actif" value="1" <?= $form->actif == 1 ? 'checked' : '' ?>> Question active (visible dans les quiz)
             </label>
         </div>
 
