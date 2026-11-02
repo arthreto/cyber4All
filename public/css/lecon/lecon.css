@@ -1,0 +1,88 @@
+/* ===== Mise en forme du Markdown converti ===== */
+
+/* Conteneur : interligne, et annulation des retours à la ligne générés par marked */
+.lecon__contenu {
+    display : block;
+    white-space: normal;
+    line-height: 1.5;
+}
+
+/* Pas de marge au-dessus du premier élément */
+.lecon__contenu > :first-child {
+    margin-top: 0;
+}
+
+/* --- Titres : plus d'espace au-dessus (nouvelle section) qu'en dessous --- */
+.lecon__contenu h2 {
+    margin: 1.5rem 0 0.5rem;
+}
+
+.lecon__contenu h3 {
+    margin: 1.25rem 0 0.5rem;
+}
+
+/* --- Paragraphes et listes --- */
+.lecon__contenu p {
+    margin: 0 0 0.75rem;
+}
+
+.lecon__contenu ul,
+.lecon__contenu ol {
+    margin: 0 0 0.75rem;
+    padding-left: 1.5rem;    /* ramène les puces à l'intérieur du bloc */
+}
+
+.lecon__contenu li {
+    margin-bottom: 0.25rem;
+}
+
+/* --- Code en ligne (`code` en Markdown) --- */
+.lecon__contenu code {
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 0.9em;
+    background: #f6f8fa;
+    padding: 0.15em 0.4em;
+    border-radius: 4px;
+}
+
+/* --- Blocs de code (``` en Markdown) : encadré avec défilement horizontal --- */
+.lecon__contenu pre {
+    background: #f6f8fa;
+    border: 1px solid #d0d7de;
+    border-radius: 6px;
+    padding: 1rem;
+    overflow-x: auto;        /* les longues lignes défilent au lieu de déborder */
+    margin: 0.5rem 0 1rem;
+}
+
+/* Le code dans un bloc ne reçoit pas le style du code en ligne */
+.lecon__contenu pre code {
+    background: none;
+    padding: 0;
+    font-size: 0.875rem;
+}
+
+/* --- Tableaux : bordures, en-tête marqué, défilement sur mobile --- */
+.lecon__contenu table {
+    display: block;          /* permet le défilement horizontal sur petit écran */
+    overflow-x: auto;
+    border-collapse: collapse;
+    margin: 1rem 0;
+}
+
+.lecon__contenu th,
+.lecon__contenu td {
+    border: 1px solid #d0d7de;
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+}
+
+.lecon__contenu th {
+    background: #f6f8fa;
+    font-weight: 600;
+}
+
+/* Une ligne sur deux légèrement grisée */
+.lecon__contenu tr:nth-child(even) td {
+    background: #fafbfc;
+}

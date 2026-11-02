@@ -5,10 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1a4065f7-ed27-4364-ae71-5b4cd082b4f1" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/public/css/lecon/lecon.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/Controllers/GlossaireController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Controllers/GlossaireController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/Controllers/communautaire/CommunautaireController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Controllers/communautaire/CommunautaireController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/Views/communautaire/communautaire.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Views/communautaire/communautaire.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/Controllers/ThemeController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Controllers/ThemeController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/Models/LeconModel.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Models/LeconModel.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/Models/ThemeModel.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Models/ThemeModel.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/Views/lecon/lecon.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Views/lecon/lecon.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -18,12 +20,21 @@
   <component name="ComposerSettings" notifyAboutMissingVendor="false" synchronizationState="SYNCHRONIZE">
     <pharConfigPath>$PROJECT_DIR$/composer.json</pharConfigPath>
     <execution>
-      <execution />
+      <execution>
+        <execution />
+      </execution>
     </execution>
   </component>
   <component name="EmbeddingIndexingInfo">
     <option name="cachedIndexableFilesCount" value="881" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="CSS File" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -44,6 +55,65 @@
     <commands />
     <urls />
   </component>
+  <component name="NextEditCompletionFeaturesState">
+    <decayedCancelled>
+      <entry key="MS100" value="1.0" />
+      <entry key="MS500" value="1.0" />
+      <entry key="S2" value="1.0" />
+      <entry key="S5" value="1.0" />
+      <entry key="S10" value="1.0000000055834344" />
+      <entry key="S30" value="1.002835484509043" />
+      <entry key="S60" value="1.0823268576372085" />
+      <entry key="M2" value="1.5327282026782343" />
+      <entry key="M5" value="3.0259083998672" />
+      <entry key="M10" value="5.595852991170547" />
+      <entry key="M15" value="8.831797601021329" />
+      <entry key="M30" value="18.22920140177904" />
+      <entry key="H1" value="30.61746297947593" />
+      <entry key="H2" value="43.147397351557416" />
+      <entry key="H4" value="53.207773990375415" />
+      <entry key="D1" value="65.09070577294699" />
+      <entry key="W1" value="67.57154169741901" />
+    </decayedCancelled>
+    <decayedSelected>
+      <entry key="MS100" value="0.0" />
+      <entry key="MS500" value="8.56055436462831E-171" />
+      <entry key="S2" value="3.0417636974356145E-43" />
+      <entry key="S5" value="9.845781395495223E-18" />
+      <entry key="S10" value="3.1377988137379398E-9" />
+      <entry key="S30" value="0.0014640020948605422" />
+      <entry key="S60" value="0.03826228031448718" />
+      <entry key="M2" value="0.19560785274204687" />
+      <entry key="M5" value="0.5260120961400003" />
+      <entry key="M10" value="0.8631994655118463" />
+      <entry key="M15" value="1.2576578941507504" />
+      <entry key="M30" value="2.4620182749004766" />
+      <entry key="H1" value="3.9677328197360926" />
+      <entry key="H2" value="5.214732103674399" />
+      <entry key="H4" value="6.026550381758186" />
+      <entry key="D1" value="6.825149790044155" />
+      <entry key="W1" value="6.9746927081833165" />
+    </decayedSelected>
+    <decayedShown>
+      <entry key="MS100" value="0.9201876506248751" />
+      <entry key="MS500" value="0.9835020740262483" />
+      <entry key="S2" value="0.9958497530944581" />
+      <entry key="S5" value="0.9983378297043665" />
+      <entry key="S10" value="0.9991685776317359" />
+      <entry key="S30" value="1.0039727510341783" />
+      <entry key="S60" value="1.1197944771513944" />
+      <entry key="M2" value="1.726572150120339" />
+      <entry key="M5" value="3.5499858971815152" />
+      <entry key="M10" value="6.456751237853829" />
+      <entry key="M15" value="10.086328585774327" />
+      <entry key="M30" value="20.68690802167609" />
+      <entry key="H1" value="34.581166991374964" />
+      <entry key="H2" value="48.359228715001876" />
+      <entry key="H4" value="59.232542216104775" />
+      <entry key="D1" value="71.91549667110607" />
+      <entry key="W1" value="74.5461813430475" />
+    </decayedShown>
+  </component>
   <component name="PhpWorkspaceProjectConfiguration" interpreter_name="PHP_8.2" />
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
@@ -54,27 +124,28 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;Groupe-B&quot;,
-    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/wamp64/www/cyber4All&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "git-widget-placeholder": "Groupe-B",
+    "junie.onboarding.icon.badge.shown": "true",
+    "last_opened_file_path": "C:/wamp64/www/cyber4All",
+    "list.type.of.created.stylesheet": "CSS",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "to.speed.mode.migration.done": "true",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -104,11 +175,6 @@
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
-        <line-breakpoint enabled="true" type="php">
-          <url>file://$PROJECT_DIR$/app/Models/UtilisateurModel.php</url>
-          <line>4</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
         <line-breakpoint enabled="true" type="php">
           <url>file://$PROJECT_DIR$/app/Controllers/BaseController.php</url>
           <line>4</line>

@@ -11,6 +11,7 @@ use App\Models\SignalementModel;
 use App\Models\ThemeModel;
 use App\Models\LeconModel;
 use App\Models\VoteModel;
+use App\Models\UtilisateurModel;
 use CodeIgniter\Exceptions\PageNotFoundException;
 use CodeIgniter\Session\Session;
 use \Collator;
@@ -26,45 +27,50 @@ class ThemeController extends BaseController
 {
     protected ThemeModel $theme_model;
     protected LeconModel $lecon_model;
+    protected UtilisateurModel $utilisateur_model;
 
     public function __construct()
     {
         $this->theme_model = new ThemeModel();
         $this->lecon_model  = new LeconModel();
+        $this->utilisateur_model = new UtilisateurModel();
     }
 
 
     /**
      * Affichage d'une page de leçon
      */
-    public function afficherPageLecon(int $idTheme, ?int $idLecon = null)
+    public function afficherPageLecon(int $idTheme, ?int $numero = null)
     {
         $leconsTheme = $this->lecon_model->getLeconsByTheme($idTheme);
 
         // Thème inexistant ou sans leçon
         if ($leconsTheme === []) {
-            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+            throw PageNotFoundException::forPageNotFound();
         }
 
         // URL theme/idTheme : redirection vers la première leçon du thème
-        if ($idLecon === null) {
-            return redirect()->to(site_url('theme/' . $idTheme . '/' . $leconsTheme[0]->id));
+        if ($numero === null) {
+            return redirect()->to(site_url('theme/' . $idTheme . '/1'));
         }
 
-        $lecon = $this->lecon_model->getLeconById($idLecon);
-
-        // Leçon inexistante, ou qui n'appartient pas au thème de l'URL
-        if ($lecon === null || $lecon->id_theme !== $idTheme) {
-            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        // Contrôle de bornes
+        $nbLecons = count($leconsTheme);
+        if ($numero < 1 || $numero > $nbLecons) {
+            throw PageNotFoundException::forPageNotFound();
         }
 
-        // Leçon suivante : celle qui suit la leçon courante dans la liste du thème
-        $leconSuivante = null;
-        foreach ($leconsTheme as $i => $l) {
-            if ($l->id === $idLecon) {
-                $leconSuivante = $leconsTheme[$i + 1] ?? null;
-                break;
-            }
+        $lecon = $this->lecon_model->getLeconById($leconsTheme[$numero - 1]->id);
+
+        // Leçon introuvable (erreur SQL ou supprimée entre les deux requêtes)
+        if ($lecon === null) {
+            throw PageNotFoundException::forPageNotFound();
+        }
+
+        // Recherche de l'auteur grâce à son ID
+        $auteur = null;
+        if ($lecon->id_auteur !== null) {
+            $auteur = $this->utilisateur_model->getUtilisateurById($lecon->id_auteur);
         }
 
         $data = [
@@ -74,8 +80,11 @@ class ThemeController extends BaseController
         $dataLecon = [
             'lecon'         => $lecon,
             'theme'         => $this->theme_model->find($idTheme),
+            'idTheme'       => $idTheme,
+            'numero'        => $numero,
+            'auteur'       => $auteur,
             'leconsTheme'   => $leconsTheme,
-            'leconSuivante' => $leconSuivante,
+            'leconSuivante' => $leconsTheme[$numero] ?? null,
         ];
 
         return view('header', $data)

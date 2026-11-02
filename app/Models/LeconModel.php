@@ -13,7 +13,7 @@ class LeconModel extends Model
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = Lecon::class;
-    protected $allowedFields    = ['titre', 'contenu', 'id_theme'];
+    protected $allowedFields    = ['titre', 'contenu', 'id_theme', 'id_auteur'];
 
     protected $useTimestamps = true;
     protected $createdField  = 'date_ajout';
@@ -31,9 +31,18 @@ class LeconModel extends Model
 
     public function getLeconsByTheme(int $idTheme): array
     {
-        return $this->select('id, titre')
-            ->where('id_theme', $idTheme)
-            ->orderBy('id', 'ASC')
-            ->findAll();
+        try {
+            return $this->select('id, titre')
+                ->where('id_theme', $idTheme)
+                ->orderBy('id', 'ASC')
+                ->findAll();
+        } catch (DatabaseException $e) {
+            log_message('error', "Erreur getLeconsByTheme (thème {id}): {message}", [
+                'id' => $idTheme,
+                'message' => $e->getMessage()
+            ]);
+
+            return [];
+        }
     }
 }
