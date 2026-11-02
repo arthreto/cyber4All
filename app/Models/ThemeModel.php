@@ -42,7 +42,7 @@ class ThemeModel extends Model
         // Requête ordonnée par le champ mot en ASC
         try {
             log_message('error',count($this->findAll()));
-            return $this->orderBy('nom', 'ASC')->findAll();
+            return $this->orderBy('nom', 'DESC')->findAll();
         } catch (DatabaseException $e) {
             log_message('error',"Erreur getAllCategories : " . $e->getMessage());
             return [];
