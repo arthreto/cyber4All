@@ -22,12 +22,12 @@
         </div>
 
         <!-- Exemple d'erreur de validation (à afficher seulement si $errors n'est pas vide) -->
-
-        <div class="sio-admin__erreur-globale" role="alert">
+        <?php if(isset($error)):
+        echo '<div class="sio-admin__erreur-globale" role="alert">
             <strong>Le formulaire contient 1 erreur.</strong> Corrigez le champ signalé puis enregistrez.
-        </div>
-
-        <?= form_open_multipart(base_url('floribondant/theme/questions/update/12'), ['class' => 'glossary-form__form']) ?>
+        </div>';
+        endif; ?>
+        <?= form_open(base_url('floribondant/theme/questions/ajouter'), ['class' => 'glossary-form__form']) ?>
 
         <!-- Quiz de la question -->
         <fieldset class="sio-admin__bloc-quiz">
@@ -38,9 +38,12 @@
                     <label for="champ-theme" class="glossary-form__label">1. Thème</label>
                     <select id="champ-theme" name="id_theme" class="sio-admin__select">
                         <!-- À brancher : foreach ($themes as $theme) -->
-                        <option value="1" selected>Tokens</option>
-                        <option value="2">Sessions</option>
-                        <option value="3">Logs</option>
+                        <?php foreach ($themeList as $theme): ?>
+                            <option value="<?= esc($theme->id) ?>"
+                                    <?= $form->id_theme == $theme->id ? 'selected' : '' ?>>
+                                <?= esc($theme->nom) ?>
+                            </option>
+                        <?php endforeach; ?>
                     </select>
                 </div>
                 <noscript>
@@ -52,28 +55,29 @@
                 <div class="sio-admin__champ">
                     <label for="champ-quiz" class="glossary-form__label">2. Quiz du thème Tokens</label>
                     <select id="champ-quiz" name="id_quiz_ajout" class="sio-admin__select">
-                        <!-- À brancher : foreach ($quizDuTheme as $quiz) -->
-                        <option value="3">Reconnaître un token valide</option>
-                        <option value="4">JWT : structure et signature</option>
+                        <?php foreach ($quizList as $quiz):
+                            echo '<option value="', $quiz->id, '">', $quiz->titre, '</option>';
+                        endforeach; ?>
                     </select>
                 </div>
-                <button type="submit" name="action" value="ajouter_quiz" class="sio-admin__btn-principal">Ajouter ce quiz</button>
+                <button type="submit" name="action" value="ajouter_quiz"
+                        formnovalidate class="sio-admin__btn-principal">
+                    Ajouter ce quiz
+                </button>
             </div>
 
             <div class="sio-admin__rattaches">
-                <p class="glossary-form__label">Question rattachée à 2 quiz</p>
+                <p class="glossary-form__label">Question rattachée à <?=count($quizAdded) ?> quiz</p>
                 <ul class="sio-admin__rattaches-liste">
                     <!-- À brancher : foreach ($quizRattaches as $quiz) + champ caché quiz[] -->
-                    <li class="sio-admin__rattache">
-                        <span>Tokens · Reconnaître un token valide</span>
-                        <input type="hidden" name="quiz[]" value="3">
-                        <button type="submit" name="retirer_quiz" value="3" class="sio-admin__btn-supprimer">Retirer</button>
-                    </li>
-                    <li class="sio-admin__rattache">
-                        <span>Tokens · JWT : structure et signature</span>
-                        <input type="hidden" name="quiz[]" value="4">
-                        <button type="submit" name="retirer_quiz" value="4" class="sio-admin__btn-supprimer">Retirer</button>
-                    </li>
+                    <?php foreach ($quizAdded as $id => $quiz):
+                        echo '
+                            <li class="sio-admin__rattache">
+                                <span>', esc($quiz), '</span>
+                                <button type="submit" name="retirer_quiz" value="', esc($id), '" formnovalidate class="sio-admin__btn-supprimer">Retirer</button>
+                            </li>
+                        ';
+                    endforeach; ?>
                 </ul>
             </div>
         </fieldset>
@@ -86,9 +90,10 @@
 
         <!-- Image -->
         <div class="glossary-form__field">
-            <label for="champ-image" class="glossary-form__label">Image (facultatif)</label>
-            <input type="file" id="champ-image" name="image" accept="image/png, image/jpeg" class="glossary-form__file" aria-describedby="aide-image">
-            <p id="aide-image" class="glossary-form__help">PNG ou JPG, 2 Mo maximum. Affichée au-dessus de l'énoncé.</p>
+            <label for="champ-image" class="glossary-form__label">Chemin de l'image (facultatif)</label>
+            <input type="text" id="champ-image" name="image" value="<?= esc($form->image ?? '') ?>"
+                   placeholder="images/questions/jwt-expire.png" class="glossary-form__input" aria-describedby="aide-image">
+            <p id="aide-image" class="glossary-form__help">Chemin de l'image à partir du dossier public (PNG ou JPG). Affichée au-dessus de l'énoncé.</p>
         </div>
 
         <!-- Détail -->
