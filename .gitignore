@@ -5,6 +5,3 @@ writable/debugar/*
 writable/session/*
 app/Config/Database.php
 app/Config/App.php
-.idea/vcs.xml
-.idea/workspace.xml
-.idea/php.xml
