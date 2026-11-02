@@ -5,8 +5,8 @@ use CodeIgniter\Config\Services;
 $data['mots']=$mots??[];
 $data['motsPopulaires']=$motsPopulaires??[];
 $data['utilisateurs']=$mots??[];
-$data['nb_votes_total']= $nb_votes_total;
-$data['nb_votes']= $nb_votes ;
+$data['nb_votes_total']= $DataCommunautaire['nb_votes_total'];
+$data['nb_votes']= $DataCommunautaire['nb_votes'] ;
 //récupère l'utilisateur
 $session = Services::session();
 if(session()->has('utilisateur')):

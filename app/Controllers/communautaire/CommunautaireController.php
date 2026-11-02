@@ -8,6 +8,7 @@ use App\Entities\MotCle;
 use App\Entities\Utilisateur;
 use App\Models\CategorieModel;
 use App\Models\ImageModel;
+use App\Models\ThemeModel;
 use App\Models\MotCle\MotCleCategorieModel;
 use App\Models\MotCle\MotCleModel;
 use App\Models\MotCle\MotCleValidationModel;
@@ -37,6 +38,7 @@ class CommunautaireController extends BaseController
     protected MotCleCategorieModel $motCleCategorie_model;
     protected MotCleVoteModel $motCleVote_model;
     protected ImageModel $image_model;
+    protected ThemeModel $theme_model;
     protected VoteModel $vote_model;
     protected UtilisateurModel $utilisateur_model;
 
@@ -52,6 +54,7 @@ class CommunautaireController extends BaseController
         $this->categorie_model = new CategorieModel();
         $this->image_model = new ImageModel();
         $this->utilisateur_model = new UtilisateurModel();
+        $this->theme_model = new ThemeModel();
         // Vérification de la session et du rôle de l'utilisateur
         $utilisateur = $this->session->get('utilisateur');
 
@@ -75,7 +78,11 @@ class CommunautaireController extends BaseController
         $mots = $this->motCleVote_model->getAllMotCleVotesCetteSemaineByUtilisateurId(
             $this->session->get('utilisateur')->id);
 
-        $data = $this->setDataCommunautaire($mots);
+        $data = [
+            'DataCommunautaire' => $this->setDataCommunautaire($mots),
+            'themeList' => $this->theme_model->getAllThemes(),
+        ];
+
         return view('header', $data)
             . view('notice')
             . view('communautaire/communautaire')

@@ -6,7 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="1a4065f7-ed27-4364-ae71-5b4cd082b4f1" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/Controllers/CompteController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Controllers/CompteController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/Controllers/GlossaireController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Controllers/GlossaireController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/Controllers/communautaire/CommunautaireController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Controllers/communautaire/CommunautaireController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/Views/communautaire/communautaire.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Views/communautaire/communautaire.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

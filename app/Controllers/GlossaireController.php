@@ -8,6 +8,7 @@ use App\Models\ImageModel;
 use App\Models\MotCle\GlossaireModel;
 use App\Models\MotCle\MotCleModel;
 use App\Models\SignalementModel;
+use App\Models\ThemeModel;
 use App\Models\VoteModel;
 use CodeIgniter\Exceptions\PageNotFoundException;
 use CodeIgniter\Session\Session;
@@ -29,6 +30,7 @@ class GlossaireController extends BaseController
     protected CategorieModel $categorie_model;
     protected ImageModel $image_model;
     protected Session $session;
+    protected ThemeModel $theme_model;
     protected SignalementModel $signalement_model;
 //    protected Collator $collator;
     protected MotCleVoteModel $motCleVote_model;
@@ -43,6 +45,7 @@ class GlossaireController extends BaseController
         $this->image_model = new ImageModel();
         $this->signalement_model = new SignalementModel();
         $this->motCleVote_model = new MotCleVoteModel();
+        $this->theme_model = new ThemeModel();
 //        $this->collator = new Collator("fr_FR");
 
         // Vérification de la session et du rôle de l'utilisateur
@@ -85,6 +88,7 @@ class GlossaireController extends BaseController
             'contenu' => empty($recherche) ? 'glossaire' : 'recherche',
             'recherche' => $recherche,
             'topMots' => $this->motCleVote_model->getMotsPopulairesSemainePrecedente(10),
+            'themeList' => $this->theme_model->getAllThemes(),
         ];
 
         $data = array_merge($data, $this->setDataGlossaire());
@@ -129,7 +133,9 @@ class GlossaireController extends BaseController
             'from' => base_url('glossaire'),
             'categorie' => $this->categorie_model->getCategorieById($idCat),
             'categories' => $this->categorie_model->getAllCategories(),
+            'themeList' => $this->theme_model->getAllThemes(),
             'contenu' => 'categorie',
+
         ];
         $data = array_merge($data, $this->setDataGlossaire());  // Permet de fusionner les $data
 
@@ -150,6 +156,7 @@ class GlossaireController extends BaseController
             'categoriesMot' => $this->categorie_model->getCategoriesMotcle($idMot),
             'images' => $this->image_model->getImagesByMotId($idMot),
             'from' => base_url('glossaire'),
+            'themeList' => $this->theme_model->getAllThemes(),
             'contenu' => 'mot_seul',
         ];
 
