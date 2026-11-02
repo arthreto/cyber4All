@@ -122,9 +122,15 @@ endif;
                         <details class="menu-sio">
                             <summary class="menu-nav__lien menu-sio__titre">Comprendre les accès</summary>
                             <ul class="menu-sio__liste">
-                                <?php foreach($themeList as $theme):
-                                    echo '<li><a href="#" class="dropdown-menu__item" title="Première leçon du thème ', $theme->nom, '">', $theme->nom, '</a></li>';
-                                endforeach; ?>
+                                <?php foreach ($themeList as $theme): ?>
+                                    <li>
+                                        <a href="<?= site_url('theme/' . $theme->id) ?>"
+                                           class="dropdown-menu__item"
+                                           title="Première leçon du thème <?= esc($theme->nom, 'attr') ?>">
+                                            <?= esc($theme->nom) ?>
+                                        </a>
+                                    </li>
+                                <?php endforeach ?>
                                 <li class="menu-sio__separateur"><a href="#" class="dropdown-menu__item menu-sio__quiz" title="Choisir un quiz Vrai / Faux">Quiz Vrai / Faux</a></li>
                             </ul>
                         </details>
