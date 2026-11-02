@@ -50,104 +50,35 @@
                 </thead>
                 <tbody class="mots-table__body">
                 <!-- À brancher : foreach ($questions as $question) -->
-                <tr class="mots-table__body-row">
-                    <td class="mots-table__cell">
-                        <a href="<?= base_url('floribondant/theme/questions/update/12') ?>" class="mots-table__link">
-                            Un JWT dont la date d'expiration (exp) est dépassée reste valide tant que sa signature est correcte.
-                        </a>
-                    </td>
-                    <td class="mots-table__cell">
-                        <ul class="sio-admin__quiz-liste">
-                            <li>Reconnaître un token valide</li>
-                            <li>JWT : structure et signature</li>
-                        </ul>
-                    </td>
-                    <td class="mots-table__cell"><span class="sio-admin__badge">Faux</span></td>
-                    <td class="mots-table__cell">Oui</td>
-                    <td class="mots-table__cell mots-table__date">12/10/2026</td>
-                    <td class="mots-table__cell">
-                        <div class="sio-admin__ligne-actions">
-                            <a href="<?= base_url('floribondant/theme/questions/update/12') ?>" class="mots-table__link">Modifier</a>
-                            <?= form_open(base_url('floribondant/theme/questions/supprimer'), ['class' => 'mots-table__delete-form']) ?>
-                                <?= form_hidden('id_question', '12') ?>
-                                <button type="submit" class="sio-admin__btn-supprimer">Supprimer</button>
-                            <?= form_close() ?>
-                        </div>
-                    </td>
-                </tr>
-                <tr class="mots-table__body-row">
-                    <td class="mots-table__cell">
-                        <a href="<?= base_url('floribondant/theme/questions/update/13') ?>" class="mots-table__link">
-                            Après une déconnexion, le serveur doit pouvoir refuser un token même s'il n'est pas encore expiré.
-                        </a>
-                    </td>
-                    <td class="mots-table__cell">
-                        <ul class="sio-admin__quiz-liste">
-                            <li>Reconnaître un token valide</li>
-                        </ul>
-                    </td>
-                    <td class="mots-table__cell"><span class="sio-admin__badge">Vrai</span></td>
-                    <td class="mots-table__cell">Oui</td>
-                    <td class="mots-table__cell mots-table__date">08/10/2026</td>
-                    <td class="mots-table__cell">
-                        <div class="sio-admin__ligne-actions">
-                            <a href="<?= base_url('floribondant/theme/questions/update/13') ?>" class="mots-table__link">Modifier</a>
-                            <?= form_open(base_url('floribondant/theme/questions/supprimer'), ['class' => 'mots-table__delete-form']) ?>
-                                <?= form_hidden('id_question', '13') ?>
-                                <button type="submit" class="sio-admin__btn-supprimer">Supprimer</button>
-                            <?= form_close() ?>
-                        </div>
-                    </td>
-                </tr>
-                <tr class="mots-table__body-row">
-                    <td class="mots-table__cell">
-                        <a href="<?= base_url('floribondant/theme/questions/update/14') ?>" class="mots-table__link">
-                            Un token dont la signature est valide donne accès à toutes les ressources de l'application.
-                        </a>
-                    </td>
-                    <td class="mots-table__cell">
-                        <ul class="sio-admin__quiz-liste">
-                            <li>Reconnaître un token valide</li>
-                            <li>JWT : structure et signature</li>
-                        </ul>
-                    </td>
-                    <td class="mots-table__cell"><span class="sio-admin__badge">Faux</span></td>
-                    <td class="mots-table__cell">Oui</td>
-                    <td class="mots-table__cell mots-table__date">08/10/2026</td>
-                    <td class="mots-table__cell">
-                        <div class="sio-admin__ligne-actions">
-                            <a href="<?= base_url('floribondant/theme/questions/update/14') ?>" class="mots-table__link">Modifier</a>
-                            <?= form_open(base_url('floribondant/theme/questions/supprimer'), ['class' => 'mots-table__delete-form']) ?>
-                                <?= form_hidden('id_question', '14') ?>
-                                <button type="submit" class="sio-admin__btn-supprimer">Supprimer</button>
-                            <?= form_close() ?>
-                        </div>
-                    </td>
-                </tr>
-                <tr class="mots-table__body-row sio-admin__ligne--inactive">
-                    <td class="mots-table__cell">
-                        <a href="<?= base_url('floribondant/theme/questions/update/15') ?>" class="mots-table__link">
-                            Une clé d'API peut être placée sans risque dans l'URL d'une requête.
-                        </a>
-                    </td>
-                    <td class="mots-table__cell">
-                        <ul class="sio-admin__quiz-liste">
-                            <li>JWT : structure et signature</li>
-                        </ul>
-                    </td>
-                    <td class="mots-table__cell"><span class="sio-admin__badge">Faux</span></td>
-                    <td class="mots-table__cell">Non</td>
-                    <td class="mots-table__cell mots-table__date">02/10/2026</td>
-                    <td class="mots-table__cell">
-                        <div class="sio-admin__ligne-actions">
-                            <a href="<?= base_url('floribondant/theme/questions/update/15') ?>" class="mots-table__link">Modifier</a>
-                            <?= form_open(base_url('floribondant/theme/questions/supprimer'), ['class' => 'mots-table__delete-form']) ?>
-                                <?= form_hidden('id_question', '15') ?>
-                                <button type="submit" class="sio-admin__btn-supprimer">Supprimer</button>
-                            <?= form_close() ?>
-                        </div>
-                    </td>
-                </tr>
+                <?php foreach ($questionList as $question): ?>
+                    <tr class="mots-table__body-row">
+                        <td class="mots-table__cell">
+                            <a href="<?= base_url('floribondant/theme/questions/update/12') ?>" class="mots-table__link">
+                                <?= $question['libelle'] ?>
+                            </a>
+                        </td>
+                        <td class="mots-table__cell">
+                            <ul class="sio-admin__quiz-liste">
+
+                                <?php foreach ($question['quiz'] as $quiz): ?>
+                                    <li><?= esc($quiz['titre']) ?></li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </td>
+                        <td class="mots-table__cell"><span class="sio-admin__badge"><?= $question['bonne_reponse'] == 1 ? 'Vrai' : 'Faux' ?></span></td>
+                        <td class="mots-table__cell"><?= $question['actif'] == 1 ? 'Oui' : 'Non' ?></td>
+                        <td class="mots-table__cell mots-table__date"><?= isset($question['date_modif']) ? $question['date_modif'] : $question['date_ajout'] ?></td>
+                        <td class="mots-table__cell">
+                            <div class="sio-admin__ligne-actions">
+                                <a href="<?= base_url('floribondant/theme/questions/modifier/' . $question['id']) ?>" class="mots-table__link">Modifier</a>
+                                <?= form_open(base_url('floribondant/theme/questions/supprimer'), ['class' => 'mots-table__delete-form']) ?>
+                                    <?= form_hidden('id_question', '12') ?>
+                                    <button type="submit" class="sio-admin__btn-supprimer">Supprimer</button>
+                                <?= form_close() ?>
+                            </div>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
                 </tbody>
             </table>
         </div>

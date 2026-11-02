@@ -53,6 +53,7 @@ $routes->group('floribondant', static function ($routes) {
     $routes->match(['GET', 'POST'], 'theme/quiz', 'admin\AdminThemeController::quizSection');
     $routes->match(['GET', 'POST'], 'theme/lecons', 'admin\AdminThemeController::leconsSection');
     $routes->match(['GET', 'POST'], 'theme/questions/ajouter', 'admin\AdminThemeController::questionAjouter');
+    $routes->match(['GET', 'POST'], 'theme/questions/modifier/(:num)', 'admin\AdminThemeController::questionAjouter/$1');
 
     $routes->post('signalement/supprimer', 'SignalementController::supprimerSignalement');
     $routes->match(['GET','POST'], 'utilisateurs', 'admin\AdminUtilisateurController::index');

@@ -76,9 +76,12 @@ class AdminThemeController extends BaseController
 
         if ($this->request->is('post')) {
             $data['themeSelect'] = $this->request->getPost('id_theme');
-            log_message('debug', 'Theme selected: ' . $data['themeSelect']);
+        }
+
+        if($data['themeSelect'] == -1){
+            $data['questionList'] = $this->question_model->getAllQuestions();
         } else {
-            log_message('debug', 'Theme selected: ' . $data['themeSelect']);
+            $data['questionList'] = $this->question_model->getQuestionsFromTheme($data['themeSelect']);
         }
 
         return view('header')
@@ -88,9 +91,22 @@ class AdminThemeController extends BaseController
             . view('footer');
     }
 
-    public function questionAjouter()
+    public function questionAjouter($idQuestionModif)
     {
-        $form = $this->session->get('questionForm') ?? new QuestionForm();
+        $form = $this->session->get('questionForm');
+
+        if ($form === null) {
+            $form = new QuestionForm();
+
+            if ($idQuestionModif !== null) {
+                $question = $this->question_model->find($idQuestionModif);
+
+                if ($question !== null) {
+                    $form->fill($question);
+                }
+            }
+        }
+
         $errors = [];
 
         if ($this->request->is('post')) {
