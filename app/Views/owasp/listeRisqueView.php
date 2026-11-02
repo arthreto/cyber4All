@@ -1,4 +1,4 @@
-<main class="detail-preview">
+ <main class="detail-preview">
     <article class="detail-page">
 
         <header class="detail-header">
