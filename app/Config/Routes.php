@@ -47,3 +47,8 @@ $routes->group('floribondant', static function ($routes) {
     $routes->post('signalement/supprimer', 'SignalementController::supprimerSignalement');
     $routes->match(['GET','POST'], 'utilisateurs', 'admin\AdminUtilisateurController::index');
 });
+//Gestion de l'espace des Flashcard
+$routes->get('/selectionMode', 'FlashcardController::selection');
+$routes->get('/selectionTheme', 'FlashcardController::Theme');
+
+

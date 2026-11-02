@@ -137,6 +137,17 @@ endif;
                     ) ?>
                 <?php endif; ?>
             </div>
+            <!-- Bouton pour les Flashcard -->
+            <div>
+                <?= anchor(
+                        base_url('selectionMode'),
+                        'flashcard',
+                        [
+                                'title'=>"",
+                                'class'=>"btn-connexion"
+                        ]
+                ) ?>
+            </div>
         </div>
     </header>
 </body>

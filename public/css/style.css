@@ -21,9 +21,12 @@
 @import 'quiz/questionsQuiz.css';
 @import 'quiz/reviserQuiz.css';
 
+@import "flashcard/selectionMode.css";
+
 @import 'lienUtile.css';
 @import 'communautaire.css';
 @import 'signalement.css';
+
 
 /* ========== VARIABLES CSS GLOBALES - cyber4all ========== */
 

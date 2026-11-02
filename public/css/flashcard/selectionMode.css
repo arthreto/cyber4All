@@ -1,0 +1,17 @@
+/* les bouton */
+.selection {
+    gap: 10px;
+}
+
+.btn-selection {
+    padding: 10px 15px;
+    font-size: 13px;
+    border-radius: 20px;
+}
+
+@media (max-width: 480px){
+    .header__wrapper {
+        display: flex;
+        flex-direction: column;
+    }
+}
