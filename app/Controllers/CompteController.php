@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Controllers\BaseController;
 use App\Models\MotCle\MotCleValidationModel;
 use App\Models\UtilisateurModel;
+use App\Models\ThemeModel;
 use CodeIgniter\Config\Services;
 use App\Entities\Utilisateur;
 use CodeIgniter\Exceptions\PageNotFoundException;
@@ -22,6 +23,7 @@ class CompteController extends BaseController
     protected UtilisateurModel $utilisateur_model;
     protected ?Utilisateur $utilisateur = null;
     protected MotCleValidationModel $motCleValidation_model;
+    protected ThemeModel $theme_model;
     protected Session $session;
 
     public function __construct()
@@ -31,6 +33,7 @@ class CompteController extends BaseController
         // Vérification de la session et du rôle de l'utilisateur
         $utilisateur = $this->session->get('utilisateur');
         $this->motCleValidation_model = new MotCleValidationModel();
+        $this->theme_model = new ThemeModel();
 
         if ($utilisateur && in_array($utilisateur->role, ['contributeur', 'admin'], true)) {
             $this->utilisateur = $utilisateur;
@@ -142,6 +145,7 @@ class CompteController extends BaseController
             'motsContributeurAttente' => $this->motCleValidation_model
                 ->getMotCleValidationContributeurAttentePaginate($this->utilisateur->id),
             'pager' => $this->motCleValidation_model->pager,
+            'themeList' => $this->theme_model->getAllThemes(),
         ];
 //        TODO créer une vue pour afficher les mots du contributeur
         return view('header', $data)
