@@ -6,23 +6,41 @@ use App\Models\OwaspModel;
 
 class OwaspController extends BaseController
 {
-    protected OwaspModel $apiMenace;
+    protected OwaspModel $Menace;
+    protected OwaspModel $Top;
     public function __construct()
     {
-        $this->apiMenace = new OwaspModel();
+        $this->Menace = new OwaspModel();
+        $this->Top = new OwaspModel();
     }
 
-    public function getMenaces()
+    public function getMenaces($top)
     {
-            $data['apiVulnerabilities'] = [];
-            $tableau_temp = $this->apiMenace->getMenaces();
+        if ($top==1)
+        {
+            $data['Vulnerabilities'] = [];
+            $tableau_temp = $this->Menace->getMenacesWeb();
             foreach ($tableau_temp as $menaces)
             {
                 $nom = $menaces->nom_menace;
                 $description = $menaces->desc_menace;
-                $data['apiVulnerabilities'][$nom] = $description;
+                $data['Vulnerabilities'][$nom] = $description;
             }
-            return view('owasp/headerView') .
+            $data['Top'] = $this->Top->getTopById($top);
+        }
+        else if ($top==2){
+            $data['Vulnerabilities'] = [];
+            $tableau_temp = $this->Menace->getMenacesApi();
+            foreach ($tableau_temp as $menaces)
+            {
+                $nom = $menaces->nom_menace;
+                $description = $menaces->desc_menace;
+                $data['Vulnerabilities'][$nom] = $description;
+            }
+            $data['Top'] = $this->Top->getTopById($top);
+        }
+        if (!$data['Top']) { throw new \CodeIgniter\Exceptions\PageNotFoundException(); }
+            return view('owasp/headerView', $data) .
                 view('owasp/listeRisqueView', $data) .
                 view('owasp/footerView');
     }
