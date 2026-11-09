@@ -53,6 +53,8 @@ $routes->group('floribondant', static function ($routes) {
     $routes->match(['GET','POST'], 'utilisateurs', 'admin\AdminUtilisateurController::index');
     $routes->match(['GET', 'POST'], 'QuizzConcept', 'Controllers_groupe_C\Groupe_C_Admin::GroupeC_Admin'); //ROUTE POUR L'ADMIN DU QUIZZ CONCEPT
     $routes->post('groupe_c/admin/modifier', 'Controllers_groupe_C\Groupe_C_Admin::GroupeC_Modifier');
+    $routes->post('groupe_c/admin/ajouter', 'Controllers_groupe_C\Groupe_C_Admin::GroupeC_Ajouter');
+    $routes->post('groupe_c/admin/supprimer', 'Controllers_groupe_C\Groupe_C_Admin::GroupeC_Supprimer');
 });
 
 
