@@ -19,7 +19,7 @@ class LeconModel extends Model
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = Lecon::class;
-    protected $allowedFields    = ['titre', 'contenu', 'id_theme', 'id_auteur'];
+    protected $allowedFields    = ['titre', 'contenu', 'id_theme', 'id_auteur', 'id_auteur_modif'];
 
     // Remplissage automatique des dates d'ajout et de modification
     protected $useTimestamps = true;
@@ -86,5 +86,47 @@ class LeconModel extends Model
 
             return [];
         }
+    }
+
+    /**
+     * Récupère toutes les leçons, triées par thème puis par ordre de création.
+     *
+     * Cette méthode effectue une requête sur la table `lecon` et retourne
+     * toutes les leçons sous forme d'un tableau d'objets `Lecon`, triées
+     * par le champ `id_theme` puis par le champ `id` en ordre croissant.
+     * En cas d'erreur (ex. problème de connexion ou de requête), un message
+     * d'erreur est logué et un tableau vide est retourné.
+     *
+     * @return Lecon[] Tableau d'objets `Lecon`, vide en cas d'erreur.
+     *
+     * @since 1.0.0
+     * @author Raphael BIERLAIRE
+     */
+    public function getAllLecons(): array
+    {
+        try {
+            // Requête ordonnée par thème, puis par le champ id en ASC
+            $lecons = $this->select('lecon.*, theme.nom AS nom_theme')
+                ->join('theme', 'theme.id = lecon.id_theme')
+                ->orderBy('lecon.id_theme', 'ASC')
+                ->orderBy('lecon.id', 'ASC')
+                ->findAll();
+        } catch (DatabaseException $e) {
+            log_message('error', 'Erreur getAllLecons : ' . $e->getMessage());
+            return [];
+        }
+
+        $utilisateurModel = new UtilisateurModel();
+
+        // Pseudos déjà trouvés (auteurs et modificateurs), sous la forme [id => pseudo]
+        $pseudos = [];
+
+        foreach ($lecons as $lecon) {
+            log_message('error', 'id_auteur: ' . $lecon->id_auteur);
+            $lecon->user_auteur       = $utilisateurModel->getUtilisateurById($lecon->id_auteur);
+            $lecon->user_modificateur = isset($lecon->id_auteur_modif) ? $utilisateurModel->getUtilisateurById($lecon->id_auteur_modif) : null;
+        }
+
+        return $lecons;
     }
 }

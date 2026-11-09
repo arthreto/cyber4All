@@ -91,7 +91,7 @@ class QuestionModel extends Model
         try {
             $questions = $this->findAll();
 
-            foreach ($questions as &$question) {
+                foreach ($questions as &$question) {
                 $question['quiz'] = $this->db->table('quiz')
                     ->select('quiz.id, quiz.titre')
                     ->join('quiz_question', 'quiz_question.id_quiz = quiz.id')
