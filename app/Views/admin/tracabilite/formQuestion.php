@@ -14,11 +14,11 @@
 ?>
 <div class="sio-admin sio-admin--formulaire">
 
-    <a href="<?= base_url('floribondant/theme') ?>" class="sio-admin__retour">← Retour aux questions</a>
+    <?= anchor(base_url('floribondant/theme'), '← Retour aux questions', ['class' => 'sio-admin__retour']) ?>
 
     <div class="glossary-form">
         <div class="glossary-form__header">
-            <h2 class="glossary-form__dialog-title"><?= (isset($question)) ? 'Modifier la question' : 'Ajouter une question' ?></h2>
+            <h2 class="glossary-form__dialog-title"><?= ($form->modifier != 0) ? 'Modifier la question' : 'Ajouter une question' ?></h2>
         </div>
 
         <!-- Exemple d'erreur de validation (à afficher seulement si $errors n'est pas vide) -->
@@ -184,4 +184,4 @@
 </div>
 
 <!-- Exception autorisée à la règle 0 JS : uniquement pour le sélecteur de thème -->
-<script src="<?= base_url('js/sio-admin-theme.js') ?>" defer></script>
+<?= script_tag(['src' => 'js/sio-admin-theme.js', 'defer' => null]) ?>

@@ -26,7 +26,7 @@
             <button type="submit" class="sio-admin__btn-secondaire">Filtrer</button>
         <?= form_close() ?>
 
-        <a href="<?= base_url('floribondant/theme/quiz/ajouter') ?>" class="glossary-form__trigger">Ajouter un quiz</a>
+        <?= anchor(base_url('floribondant/theme/quiz/ajouter'), 'Ajouter un quiz', ['class' => 'glossary-form__trigger']) ?>
     </div>
 
     <!-- Tableau des quiz (classes du tableau des mots) -->
@@ -46,16 +46,16 @@
                 <!-- À brancher : foreach ($quizList as $quiz) -->
                 <tr class="mots-table__body-row">
                     <td class="mots-table__cell">
-                        <a href="<?= base_url('floribondant/theme/quiz/update/3') ?>" class="mots-table__link">Reconnaître un token valide</a>
+                        <?= anchor(base_url('floribondant/theme/quiz/update/3'), 'Reconnaître un token valide', ['class' => 'mots-table__link']) ?>
                     </td>
                     <td class="mots-table__cell"><span class="sio-admin__badge">Tokens</span></td>
                     <td class="mots-table__cell">
-                        <a href="<?= base_url('floribondant/theme?id_quiz=3') ?>" class="mots-table__link">3 questions</a>
+                        <?= anchor(base_url('floribondant/theme?id_quiz=3'), '3 questions', ['class' => 'mots-table__link']) ?>
                     </td>
                     <td class="mots-table__cell">Oui</td>
                     <td class="mots-table__cell">
                         <div class="sio-admin__ligne-actions">
-                            <a href="<?= base_url('floribondant/theme/quiz/update/3') ?>" class="mots-table__link">Modifier</a>
+                            <?= anchor(base_url('floribondant/theme/quiz/update/3'), 'Modifier', ['class' => 'mots-table__link']) ?>
                             <?= form_open(base_url('floribondant/theme/quiz/supprimer'), ['class' => 'mots-table__delete-form']) ?>
                                 <?= form_hidden('id_quiz', '3') ?>
                                 <button type="submit" class="sio-admin__btn-supprimer">Supprimer</button>
@@ -65,16 +65,16 @@
                 </tr>
                 <tr class="mots-table__body-row">
                     <td class="mots-table__cell">
-                        <a href="<?= base_url('floribondant/theme/quiz/update/4') ?>" class="mots-table__link">JWT : structure et signature</a>
+                        <?= anchor(base_url('floribondant/theme/quiz/update/4'), 'JWT : structure et signature', ['class' => 'mots-table__link']) ?>
                     </td>
                     <td class="mots-table__cell"><span class="sio-admin__badge">Tokens</span></td>
                     <td class="mots-table__cell">
-                        <a href="<?= base_url('floribondant/theme?id_quiz=4') ?>" class="mots-table__link">6 questions</a>
+                        <?= anchor(base_url('floribondant/theme?id_quiz=4'), '6 questions', ['class' => 'mots-table__link']) ?>
                     </td>
                     <td class="mots-table__cell">Oui</td>
                     <td class="mots-table__cell">
                         <div class="sio-admin__ligne-actions">
-                            <a href="<?= base_url('floribondant/theme/quiz/update/4') ?>" class="mots-table__link">Modifier</a>
+                            <?= anchor(base_url('floribondant/theme/quiz/update/4'), 'Modifier', ['class' => 'mots-table__link']) ?>
                             <?= form_open(base_url('floribondant/theme/quiz/supprimer'), ['class' => 'mots-table__delete-form']) ?>
                                 <?= form_hidden('id_quiz', '4') ?>
                                 <button type="submit" class="sio-admin__btn-supprimer">Supprimer</button>
@@ -84,16 +84,16 @@
                 </tr>
                 <tr class="mots-table__body-row">
                     <td class="mots-table__cell">
-                        <a href="<?= base_url('floribondant/theme/quiz/update/5') ?>" class="mots-table__link">Cookies et attributs de session</a>
+                        <?= anchor(base_url('floribondant/theme/quiz/update/5'), 'Cookies et attributs de session', ['class' => 'mots-table__link']) ?>
                     </td>
                     <td class="mots-table__cell"><span class="sio-admin__badge">Sessions</span></td>
                     <td class="mots-table__cell">
-                        <a href="<?= base_url('floribondant/theme?id_quiz=5') ?>" class="mots-table__link">7 questions</a>
+                        <?= anchor(base_url('floribondant/theme?id_quiz=5'), '7 questions', ['class' => 'mots-table__link']) ?>
                     </td>
                     <td class="mots-table__cell">Oui</td>
                     <td class="mots-table__cell">
                         <div class="sio-admin__ligne-actions">
-                            <a href="<?= base_url('floribondant/theme/quiz/update/5') ?>" class="mots-table__link">Modifier</a>
+                            <?= anchor(base_url('floribondant/theme/quiz/update/5'), 'Modifier', ['class' => 'mots-table__link']) ?>
                             <?= form_open(base_url('floribondant/theme/quiz/supprimer'), ['class' => 'mots-table__delete-form']) ?>
                                 <?= form_hidden('id_quiz', '5') ?>
                                 <button type="submit" class="sio-admin__btn-supprimer">Supprimer</button>
@@ -103,16 +103,16 @@
                 </tr>
                 <tr class="mots-table__body-row sio-admin__ligne--inactive">
                     <td class="mots-table__cell">
-                        <a href="<?= base_url('floribondant/theme/quiz/update/7') ?>" class="mots-table__link">Lire les codes HTTP</a>
+                        <?= anchor(base_url('floribondant/theme/quiz/update/7'), 'Lire les codes HTTP', ['class' => 'mots-table__link']) ?>
                     </td>
                     <td class="mots-table__cell"><span class="sio-admin__badge">Logs</span></td>
                     <td class="mots-table__cell">
-                        <a href="<?= base_url('floribondant/theme?id_quiz=7') ?>" class="mots-table__link">10 questions</a>
+                        <?= anchor(base_url('floribondant/theme?id_quiz=7'), '10 questions', ['class' => 'mots-table__link']) ?>
                     </td>
                     <td class="mots-table__cell">Non</td>
                     <td class="mots-table__cell">
                         <div class="sio-admin__ligne-actions">
-                            <a href="<?= base_url('floribondant/theme/quiz/update/7') ?>" class="mots-table__link">Modifier</a>
+                            <?= anchor(base_url('floribondant/theme/quiz/update/7'), 'Modifier', ['class' => 'mots-table__link']) ?>
                             <?= form_open(base_url('floribondant/theme/quiz/supprimer'), ['class' => 'mots-table__delete-form']) ?>
                                 <?= form_hidden('id_quiz', '7') ?>
                                 <button type="submit" class="sio-admin__btn-supprimer">Supprimer</button>

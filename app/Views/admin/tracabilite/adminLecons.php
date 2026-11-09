@@ -26,7 +26,7 @@
             <button type="submit" class="sio-admin__btn-secondaire">Filtrer</button>
         <?= form_close() ?>
 
-        <a href="<?= base_url('floribondant/theme/lecons/ajouter') ?>" class="glossary-form__trigger">Ajouter une leçon</a>
+        <?= anchor(base_url('floribondant/theme/lecons/ajouter'), 'Ajouter une leçon', ['class' => 'glossary-form__trigger']) ?>
     </div>
 
     <!-- Tableau des leçons (classes du tableau des mots) -->
@@ -47,7 +47,7 @@
                 <!-- À brancher : foreach ($lecons as $lecon) -->
                 <tr class="mots-table__body-row">
                     <td class="mots-table__cell">
-                        <a href="<?= base_url('floribondant/theme/lecons/update/1') ?>" class="mots-table__link">Les tokens</a>
+                        <?= anchor(base_url('floribondant/theme/lecons/update/1'), 'Les tokens', ['class' => 'mots-table__link']) ?>
                     </td>
                     <td class="mots-table__cell"><span class="sio-admin__badge">Tokens</span></td>
                     <td class="mots-table__cell">admin_arthur</td>
@@ -55,7 +55,7 @@
                     <td class="mots-table__cell mots-table__date">12/10/2026</td>
                     <td class="mots-table__cell">
                         <div class="sio-admin__ligne-actions">
-                            <a href="<?= base_url('floribondant/theme/lecons/update/1') ?>" class="mots-table__link">Modifier</a>
+                            <?= anchor(base_url('floribondant/theme/lecons/update/1'), 'Modifier', ['class' => 'mots-table__link']) ?>
                             <?= form_open(base_url('floribondant/theme/lecons/supprimer'), ['class' => 'mots-table__delete-form']) ?>
                                 <?= form_hidden('id_lecon', '1') ?>
                                 <button type="submit" class="sio-admin__btn-supprimer">Supprimer</button>
@@ -65,7 +65,7 @@
                 </tr>
                 <tr class="mots-table__body-row">
                     <td class="mots-table__cell">
-                        <a href="<?= base_url('floribondant/theme/lecons/update/2') ?>" class="mots-table__link">Clés d'API, bonnes pratiques</a>
+                        <?= anchor(base_url('floribondant/theme/lecons/update/2'), "Clés d'API, bonnes pratiques", ['class' => 'mots-table__link']) ?>
                     </td>
                     <td class="mots-table__cell"><span class="sio-admin__badge">Tokens</span></td>
                     <td class="mots-table__cell">admin_arthur</td>
@@ -73,7 +73,7 @@
                     <td class="mots-table__cell mots-table__date">--</td>
                     <td class="mots-table__cell">
                         <div class="sio-admin__ligne-actions">
-                            <a href="<?= base_url('floribondant/theme/lecons/update/2') ?>" class="mots-table__link">Modifier</a>
+                            <?= anchor(base_url('floribondant/theme/lecons/update/2'), 'Modifier', ['class' => 'mots-table__link']) ?>
                             <?= form_open(base_url('floribondant/theme/lecons/supprimer'), ['class' => 'mots-table__delete-form']) ?>
                                 <?= form_hidden('id_lecon', '2') ?>
                                 <button type="submit" class="sio-admin__btn-supprimer">Supprimer</button>
@@ -83,7 +83,7 @@
                 </tr>
                 <tr class="mots-table__body-row">
                     <td class="mots-table__cell">
-                        <a href="<?= base_url('floribondant/theme/lecons/update/4') ?>" class="mots-table__link">Fonctionnement d'une session</a>
+                        <?= anchor(base_url('floribondant/theme/lecons/update/4'), "Fonctionnement d'une session", ['class' => 'mots-table__link']) ?>
                     </td>
                     <td class="mots-table__cell"><span class="sio-admin__badge">Sessions</span></td>
                     <td class="mots-table__cell">admin_benjamin</td>
@@ -91,7 +91,7 @@
                     <td class="mots-table__cell mots-table__date">09/10/2026</td>
                     <td class="mots-table__cell">
                         <div class="sio-admin__ligne-actions">
-                            <a href="<?= base_url('floribondant/theme/lecons/update/4') ?>" class="mots-table__link">Modifier</a>
+                            <?= anchor(base_url('floribondant/theme/lecons/update/4'), 'Modifier', ['class' => 'mots-table__link']) ?>
                             <?= form_open(base_url('floribondant/theme/lecons/supprimer'), ['class' => 'mots-table__delete-form']) ?>
                                 <?= form_hidden('id_lecon', '4') ?>
                                 <button type="submit" class="sio-admin__btn-supprimer">Supprimer</button>
@@ -101,7 +101,7 @@
                 </tr>
                 <tr class="mots-table__body-row">
                     <td class="mots-table__cell">
-                        <a href="<?= base_url('floribondant/theme/lecons/update/7') ?>" class="mots-table__link">Lire une ligne de log</a>
+                        <?= anchor(base_url('floribondant/theme/lecons/update/7'), 'Lire une ligne de log', ['class' => 'mots-table__link']) ?>
                     </td>
                     <td class="mots-table__cell"><span class="sio-admin__badge">Logs</span></td>
                     <td class="mots-table__cell">admin_arthur</td>
@@ -109,7 +109,7 @@
                     <td class="mots-table__cell mots-table__date">--</td>
                     <td class="mots-table__cell">
                         <div class="sio-admin__ligne-actions">
-                            <a href="<?= base_url('floribondant/theme/lecons/update/7') ?>" class="mots-table__link">Modifier</a>
+                            <?= anchor(base_url('floribondant/theme/lecons/update/7'), 'Modifier', ['class' => 'mots-table__link']) ?>
                             <?= form_open(base_url('floribondant/theme/lecons/supprimer'), ['class' => 'mots-table__delete-form']) ?>
                                 <?= form_hidden('id_lecon', '7') ?>
                                 <button type="submit" class="sio-admin__btn-supprimer">Supprimer</button>

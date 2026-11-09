@@ -31,7 +31,7 @@
             </noscript>
         <?= form_close() ?>
 
-        <a href="<?= base_url('floribondant/theme/questions/ajouter') ?>" class="glossary-form__trigger">Ajouter une question</a>
+        <?= anchor(base_url('floribondant/theme/questions/ajouter'), 'Ajouter une question', ['class' => 'glossary-form__trigger']) ?>
     </div>
 
     <!-- Tableau des questions (classes du tableau des mots) -->
@@ -53,9 +53,7 @@
                 <?php foreach ($questionList as $question): ?>
                     <tr class="mots-table__body-row">
                         <td class="mots-table__cell">
-                            <a href="<?= base_url('floribondant/theme/questions/update/12') ?>" class="mots-table__link">
-                                <?= $question['libelle'] ?>
-                            </a>
+                            <?= anchor(base_url('floribondant/theme/questions/modifier/' . $question['id']), esc($question['libelle']), ['class' => 'mots-table__link']) ?>
                         </td>
                         <td class="mots-table__cell">
                             <ul class="sio-admin__quiz-liste">
@@ -70,7 +68,7 @@
                         <td class="mots-table__cell mots-table__date"><?= isset($question['date_modif']) ? $question['date_modif'] : $question['date_ajout'] ?></td>
                         <td class="mots-table__cell">
                             <div class="sio-admin__ligne-actions">
-                                <a href="<?= base_url('floribondant/theme/questions/modifier/' . $question['id']) ?>" class="mots-table__link">Modifier</a>
+                                <?= anchor(base_url('floribondant/theme/questions/modifier/' . $question['id']), 'Modifier', ['class' => 'mots-table__link']) ?>
                                 <?= form_open(base_url('floribondant/theme/questions/supprimer'), ['class' => 'mots-table__delete-form']) ?>
                                     <?= form_hidden('id_question', '12') ?>
                                     <button type="submit" class="sio-admin__btn-supprimer">Supprimer</button>
@@ -85,4 +83,4 @@
     </div>
 </div>
 
-<script src="<?= base_url('js/sio-admin-theme.js') ?>" defer></script>
+<?= script_tag(['src' => 'js/sio-admin-theme.js', 'defer' => null]) ?>

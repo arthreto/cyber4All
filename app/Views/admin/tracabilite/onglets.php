@@ -28,10 +28,14 @@ $ongletActif = $onglet;
 
 <nav class="sio-admin__onglets" aria-label="Sections de l'Espace compréhension SIO">
         <?php foreach ($onglets as $cle => $infos): ?>
-            <?php $estActif = ($cle === $ongletActif); ?>
-            <a href="<?= base_url($infos['url']) ?>"
-               class="sio-admin__onglet<?= $estActif ? ' sio-admin__onglet--actif' : '' ?>"
-                    <?= $estActif ? 'aria-current="page"' : '' ?>><?= esc($infos['libelle']) ?></a>
+            <?php
+            $estActif  = ($cle === $ongletActif);
+            $attributs = ['class' => 'sio-admin__onglet' . ($estActif ? ' sio-admin__onglet--actif' : '')];
+            if ($estActif) {
+                $attributs['aria-current'] = 'page';
+            }
+            ?>
+            <?= anchor(base_url($infos['url']), esc($infos['libelle']), $attributs) ?>
         <?php endforeach; ?>
     </nav>
 </div>
