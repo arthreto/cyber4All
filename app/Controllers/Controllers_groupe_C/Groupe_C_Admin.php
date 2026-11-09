@@ -82,8 +82,9 @@ class Groupe_C_Admin extends BaseController
         $modelConcept = new \App\Models\Model_groupe_C\ModelAdminCmot_cle_categorie();
         $db           = \Config\Database::connect();
 
-        $idMot    = (int) $this->request->getPost('id_mot_cle');
-        $question = trim((string) $this->request->getPost('question'));
+        $idMot       = (int) $this->request->getPost('id_mot_cle');
+        $question    = trim((string) $this->request->getPost('question'));
+        $explication = trim((string) $this->request->getPost('explication'));
 
         $valeurs = [
             'DISPONIBILITE'   => $this->request->getPost('DISPONIBILITE') ? 1 : 0,
@@ -97,31 +98,36 @@ class Groupe_C_Admin extends BaseController
         // 1. Concepts cyber du terme
         $modelConcept->update($idMot, $valeurs);
 
-        // 2. Question : création ou modification
+        // 2. Question + explication : création ou modification
         $idQuestion = null;
         $existante  = $db->table('question_quiz')->where('id_mot_cle', $idMot)->get()->getRowArray();
 
         if ($existante) {
             $idQuestion = (int) $existante['id'];
+
+            $maj = ['explication' => $explication !== '' ? $explication : null];
             if ($question !== '') {
-                $db->table('question_quiz')->where('id', $idQuestion)->update(['question' => $question]);
+                $maj['question'] = $question;   // on n'efface jamais une question existante
             }
+            $db->table('question_quiz')->where('id', $idQuestion)->update($maj);
+
         } elseif ($question !== '') {
             $db->table('question_quiz')->insert([
-                'id_mot_cle' => $idMot,
-                'question'   => $question,
+                'id_mot_cle'  => $idMot,
+                'question'    => $question,
+                'explication' => $explication !== '' ? $explication : null,
             ]);
             $idQuestion = $db->insertID();
         }
 
-        // 3. Bonnes réponses de la question (question_concept) synchronisées avec les cases cochées
+        // 3. Bonnes réponses de la question (question_reponse) synchronisées avec les cases cochées
         if ($idQuestion) {
-            $db->table('question_concept')->where('id_question', $idQuestion)->delete();
+            $db->table('question_reponse')->where('id_question', $idQuestion)->delete();
 
             $ids = ['DISPONIBILITE' => 1, 'INTEGRITE' => 2, 'CONFIDENTIALITE' => 3, 'TRACABILITE' => 4];
             foreach ($ids as $colonne => $idConcept) {
                 if ($valeurs[$colonne] === 1) {
-                    $db->table('question_concept')->insert([
+                    $db->table('question_reponse')->insert([
                         'id_question' => $idQuestion,
                         'id_concept'  => $idConcept,
                     ]);

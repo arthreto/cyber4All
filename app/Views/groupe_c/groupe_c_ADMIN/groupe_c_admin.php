@@ -120,6 +120,12 @@
                             <textarea class="zone-texte" id="question" name="question"
                                       placeholder="Ex. : Un équipement filtre le trafic réseau… Quels critères protège-t-il ?"><?= esc($questionEdition['question'] ?? '') ?></textarea>
                         </div>
+                        <div class="champ">
+                            <label class="etiquette" for="explication">Explication associée</label>
+                            <textarea class="zone-texte" id="explication" name="explication"
+                                      placeholder="Ex. : Un pare-feu filtre le trafic selon des règles : il protège la confidentialité, l'intégrité…"><?= esc($questionEdition['explication'] ?? '') ?></textarea>
+                            <p class="aide">Affichée après la réponse du quiz (1 à 2 phrases).</p>
+                        </div>
                     </div>
 
                     <div class="boutons-formulaire">
