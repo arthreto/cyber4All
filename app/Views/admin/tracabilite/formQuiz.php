@@ -66,6 +66,7 @@ $nbQuestions = count($questionsAjoutees ?? []);
                 'name'        => 'titre',
                 'id'          => 'champ-titre',
                 'value'       => $form->titre ?? '',
+                'minlength'   => '14',
                 'maxlength'   => '150',
                 'placeholder' => 'Reconnaître un token valide',
                 'class'       => $classeChamp('glossary-form__input', 'titre'),
@@ -82,7 +83,7 @@ $nbQuestions = count($questionsAjoutees ?? []);
                 'id'               => 'champ-description',
                 'value'            => $form->description ?? '',
                 'rows'             => '4',
-                'class'            => $classeChamp('glossary-form__input', 'description'),
+                'class'            => $classeChamp('glossary-form__input sio-admin__textarea--fixe', 'description'),
                 'aria-describedby' => 'aide-description',
             ]) ?>
             <p id="aide-description" class="glossary-form__help">Courte présentation affichée dans la liste des quiz.</p>

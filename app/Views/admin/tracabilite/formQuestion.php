@@ -147,7 +147,7 @@ $optionsTypes = esc($typesExtrait);
                 'id'       => 'champ-libelle',
                 'value'    => $form->libelle ?? '',
                 'rows'     => '3',
-                'class'    => $classeChamp('glossary-form__input', 'libelle'),
+                'class'    => $classeChamp('glossary-form__input sio-admin__textarea--fixe', 'libelle'),
                 'required' => true,
             ]) ?>
             <?= $erreurChamp('libelle') ?>
@@ -160,11 +160,11 @@ $optionsTypes = esc($typesExtrait);
                 'name'             => 'image',
                 'id'               => 'champ-image',
                 'value'            => $form->image ?? '',
-                'placeholder'      => 'images/questions/jwt-expire.png',
+                'placeholder'      => 'jwt-expire.png',
                 'class'            => $classeChamp('glossary-form__input', 'image'),
                 'aria-describedby' => 'aide-image',
             ]) ?>
-            <p id="aide-image" class="glossary-form__help">Nom de l'image avec extension dans images/questions/</p>
+            <p id="aide-image" class="glossary-form__help">Nom de l'image avec extension placé dans images/questions/</p>
             <?= $erreurChamp('image') ?>
         </div>
 
@@ -371,7 +371,7 @@ $optionsTypes = esc($typesExtrait);
                 'id'    => 'champ-explication',
                 'value' => $form->explication ?? '',
                 'rows'  => '4',
-                'class' => $classeChamp('glossary-form__input', 'explication'),
+                'class' => $classeChamp('glossary-form__input sio-admin__textarea--fixe', 'explication'),
             ];
             if (isset($errors['explication'])) {
                 $attributsExplication['aria-invalid'] = 'true';

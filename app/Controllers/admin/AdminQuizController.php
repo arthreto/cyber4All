@@ -137,10 +137,10 @@ class AdminQuizController extends BaseController
                     ],
                     'titre' => [
                         'label' => 'Titre',
-                        'rules' => 'required|min_length[3]|max_length[150]',
+                        'rules' => 'required|min_length[14]|max_length[150]',
                         'errors' => [
                             'required' => 'Veuillez renseigner un titre.',
-                            'min_length' => 'Le titre doit contenir au moins 3 caractères.',
+                            'min_length' => 'Le titre doit contenir au moins 14 caractères.',
                             'max_length' => 'Le titre ne peut pas dépasser 150 caractères.',
                         ],
                     ],

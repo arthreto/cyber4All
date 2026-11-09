@@ -271,6 +271,11 @@
     font-size: 14px;
 }
 
+/* Zone de texte à taille fixe : la poignée d'étirement est retirée */
+.sio-admin__textarea--fixe {
+    resize: none;
+}
+
 /* Message de réussite d'une action sur un extrait (modifié, supprimé) */
 .sio-admin__info-detail {
     margin: 0;

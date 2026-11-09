@@ -107,7 +107,9 @@ class AdminThemeController extends BaseController
         $this->quiz_question_model->delete($idQuestion);
         $this->question_model->delete($idQuestion);
 
-        return $this->index();
+        // Redirection vers la liste : l'URL redevient celle de la liste (la position de
+        // défilement y est remise) et un rafraîchissement ne renvoie pas la suppression
+        return redirect()->to(base_url('floribondant/theme'));
     }
 
 
