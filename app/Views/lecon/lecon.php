@@ -9,6 +9,7 @@
  * - $numero         : la position de la leçon dans le thème (int, à partir de 1)
  * - $leconsTheme    : les leçons du même thème
  * - $leconSuivante  : la leçon suivante du thème (ou null)
+ * - $auteur         : l'auteur de la leçon (pseudo), ou null
  */
 
 $dateMaj  = $lecon->date_modif ?? $lecon->date_ajout;
@@ -24,7 +25,7 @@ $nbLecons = count($leconsTheme);
         <ol class="lecon-ariane__liste">
             <li class="lecon-ariane__item">Comprendre les accès</li>
             <li class="lecon-ariane__item">
-                <a href="<?= site_url('theme/' . $idTheme . '/1') ?>" class="lecon-ariane__lien"><?= esc($theme->nom) ?></a>
+                <?= anchor(url_to('lecon', $idTheme, 1), esc($theme->nom), ['class' => 'lecon-ariane__lien']) ?>
             </li>
             <li class="lecon-ariane__item" aria-current="page"><?= esc($lecon->titre) ?></li>
         </ol>
@@ -43,7 +44,7 @@ $nbLecons = count($leconsTheme);
                         Rédigé par <span class="lecon__auteur"><?= esc($auteur->pseudo) ?></span> ·
                     <?php endif ?>
                     <?php if ($dateMaj !== null): ?>
-                        Mis à jour le <time datetime="<?= esc($dateMaj->toDateString(), 'attr') ?>"><?= $dateMaj->format('d/m/Y') ?></time>
+                        Mise à jour le <time datetime="<?= esc($dateMaj->toDateString(), 'attr') ?>"><?= $dateMaj->format('d/m/Y') ?></time>
                     <?php endif ?>
                 </p>
             </header>
@@ -52,8 +53,8 @@ $nbLecons = count($leconsTheme);
             <div class="lecon__contenu"><?= esc($lecon->contenu) ?></div>
 
             <!-- Bibliothèques : marked (Markdown -> HTML) et DOMPurify (sécurité XSS). Versions majeures épinglées -->
-            <script src="https://cdn.jsdelivr.net/npm/marked@18/lib/marked.umd.js"></script>
-            <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
+            <?= script_tag('https://cdn.jsdelivr.net/npm/marked@18/lib/marked.umd.js') ?>
+            <?= script_tag('https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js') ?>
 
             <!-- Doit rester après les deux scripts ci-dessus -->
             <script>
@@ -76,9 +77,11 @@ $nbLecons = count($leconsTheme);
             <!-- Leçon suivante du thème -->
             <?php if ($leconSuivante !== null): ?>
                 <nav class="lecon-suite" aria-label="Leçon suivante">
-                    <a href="<?= site_url('theme/' . $theme->id . '/' . ($numero + 1)) ?>" class="lecon-suite__lien">
-                        Leçon suivante : <?= esc($leconSuivante->titre) ?> →
-                    </a>
+                    <?= anchor(
+                            url_to('lecon', $idTheme, $numero + 1),
+                            'Leçon suivante : ' . esc($leconSuivante->titre) . ' →',
+                            ['class' => 'lecon-suite__lien']
+                    ) ?>
                 </nav>
             <?php endif ?>
         </article>
@@ -90,14 +93,17 @@ $nbLecons = count($leconsTheme);
             </h2>
             <ol class="lecon-sommaire__liste">
                 <?php foreach ($leconsTheme as $i => $l): ?>
-                    <?php $estActive = ($i + 1) === $numero; ?>
-                    <li>
-                        <a href="<?= site_url('theme/' . $theme->id . '/' . ($i + 1)) ?>"
-                           class="lecon-sommaire__lien<?= $estActive ? ' lecon-sommaire__lien--actif' : '' ?>"
-                                <?= $estActive ? 'aria-current="page"' : '' ?>>
-                            <?= esc($l->titre) ?>
-                        </a>
-                    </li>
+                <?php
+                $estActive = ($i + 1) === $numero;
+
+                $attributs = ['class' => 'lecon-sommaire__lien' . ($estActive ? ' lecon-sommaire__lien--actif' : '')];
+                if ($estActive) {
+                    $attributs['aria-current'] = 'page';
+                }
+                ?>
+                <li>
+                    <?= anchor(url_to('lecon', $idTheme, $i + 1), esc($l->titre), $attributs) ?>
+                </li>
                 <?php endforeach ?>
             </ol>
         </aside>
