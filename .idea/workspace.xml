@@ -4,13 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1a4065f7-ed27-4364-ae71-5b4cd082b4f1" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/Config/Routes.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Config/Routes.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/Controllers/admin/AdminThemeController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Controllers/admin/AdminThemeController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/Models/QuestionModel.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Models/QuestionModel.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/Views/admin/tracabilite/adminQuestions.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Views/admin/tracabilite/adminQuestions.php" afterDir="false" />
-    </list>
+    <list default="true" id="1a4065f7-ed27-4364-ae71-5b4cd082b4f1" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -21,7 +15,9 @@
     <execution>
       <execution>
         <execution>
-          <execution />
+          <execution>
+            <execution />
+          </execution>
         </execution>
       </execution>
     </execution>
