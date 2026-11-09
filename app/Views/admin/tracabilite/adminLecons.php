@@ -9,18 +9,22 @@
 
     <!-- Barre d'actions : filtre + ajout -->
     <div class="sio-admin__actions">
-        <?= form_open(base_url('floribondant/theme/lecons'), ['method' => 'get', 'class' => 'sio-admin__filtre']) ?>
-            <div class="sio-admin__champ">
-                <label for="filtre-theme" class="glossary-form__label">Thème</label>
-                <select id="filtre-theme" name="id_theme" class="sio-admin__select">
-                    <!-- À brancher : foreach ($themes as $theme) -->
-                    <option value="">Tous les thèmes</option>
-                    <option value="1">Tokens</option>
-                    <option value="2">Sessions</option>
-                    <option value="3">Logs</option>
-                </select>
-            </div>
-            <button type="submit" class="sio-admin__btn-secondaire">Filtrer</button>
+        <?= form_open(base_url('floribondant/theme/lecons'), ['method' => 'post', 'class' => 'sio-admin__filtre']) ?>
+        <div class="sio-admin__champ">
+            <label for="champ-theme" class="glossary-form__label">Quiz</label>
+            <select id="champ-theme" name="id_theme" class="sio-admin__select">
+
+                <option value="-1" <?= $themeSelect == -1 ? 'selected' : '' ?>>Tous les quiz</option>
+                <?php foreach ($themeList as $theme): ?>
+                    <option value="<?= esc($theme->id) ?>" <?= $themeSelect == $theme->id ? 'selected' : '' ?>>
+                        <?= esc($theme->nom) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <noscript>
+            <button type="submit" name="action" value="choisir_theme" class="sio-admin__btn-secondaire">Afficher les quiz</button>
+        </noscript>
         <?= form_close() ?>
 
         <?= anchor(base_url('floribondant/theme/lecons/ajouter'), 'Ajouter une leçon', ['class' => 'glossary-form__trigger']) ?>
@@ -41,17 +45,21 @@
                 </tr>
                 </thead>
                 <tbody class="mots-table__body">
-                <!-- À brancher : foreach ($lecons as $lecon) -->
-
+                <?php foreach ($leconList as $lecon): ?>
 
                 <tr class="mots-table__body-row">
                     <td class="mots-table__cell">
-                        <?= anchor(base_url('floribondant/theme/lecons/modifier/1'), 'Les tokens', ['class' => 'mots-table__link']) ?>
+                        <?= anchor(
+                                'floribondant/theme/lecons/update/' . $lecon->id,
+                                esc($lecon->titre),
+                                ['class' => 'mots-table__link']
+                        ) ?>
                     </td>
-                    <td class="mots-table__cell"><span class="sio-admin__badge">Tokens</span></td>
-                    <td class="mots-table__cell">admin_arthur</td>
-                    <td class="mots-table__cell mots-table__date">01/10/2026</td>
-                    <td class="mots-table__cell mots-table__date">12/10/2026</td>
+                    <td class="mots-table__cell"><span class="sio-admin__badge"><?= esc($lecon->nom_theme) ?></span></td>
+
+                    <td class="mots-table__cell"><?= isset($lecon->user_modificateur) ? esc($lecon->user_modificateur->pseudo) : esc($lecon->user_auteur->pseudo) ?></td>
+                    <td class="mots-table__cell mots-table__date"><?= esc($lecon->date_ajout) ?></td>
+                    <td class="mots-table__cell mots-table__date"><?= esc($lecon->date_modif) ?></td>
                     <td class="mots-table__cell">
                         <div class="sio-admin__ligne-actions">
                             <?= anchor(base_url('floribondant/theme/lecons/modifier/1'), 'Modifier', ['class' => 'mots-table__link']) ?>
@@ -62,62 +70,11 @@
                         </div>
                     </td>
                 </tr>
-                <tr class="mots-table__body-row">
-                    <td class="mots-table__cell">
-                        <?= anchor(base_url('floribondant/theme/lecons/modifier/2'), "Clés d'API, bonnes pratiques", ['class' => 'mots-table__link']) ?>
-                    </td>
-                    <td class="mots-table__cell"><span class="sio-admin__badge">Tokens</span></td>
-                    <td class="mots-table__cell">admin_arthur</td>
-                    <td class="mots-table__cell mots-table__date">02/10/2026</td>
-                    <td class="mots-table__cell mots-table__date">--</td>
-                    <td class="mots-table__cell">
-                        <div class="sio-admin__ligne-actions">
-                            <?= anchor(base_url('floribondant/theme/lecons/modifier/2'), 'Modifier', ['class' => 'mots-table__link']) ?>
-                            <?= form_open(base_url('floribondant/theme/lecons/supprimer'), ['class' => 'mots-table__delete-form']) ?>
-                                <?= form_hidden('id_lecon', '2') ?>
-                                <button type="submit" class="sio-admin__btn-supprimer">Supprimer</button>
-                            <?= form_close() ?>
-                        </div>
-                    </td>
-                </tr>
-                <tr class="mots-table__body-row">
-                    <td class="mots-table__cell">
-                        <?= anchor(base_url('floribondant/theme/lecons/modifier/4'), "Fonctionnement d'une session", ['class' => 'mots-table__link']) ?>
-                    </td>
-                    <td class="mots-table__cell"><span class="sio-admin__badge">Sessions</span></td>
-                    <td class="mots-table__cell">admin_benjamin</td>
-                    <td class="mots-table__cell mots-table__date">03/10/2026</td>
-                    <td class="mots-table__cell mots-table__date">09/10/2026</td>
-                    <td class="mots-table__cell">
-                        <div class="sio-admin__ligne-actions">
-                            <?= anchor(base_url('floribondant/theme/lecons/modifier/4'), 'Modifier', ['class' => 'mots-table__link']) ?>
-                            <?= form_open(base_url('floribondant/theme/lecons/supprimer'), ['class' => 'mots-table__delete-form']) ?>
-                                <?= form_hidden('id_lecon', '4') ?>
-                                <button type="submit" class="sio-admin__btn-supprimer">Supprimer</button>
-                            <?= form_close() ?>
-                        </div>
-                    </td>
-                </tr>
-                <tr class="mots-table__body-row">
-                    <td class="mots-table__cell">
-                        <?= anchor(base_url('floribondant/theme/lecons/modifier/7'), 'Lire une ligne de log', ['class' => 'mots-table__link']) ?>
-                    </td>
-                    <td class="mots-table__cell"><span class="sio-admin__badge">Logs</span></td>
-                    <td class="mots-table__cell">admin_arthur</td>
-                    <td class="mots-table__cell mots-table__date">05/10/2026</td>
-                    <td class="mots-table__cell mots-table__date">--</td>
-                    <td class="mots-table__cell">
-                        <div class="sio-admin__ligne-actions">
-                            <?= anchor(base_url('floribondant/theme/lecons/modifier/7'), 'Modifier', ['class' => 'mots-table__link']) ?>
-                            <?= form_open(base_url('floribondant/theme/lecons/supprimer'), ['class' => 'mots-table__delete-form']) ?>
-                                <?= form_hidden('id_lecon', '7') ?>
-                                <button type="submit" class="sio-admin__btn-supprimer">Supprimer</button>
-                            <?= form_close() ?>
-                        </div>
-                    </td>
-                </tr>
+                <?php endforeach; ?>
                 </tbody>
             </table>
         </div>
     </div>
 </div>
+
+<?= script_tag(['src' => 'js/sio-admin-theme.js', 'defer' => null]) ?>

@@ -18,6 +18,7 @@ use App\Models\QuizModel;
 use App\Models\QuizQuestionModel;
 use App\Models\SignalementModel;
 use App\Models\ThemeModel;
+use App\Models\LeconModel;
 use App\Models\UtilisateurModel;
 use CodeIgniter\Config\Services;
 use CodeIgniter\Exceptions\PageNotFoundException;
@@ -39,6 +40,7 @@ class AdminThemeController extends BaseController
     protected Session $session;
     protected QuizModel $quiz_model;
     protected QuestionModel $question_model;
+    protected LeconModel $lecon_model;
     protected QuizQuestionModel $quiz_question_model;
     protected ExtraitModel $extrait_model;
 
@@ -46,7 +48,7 @@ class AdminThemeController extends BaseController
     {
         $this->utilisateur_model = new UtilisateurModel();
         $this->session = session();
-
+        $this->lecon_model = new LeconModel();
         $this->theme_model = new ThemeModel();
         $this->quiz_model = new QuizModel();
         $this->question_model = new QuestionModel();
@@ -524,7 +526,23 @@ class AdminThemeController extends BaseController
 
     public function leconsSection()
     {
-        $data = ['onglet' => 'lecons'];
+
+
+        $data = ['onglet' => 'lecons',
+            'themeList' => $this->theme_model->getAllThemes(),
+            'leconList' => $this->lecon_model->getAllLecons(),
+            'themeSelect' => -1];
+
+        if ($this->request->is('post')) {
+            $data['themeSelect'] = $this->request->getPost('id_theme');
+        }
+
+        if($data['themeSelect'] == -1){
+            $data['leconList'] = $this->lecon_model->getAllLecons();
+        } else {
+            $data['leconList'] = $this->lecon_model->getLeconsByTheme($data['themeSelect']);
+        }
+
 
         return view('header', $data)
             . view('notice')
