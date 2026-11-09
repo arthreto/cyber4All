@@ -1,0 +1,108 @@
+/* =========================================================
+   Page "Choisissez votre thème"
+   Réutilise le haut de page .intro de section-mdp.css
+   (surtitre, titre, texte).
+   ========================================================= */
+
+/* ---------- Grille de 6 cartes (2 colonnes) ---------- */
+.themes {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+a.btn-theme {
+    display: grid;
+    grid-template-columns: 49px 1fr;   /* numéro | titre */
+    grid-template-rows: auto 1fr;
+    column-gap: 0;
+    row-gap: 14px;
+    align-items: center;
+    min-height: 224px;
+    padding: 28px 34px;
+    box-sizing: border-box;
+    text-align: left;
+    color: var(--muted, #6b6b6b);
+    background: var(--card, rgba(255, 255, 255, .7));
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border, #d9d9d7);
+    border-radius: 24px;
+    cursor: pointer;
+    transition: border-color .2s ease, background .2s ease;
+}
+
+a.btn-theme:hover {
+    background: #fff;
+    border-color: #bdbdba;
+}
+
+a.btn-theme:focus-visible {
+    outline: 2px solid var(--text, #141414);
+    outline-offset: 3px;
+}
+
+.btn-theme .num {
+    grid-column: 1;
+    grid-row: 1;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    color: var(--muted, #6b6b6b);
+}
+
+.btn-theme h3 {
+    grid-column: 2;
+    grid-row: 1;
+    margin: 0;
+    font-size: 28px;
+    font-weight: 400;
+    letter-spacing: -1px;
+    line-height: 1.15;
+    color: var(--text, #141414);
+}
+
+.btn-theme p {
+    grid-column: 2;
+    grid-row: 2;
+    align-self: start;
+    margin: 0;
+    max-width: 32em;
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--muted, #6b6b6b);
+}
+
+/* pas de soulignement ni de couleur de lien */
+a.btn-theme,
+a.btn-theme:visited,
+a.btn-theme:hover,
+a.btn-theme * {
+    text-decoration: none !important;
+}
+
+/* ---------- Mobile : une seule colonne ---------- */
+@media (max-width: 700px) {
+    .themes {
+        grid-template-columns: 1fr;
+    }
+    a.btn-theme {
+        min-height: 180px;
+        padding: 22px;
+    }
+    .btn-theme h3 {
+        font-size: 22px;
+    }
+    .btn-theme p {
+        font-size: 15px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    a.btn-theme {
+        transition: none;
+    }
+}

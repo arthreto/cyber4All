@@ -1,17 +1,145 @@
-/* les bouton */
-.selection {
-    gap: 10px;
+/* =========================================================
+   Section "Sécurisez votre mot de passe" — fichier COMPLET
+   À lier sur la page, après ton CSS global.
+   ========================================================= */
+
+.intro {
+    padding: 0 60px;              /* même marge gauche que les cartes */
+    text-align: left;
 }
 
-.btn-selection {
-    padding: 10px 15px;
-    font-size: 13px;
-    border-radius: 20px;
+/* Petit titre au milieu */
+.intro__surtitre {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 18px;
+    margin: 0 0 40px;
+    text-transform: uppercase;
+    letter-spacing: .3em;
+}
+.intro__surtitre::before {
+    content: "";
+    width: 65px;
+    height: 1px;
+    background: currentColor;
 }
 
-@media (max-width: 480px){
-    .header__wrapper {
-        display: flex;
+/* Titre et texte à gauche */
+.intro__titre,
+.intro__texte {
+    margin-left: 0;
+    margin-right: auto;
+    text-align: left;
+}
+.intro__texte {
+    max-width: 700px;
+
+}
+/* ---------- Cartes : côte à côte ---------- */
+/* ciblé par classe OU par "parent direct d'une carte" (au cas où la classe .selection manque) */
+.selection,
+div:has(> a.btn-selection) {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    justify-content: space-between;
+    align-items: stretch;
+    gap: 18px;
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+a.btn-selection {
+    flex: 1 1 0 !important;
+    width: auto !important;
+    max-width: none !important;
+    margin: 0 !important;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 316px;
+    padding: 32px 30px 28px;
+    box-sizing: border-box;
+    text-align: left;
+    color: var(--muted, #6b6b6b);
+    background: var(--card, rgba(255, 255, 255, .7));
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border, #d9d9d7);
+    border-radius: 28px;
+    cursor: pointer;
+    transition: border-color .2s ease, background .2s ease;
+}
+
+a.btn-selection:hover {
+    background: #fff;
+    border-color: #bdbdba;
+}
+
+a.btn-selection:focus-visible {
+    outline: 2px solid var(--text, #141414);
+    outline-offset: 3px;
+}
+
+/* haut : numéro  */
+.btn-selection .top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.btn-selection .num {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    color: var(--text, #141414);
+}
+
+/* titre + description */
+.btn-selection h3 {
+    margin: 0 0 16px;
+    font-size: 34px;
+    font-weight: 300;
+    letter-spacing: -1px;
+    line-height: 1.1;
+    color: var(--text, #141414);
+}
+
+.btn-selection p {
+    margin: 0;
+    max-width: 30em;
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--muted, #6b6b6b);
+}
+
+/* pas de soulignement ni de couleur de lien */
+a.btn-selection,
+a.btn-selection:visited,
+a.btn-selection:hover,
+a.btn-selection * {
+    text-decoration: none !important;
+}
+
+/* ---------- Tablette / mobile : les cartes s'empilent ---------- */
+@media (max-width: 900px) {
+    .intro {
+        padding: 110px 20px 60px;
+    }
+    .selection {
         flex-direction: column;
+    }
+    a.btn-selection {
+        min-height: 280px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    a.btn-selection {
+        transition: none;
     }
 }

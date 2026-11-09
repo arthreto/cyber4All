@@ -49,6 +49,9 @@ $routes->group('floribondant', static function ($routes) {
 });
 //Gestion de l'espace des Flashcard
 $routes->get('/selectionMode', 'FlashcardController::selection');
-$routes->get('/selectionTheme', 'FlashcardController::Theme');
+$routes->get('choisirMode/(:segment)', 'FlashcardController::choisirMode/$1');
+$routes->get('/selectionTheme', 'FlashcardController::theme');
+$routes->get('/exerce', 'FlashcardController::sexercer');
+$routes->get('/apprend', 'FlashcardController::apprendre');
 
 

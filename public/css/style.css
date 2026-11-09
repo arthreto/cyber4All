@@ -22,6 +22,7 @@
 @import 'quiz/reviserQuiz.css';
 
 @import "flashcard/selectionMode.css";
+@import "flashcard/selectionTheme.css";
 
 @import 'lienUtile.css';
 @import 'communautaire.css';
