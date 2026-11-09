@@ -23,7 +23,7 @@ main {
     flex: 0 0 50%;            /* exactement la moitié, pas flex: 1 */
     max-width: 50%;
     margin: 0;                /* pas de marge : elle ferait dépasser 100% */
-    padding: 50px;            /* l'espace passe en padding (box-sizing: border-box est déjà global) */
+    padding: 50px 0px;            /* l'espace passe en padding (box-sizing: border-box est déjà global) */
 }
 
 
@@ -71,6 +71,7 @@ main {
     border: 1px solid #243038;
     border-radius: 12px;
     color: black;
+
 }
 
 
@@ -80,7 +81,21 @@ main {
     gap: 12px;
     margin-top: 24px;
 }
-
+.carte-question:has(input:checked) {
+    opacity: 1;
+}
+.carte-question {
+    --c: #f5a623;                 /* couleur par défaut */
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px;
+    border: 1px solid var(--c);
+    border-radius: 8px;
+    cursor: pointer;
+    opacity: 0.4;
+    transition: opacity 0.2s;
+}
 
 
 .carte {
@@ -97,6 +112,7 @@ main {
 .carte--d { --c: #f5a623; }
 .carte--i { --c: #2fb89a; }
 .carte--c { --c: #7c6cf0; }
+
 .carte--t { --c: #e85d9c; }
 
 .lettre {
@@ -109,6 +125,16 @@ main {
     color: var(--c);
     font-weight: bold;
 }
+
+
+/* test=================================================================================================== */
+
+
+
+
+
+
+/* test=================================================================================================== */
 
 /* ===== LIGNE 1 : texte à gauche, choix à droite ===== */
 .ligne-duree {
@@ -167,10 +193,112 @@ main {
     border: none;
     border-radius: 6px;
     cursor: pointer;
+    text-decoration: none;
 }
 
 .btn-lancer:hover {
     filter: brightness(1.1);
 }
 
+.termes {
+    margin-left: auto;        /* pousse le nombre au bord droit de la carte */
+    font-family: monospace;
+    font-size: 11px;
+    color: #5b8aa0;
+}
 
+/*===============================================================
+/* Question*/
+
+.btn-retour-question{
+    font-size: 12px;
+    color : var(--grey_sous_titre);
+    text-align: left
+
+}
+
+.btn-val {
+    display: inline-block;
+    padding: 14px 28px;
+    border: none;
+    border-radius: 10px;
+    background: #4f46e5;     /* reprends la couleur de ton ancien bouton */
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.btn-val:hover {
+    opacity: 0.9;
+}
+.progression-ligne {
+    flex: 0 0 100%;          /* occupe toute une ligne, force le retour à la ligne */
+    display: flex;
+    justify-content: center; /* centre .progression horizontalement */
+    padding: 0 20px;
+    box-sizing: border-box;
+
+}
+
+.presentation {
+    padding: 50px 70px 0;
+}
+.progression {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    max-width: 600px;
+}
+
+.prog-infos {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    font-weight: 600;
+}
+
+.prog-barre {
+    width: 100%;              /* même largeur que le bloc */
+    height: 10px;
+    appearance: none;
+    border: none;
+    border-radius: 5px;
+    overflow: hidden;
+}
+.prog-barre::-webkit-progress-bar   { background: #e5e7eb; }
+.prog-barre::-webkit-progress-value { background: var(--blu_quiz); }
+.prog-barre::-moz-progress-bar      { background: var(--blu_quiz); }
+
+.carte-correction {
+    opacity: 1;              /* annule les 0.4 des cartes de la question */
+    cursor: default;
+}
+
+.carte-correction.ok {
+    background: #dcfce7;
+    border-color: #16a34a;
+}
+
+.carte-correction.ko {
+    background: #fee2e2;
+    border-color: #dc2626;
+}
+
+.carte-correction.oubli {
+    border: 2px dashed #16a34a;
+    background: #dcfce7;
+}
+
+.msg-ok { color: #16a34a; font-weight: 700; }
+.msg-ko { color: #dc2626; font-weight: 700; }
+
+.explication {
+    margin-top: 20px;
+    padding: 12px 16px;
+    border-left: 4px solid var(--blu_quiz);
+}
