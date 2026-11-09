@@ -96,7 +96,7 @@ $corrige = $corrige ?? false;
                 <?= $corrige ? 'Valider à nouveau' : 'Valider mes réponses' ?>
             </button>
             <?php if ($corrige): ?>
-                <?= anchor(base_url('/quiz/' . $themeId . '/' . quizNum), 'Recommencer le quiz', ['class' => 'quiz-page__lecon']) ?>
+                <?= anchor(base_url('/quiz/' . $themeId . '/' . $quizNum), 'Recommencer le quiz', ['class' => 'quiz-page__lecon']) ?>
             <?php endif; ?>
         </div>
     <?= form_close() ?>
