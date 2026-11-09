@@ -79,7 +79,7 @@ class AdminThemeController extends BaseController
             'themeList' => $this->theme_model->getAllThemes(),
             'themeSelect' => -1];
 
-        if ($this->request->is('post')) {
+        if ($this->request->is('post') && $this->request->getPost('id_theme') != null) {
             $data['themeSelect'] = $this->request->getPost('id_theme');
         }
 

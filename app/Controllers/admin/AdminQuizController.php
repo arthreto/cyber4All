@@ -57,9 +57,9 @@ class AdminQuizController extends BaseController
     public function quizSupprimer(int $idQuiz)
     {
         $this->quiz_question_model->delete($idQuiz);
-        $this->question_model->delete($idQuiz);
+        $this->quiz_model->delete($idQuiz);
 
-        return $this->index();
+        return redirect()->route('quizList');
     }
 
     /**

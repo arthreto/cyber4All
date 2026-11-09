@@ -132,7 +132,9 @@ endif;
                                         </a>
                                     </li>
                                 <?php endforeach ?>
+                                <?php if (isset($utilisateur)): ?>
                                 <li class="menu-sio__separateur"><a href="<?= site_url('quiz') ?>" class="dropdown-menu__item menu-sio__quiz" title="Choisir un quiz Vrai / Faux">Quiz Vrai / Faux</a></li>
+                                <?php endif; ?>
                             </ul>
                         </details>
                     </li>

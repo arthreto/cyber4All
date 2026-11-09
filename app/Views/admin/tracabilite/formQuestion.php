@@ -3,14 +3,62 @@
  * ADMINISTRATION - Espace compréhension SIO
  * Formulaire d'ajout / de modification d'une question
  *
- * Vue en dur (exemple : modification de la question 12).
- * Zones à brancher signalées par « À brancher ».
- * Données prévues : $question, $themes, $idThemeChoisi, $quizDuTheme, $quizRattaches, $errors.
+ * Données attendues : $form, $themeList, $quizList, $quizAdded, $extraitList, $typesExtrait,
+ *                     $infoDetail, $usageExtrait, $errors.
  *
  * Choix des quiz : on choisit d'abord le thème, puis on ajoute les quiz de ce thème un par un.
  * Seule exception à la règle 0 JS : public/js/sio-admin-theme.js renvoie le formulaire
- * quand le thème change. Le bouton dans <noscript> sert de secours.
+ * quand le thème (ou une liste data-envoi-auto) change. Le bouton dans <noscript> sert de secours.
+ *
+ * Helpers utilisés : url (anchor, base_url), html (ul, script_tag),
+ * form (form_open, form_fieldset, form_label, form_dropdown, form_input, form_textarea,
+ * form_radio, form_checkbox, form_hidden, form_button, form_fieldset_close, form_close).
+ *
+ * Attention : form_dropdown et form_label n'échappent pas les libellés, d'où les esc().
  */
+
+// Mode du formulaire : en modification, l'id de la question est dans l'URL
+$estModification = ! empty($form->modifier);
+$actionFormulaire = $estModification
+    ? 'floribondant/theme/questions/modifier/' . (int) $form->modifier
+    : 'floribondant/theme/questions/ajouter';
+
+// Classe d'un champ, avec la classe d'erreur si le champ est en erreur
+$classeChamp = static fn (string $classe, string $champ): string
+    => $classe . (isset($errors[$champ]) ? ' sio-admin__input--erreur' : '');
+
+// Message d'erreur sous un champ
+$erreurChamp = static fn (string $champ): string
+    => isset($errors[$champ]) ? '<p id="erreur-' . esc($champ, 'attr') . '" class="sio-admin__erreur">' . esc($errors[$champ]) . '</p>' : '';
+
+// Classes des libellés
+$label = ['class' => 'glossary-form__label'];
+$labelRequis = ['class' => 'glossary-form__label glossary-form__label--required'];
+
+// Thèmes et quiz pour les listes déroulantes (libellés échappés)
+$optionsThemes = esc(array_column($themeList, 'nom', 'id'));
+$optionsQuiz = esc(array_column($quizList, 'titre', 'id'));
+$nomTheme = $optionsThemes[$form->id_theme] ?? '';
+
+// Détail : mode choisi et extraits regroupés par type
+$modeDetail = $form->detail_mode ?? 'aucun';
+$optionsModes = [
+    'aucun'    => 'Aucun',
+    'existant' => 'Déjà existant',
+    'nouveau'  => 'En créer un',
+];
+
+$optionsExtraits = ['' => '— Choisir un extrait —'];
+$extraitChoisi = null;
+foreach ($extraitList as $extrait) {
+    $groupe = esc($typesExtrait[$extrait['type']] ?? $extrait['type']);
+    $optionsExtraits[$groupe][$extrait['id']] = esc($extrait['titre']);
+
+    if ((string) $extrait['id'] === (string) $form->id_extrait) {
+        $extraitChoisi = $extrait;
+    }
+}
+$optionsTypes = esc($typesExtrait);
 ?>
 <div class="sio-admin sio-admin--formulaire">
 
@@ -18,226 +66,219 @@
 
     <div class="glossary-form">
         <div class="glossary-form__header">
-            <h2 class="glossary-form__dialog-title"><?= ($form->modifier != 0) ? 'Modifier la question' : 'Ajouter une question' ?></h2>
+            <h2 class="glossary-form__dialog-title"><?= $estModification ? 'Modifier la question' : 'Ajouter une question' ?></h2>
         </div>
 
-        <!-- Exemple d'erreur de validation (à afficher seulement si $errors n'est pas vide) -->
-
-        <?php if (!empty($errors)): ?>
+        <?php if (! empty($errors)): ?>
             <div class="sio-admin__erreur-globale" role="alert">
                 <strong>Le formulaire contient <?= count($errors) ?> erreur(s).</strong>
-
-                <ul>
-                    <?php foreach ($errors as $error): ?>
-                        <li style="margin-left: 5%;"><?= esc($error) ?></li>
-                    <?php endforeach; ?>
-                </ul>
+                <?= ul(esc($errors), ['style' => 'margin-left: 5%;']) ?>
             </div>
         <?php endif; ?>
 
-
-        <?php
-        // En modification, l'id de la question est dans l'URL : c'est ce qui indique le mode au contrôleur
-        $actionFormulaire = ! empty($form->modifier)
-            ? 'floribondant/theme/questions/modifier/' . (int) $form->modifier
-            : 'floribondant/theme/questions/ajouter';
-        ?>
         <?= form_open(base_url($actionFormulaire), ['class' => 'glossary-form__form']) ?>
 
         <!-- Quiz de la question -->
-        <fieldset class="sio-admin__bloc-quiz">
-            <legend class="glossary-form__label">Quiz de la question</legend>
+        <?= form_fieldset('<span class="glossary-form__label">Quiz de la question</span>', ['class' => 'sio-admin__bloc-quiz']) ?>
 
             <div class="sio-admin__ligne">
                 <div class="sio-admin__champ">
-                    <label for="champ-theme" class="glossary-form__label">1. Thème</label>
-                    <select id="champ-theme" name="id_theme" class="sio-admin__select">
-                        <!-- À brancher : foreach ($themes as $theme) -->
-                        <?php foreach ($themeList as $theme): ?>
-                            <option value="<?= esc($theme->id) ?>"
-                                    <?= $form->id_theme == $theme->id ? 'selected' : '' ?>>
-                                <?= esc($theme->nom) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
+                    <?= form_label('1. Thème', 'champ-theme', $label) ?>
+                    <?= form_dropdown('id_theme', $optionsThemes, (string) $form->id_theme, [
+                        'id'    => 'champ-theme',
+                        'class' => 'sio-admin__select',
+                    ]) ?>
                 </div>
                 <noscript>
-                    <button type="submit" name="action" value="choisir_theme" class="sio-admin__btn-secondaire">Afficher les quiz</button>
+                    <?= form_button([
+                        'type'    => 'submit',
+                        'name'    => 'action',
+                        'value'   => 'choisir_theme',
+                        'content' => 'Afficher les quiz',
+                        'class'   => 'sio-admin__btn-secondaire',
+                    ]) ?>
                 </noscript>
             </div>
 
             <div class="sio-admin__ligne">
                 <div class="sio-admin__champ">
-                    <label for="champ-quiz" class="glossary-form__label">2. Quiz du thème Tokens</label>
-                    <select id="champ-quiz" name="id_quiz_ajout" class="sio-admin__select">
-                        <?php foreach ($quizList as $quiz):
-                            echo '<option value="', $quiz->id, '">', $quiz->titre, '</option>';
-                        endforeach; ?>
-                    </select>
+                    <?= form_label(trim('2. Quiz du thème ' . $nomTheme), 'champ-quiz', $label) ?>
+                    <?= form_dropdown('id_quiz_ajout', $optionsQuiz, (string) ($form->id_quiz_ajout ?? ''), [
+                        'id'    => 'champ-quiz',
+                        'class' => 'sio-admin__select',
+                    ]) ?>
                 </div>
-                <button type="submit" name="action" value="ajouter_quiz"
-                        formnovalidate class="sio-admin__btn-principal">
-                    Ajouter ce quiz
-                </button>
+                <?= form_button([
+                    'type'           => 'submit',
+                    'name'           => 'action',
+                    'value'          => 'ajouter_quiz',
+                    'content'        => 'Ajouter ce quiz',
+                    'class'          => 'sio-admin__btn-principal',
+                    'formnovalidate' => true,
+                ]) ?>
             </div>
 
             <div class="sio-admin__rattaches">
-                <p class="glossary-form__label">Question rattachée à <?=count($quizAdded) ?> quiz</p>
+                <p class="glossary-form__label">Question rattachée à <?= count($quizAdded) ?> quiz</p>
                 <ul class="sio-admin__rattaches-liste">
-                    <!-- À brancher : foreach ($quizRattaches as $quiz) + champ caché quiz[] -->
-                    <?php foreach ($quizAdded as $id => $quiz):
-                        echo '
-                            <li class="sio-admin__rattache">
-                                <span>', esc($quiz), '</span>
-                                <button type="submit" name="retirer_quiz" value="', esc($id), '" formnovalidate class="sio-admin__btn-supprimer">Retirer</button>
-                            </li>
-                        ';
-                    endforeach; ?>
+                    <?php foreach ($quizAdded as $idQuiz => $titreQuiz): ?>
+                        <li class="sio-admin__rattache">
+                            <span><?= esc($titreQuiz) ?></span>
+                            <?= form_button([
+                                'type'           => 'submit',
+                                'name'           => 'retirer_quiz',
+                                'value'          => (string) $idQuiz,
+                                'content'        => 'Retirer',
+                                'class'          => 'sio-admin__btn-supprimer',
+                                'formnovalidate' => true,
+                            ]) ?>
+                        </li>
+                    <?php endforeach; ?>
                 </ul>
             </div>
-        </fieldset>
+
+        <?= form_fieldset_close() ?>
 
         <!-- Énoncé -->
         <div class="glossary-form__field">
-            <label for="champ-libelle" class="glossary-form__label glossary-form__label--required">Libelle</label>
-            <textarea id="champ-libelle" name="libelle" rows="3" class="glossary-form__input <?= isset($errors['libelle']) ? 'sio-admin__input--erreur' : '' ?>" required><?= esc($form->libelle) ?></textarea>
-
-            <?php if (isset($errors['libelle'])): ?>
-            <p id="erreur-libelle" class="sio-admin__erreur">
-                <?= esc($errors['libelle']) ?>
-            </p>
-            <?php endif; ?>
+            <?= form_label('Libellé', 'champ-libelle', $labelRequis) ?>
+            <?= form_textarea([
+                'name'     => 'libelle',
+                'id'       => 'champ-libelle',
+                'value'    => $form->libelle ?? '',
+                'rows'     => '3',
+                'class'    => $classeChamp('glossary-form__input', 'libelle'),
+                'required' => true,
+            ]) ?>
+            <?= $erreurChamp('libelle') ?>
         </div>
 
         <!-- Image -->
         <div class="glossary-form__field">
-            <label for="champ-image" class="glossary-form__label">Chemin de l'image (facultatif)</label>
-            <input type="text" id="champ-image" name="image" value="<?= esc($form->image ?? '') ?>"
-                   placeholder="images/questions/jwt-expire.png" class="glossary-form__input <?= isset($errors['image']) ? 'sio-admin__input--erreur' : '' ?>" aria-describedby="aide-image">
+            <?= form_label("Chemin de l'image (facultatif)", 'champ-image', $label) ?>
+            <?= form_input([
+                'name'             => 'image',
+                'id'               => 'champ-image',
+                'value'            => $form->image ?? '',
+                'placeholder'      => 'images/questions/jwt-expire.png',
+                'class'            => $classeChamp('glossary-form__input', 'image'),
+                'aria-describedby' => 'aide-image',
+            ]) ?>
             <p id="aide-image" class="glossary-form__help">Nom de l'image avec extension dans images/questions/</p>
-
-            <?php if (isset($errors['image'])): ?>
-                <p id="erreur-image" class="sio-admin__erreur">
-                    <?= esc($errors['image']) ?>
-                </p>
-            <?php endif; ?>
+            <?= $erreurChamp('image') ?>
         </div>
 
         <!-- Détail (extrait affiché au-dessus de l'énoncé) -->
-        <?php
-        $modeDetail = $form->detail_mode ?? 'aucun';
-        $modesDetail = [
-            'aucun'    => 'Aucun',
-            'existant' => 'Déjà existant',
-            'nouveau'  => 'En créer un',
-        ];
-
-        // Extraits regroupés par type pour la liste déroulante, et extrait actuellement choisi
-        $extraitsParType = [];
-        $extraitChoisi = null;
-        foreach ($extraitList as $extrait) {
-            $extraitsParType[$extrait['type']][] = $extrait;
-            if ((string) $extrait['id'] === (string) $form->id_extrait) {
-                $extraitChoisi = $extrait;
-            }
-        }
-        ?>
-        <fieldset class="sio-admin__bloc-quiz">
-            <legend class="glossary-form__label">Détail (facultatif)</legend>
+        <?= form_fieldset('<span class="glossary-form__label">Détail (facultatif)</span>', ['class' => 'sio-admin__bloc-quiz']) ?>
 
             <div class="sio-admin__ligne">
                 <div class="sio-admin__champ">
-                    <label for="champ-detail-mode" class="glossary-form__label">Extrait</label>
-                    <select id="champ-detail-mode" name="detail_mode" class="sio-admin__select" data-envoi-auto>
-                        <?php foreach ($modesDetail as $valeur => $libelle): ?>
-                            <option value="<?= esc($valeur, 'attr') ?>" <?= $modeDetail === $valeur ? 'selected' : '' ?>><?= esc($libelle) ?></option>
-                        <?php endforeach; ?>
-                    </select>
+                    <?= form_label('Extrait', 'champ-detail-mode', $label) ?>
+                    <?= form_dropdown('detail_mode', $optionsModes, $modeDetail, [
+                        'id'              => 'champ-detail-mode',
+                        'class'           => 'sio-admin__select',
+                        'data-envoi-auto' => 'true',
+                    ]) ?>
                 </div>
                 <noscript>
-                    <button type="submit" name="action" value="choisir_theme" formnovalidate class="sio-admin__btn-secondaire">Appliquer</button>
+                    <?= form_button([
+                        'type'           => 'submit',
+                        'name'           => 'action',
+                        'value'          => 'choisir_theme',
+                        'content'        => 'Appliquer',
+                        'class'          => 'sio-admin__btn-secondaire',
+                        'formnovalidate' => true,
+                    ]) ?>
                 </noscript>
             </div>
 
-            <?php if (isset($errors['detail_mode'])): ?>
-                <p class="sio-admin__erreur"><?= esc($errors['detail_mode']) ?></p>
-            <?php endif; ?>
+            <?= $erreurChamp('detail_mode') ?>
 
-            <?php if (!empty($infoDetail)): ?>
+            <?php if (! empty($infoDetail)): ?>
                 <p class="sio-admin__info-detail" role="status"><?= esc($infoDetail) ?></p>
             <?php endif; ?>
 
-            <?php if (isset($errors['extrait'])): ?>
-                <p class="sio-admin__erreur"><?= esc($errors['extrait']) ?></p>
-            <?php endif; ?>
+            <?= $erreurChamp('extrait') ?>
 
             <?php if ($modeDetail === 'existant'): ?>
                 <!-- Choix parmi les extraits existants -->
                 <div class="sio-admin__ligne">
                     <div class="sio-admin__champ">
-                        <label for="champ-extrait" class="glossary-form__label glossary-form__label--required">Extrait existant</label>
-                        <select id="champ-extrait" name="id_extrait" class="sio-admin__select <?= isset($errors['id_extrait']) ? 'sio-admin__input--erreur' : '' ?>" data-envoi-auto>
-                            <option value="">— Choisir un extrait —</option>
-                            <?php foreach ($extraitsParType as $type => $extraits): ?>
-                                <optgroup label="<?= esc($typesExtrait[$type] ?? $type, 'attr') ?>">
-                                    <?php foreach ($extraits as $extrait): ?>
-                                        <option value="<?= esc($extrait['id'], 'attr') ?>" <?= $extraitChoisi !== null && $extraitChoisi['id'] == $extrait['id'] ? 'selected' : '' ?>>
-                                            <?= esc($extrait['titre']) ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </optgroup>
-                            <?php endforeach; ?>
-                        </select>
+                        <?= form_label('Extrait existant', 'champ-extrait', $labelRequis) ?>
+                        <?= form_dropdown('id_extrait', $optionsExtraits, (string) ($extraitChoisi['id'] ?? ''), [
+                            'id'              => 'champ-extrait',
+                            'class'           => $classeChamp('sio-admin__select', 'id_extrait'),
+                            'data-envoi-auto' => 'true',
+                        ]) ?>
                     </div>
                     <noscript>
-                        <button type="submit" name="action" value="choisir_theme" formnovalidate class="sio-admin__btn-secondaire">Voir l'extrait</button>
+                        <?= form_button([
+                            'type'           => 'submit',
+                            'name'           => 'action',
+                            'value'          => 'choisir_theme',
+                            'content'        => "Voir l'extrait",
+                            'class'          => 'sio-admin__btn-secondaire',
+                            'formnovalidate' => true,
+                        ]) ?>
                     </noscript>
                 </div>
 
-                <?php if (isset($errors['id_extrait'])): ?>
-                    <p class="sio-admin__erreur"><?= esc($errors['id_extrait']) ?></p>
-                <?php endif; ?>
+                <?= $erreurChamp('id_extrait') ?>
 
                 <?php if ($extraitChoisi !== null): ?>
-                    <?php $actionExtrait = $form->extrait_action ?? null; ?>
-
-                    <?php if ($actionExtrait === 'modifier'): ?>
+                    <?php if (($form->extrait_action ?? null) === 'modifier'): ?>
                         <!-- Modification de l'extrait choisi -->
                         <div class="sio-admin__edition-extrait">
                             <div class="glossary-form__field">
-                                <label for="champ-edit-titre" class="glossary-form__label glossary-form__label--required">Titre</label>
-                                <input type="text" id="champ-edit-titre" name="edit_titre" maxlength="100"
-                                       value="<?= esc($form->edit_titre ?? '', 'attr') ?>"
-                                       class="glossary-form__input <?= isset($errors['edit_titre']) ? 'sio-admin__input--erreur' : '' ?>">
-                                <?php if (isset($errors['edit_titre'])): ?>
-                                    <p class="sio-admin__erreur"><?= esc($errors['edit_titre']) ?></p>
-                                <?php endif; ?>
+                                <?= form_label('Titre', 'champ-edit-titre', $labelRequis) ?>
+                                <?= form_input([
+                                    'name'      => 'edit_titre',
+                                    'id'        => 'champ-edit-titre',
+                                    'value'     => $form->edit_titre ?? '',
+                                    'maxlength' => '100',
+                                    'class'     => $classeChamp('glossary-form__input', 'edit_titre'),
+                                ]) ?>
+                                <?= $erreurChamp('edit_titre') ?>
                             </div>
 
                             <div class="glossary-form__field">
-                                <label for="champ-edit-type" class="glossary-form__label glossary-form__label--required">Type</label>
-                                <select id="champ-edit-type" name="edit_type" class="sio-admin__select <?= isset($errors['edit_type']) ? 'sio-admin__input--erreur' : '' ?>">
-                                    <?php foreach ($typesExtrait as $valeur => $libelle): ?>
-                                        <option value="<?= esc($valeur, 'attr') ?>" <?= ($form->edit_type ?? '') === $valeur ? 'selected' : '' ?>><?= esc($libelle) ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                                <?php if (isset($errors['edit_type'])): ?>
-                                    <p class="sio-admin__erreur"><?= esc($errors['edit_type']) ?></p>
-                                <?php endif; ?>
+                                <?= form_label('Type', 'champ-edit-type', $labelRequis) ?>
+                                <?= form_dropdown('edit_type', $optionsTypes, (string) ($form->edit_type ?? ''), [
+                                    'id'    => 'champ-edit-type',
+                                    'class' => $classeChamp('sio-admin__select', 'edit_type'),
+                                ]) ?>
+                                <?= $erreurChamp('edit_type') ?>
                             </div>
 
                             <div class="glossary-form__field">
-                                <label for="champ-edit-contenu" class="glossary-form__label glossary-form__label--required">Contenu</label>
-                                <textarea id="champ-edit-contenu" name="edit_contenu" rows="6"
-                                          class="glossary-form__input sio-admin__code <?= isset($errors['edit_contenu']) ? 'sio-admin__input--erreur' : '' ?>"><?= esc($form->edit_contenu ?? '') ?></textarea>
-                                <?php if (isset($errors['edit_contenu'])): ?>
-                                    <p class="sio-admin__erreur"><?= esc($errors['edit_contenu']) ?></p>
-                                <?php endif; ?>
+                                <?= form_label('Contenu', 'champ-edit-contenu', $labelRequis) ?>
+                                <?= form_textarea([
+                                    'name'  => 'edit_contenu',
+                                    'id'    => 'champ-edit-contenu',
+                                    'value' => $form->edit_contenu ?? '',
+                                    'rows'  => '6',
+                                    'class' => $classeChamp('glossary-form__input sio-admin__code', 'edit_contenu'),
+                                ]) ?>
+                                <?= $erreurChamp('edit_contenu') ?>
                             </div>
 
                             <div class="sio-admin__ligne-actions">
-                                <button type="submit" name="action" value="enregistrer_extrait" formnovalidate class="sio-admin__btn-principal">Enregistrer l'extrait</button>
-                                <button type="submit" name="action" value="annuler_extrait" formnovalidate class="sio-admin__btn-secondaire">Annuler</button>
+                                <?= form_button([
+                                    'type'           => 'submit',
+                                    'name'           => 'action',
+                                    'value'          => 'enregistrer_extrait',
+                                    'content'        => "Enregistrer l'extrait",
+                                    'class'          => 'sio-admin__btn-principal',
+                                    'formnovalidate' => true,
+                                ]) ?>
+                                <?= form_button([
+                                    'type'           => 'submit',
+                                    'name'           => 'action',
+                                    'value'          => 'annuler_extrait',
+                                    'content'        => 'Annuler',
+                                    'class'          => 'sio-admin__btn-secondaire',
+                                    'formnovalidate' => true,
+                                ]) ?>
                             </div>
                         </div>
 
@@ -246,8 +287,22 @@
                         <pre class="sio-admin__apercu-extrait sio-admin__code"><?= esc($extraitChoisi['contenu']) ?></pre>
 
                         <div class="sio-admin__ligne-actions">
-                            <button type="submit" name="action" value="modifier_extrait" formnovalidate class="sio-admin__btn-secondaire">Modifier l'extrait</button>
-                            <button type="submit" name="action" value="supprimer_extrait" formnovalidate class="sio-admin__btn-supprimer">Supprimer l'extrait</button>
+                            <?= form_button([
+                                'type'           => 'submit',
+                                'name'           => 'action',
+                                'value'          => 'modifier_extrait',
+                                'content'        => "Modifier l'extrait",
+                                'class'          => 'sio-admin__btn-secondaire',
+                                'formnovalidate' => true,
+                            ]) ?>
+                            <?= form_button([
+                                'type'           => 'submit',
+                                'name'           => 'action',
+                                'value'          => 'supprimer_extrait',
+                                'content'        => "Supprimer l'extrait",
+                                'class'          => 'sio-admin__btn-supprimer',
+                                'formnovalidate' => true,
+                            ]) ?>
                         </div>
                     <?php endif; ?>
                 <?php endif; ?>
@@ -255,92 +310,102 @@
             <?php elseif ($modeDetail === 'nouveau'): ?>
                 <!-- Création d'un nouvel extrait -->
                 <div class="glossary-form__field">
-                    <label for="champ-extrait-titre" class="glossary-form__label glossary-form__label--required">Titre</label>
-                    <input type="text" id="champ-extrait-titre" name="extrait_titre" maxlength="100"
-                           value="<?= esc($form->extrait_titre ?? '', 'attr') ?>"
-                           placeholder="JWT signé en HS256"
-                           class="glossary-form__input <?= isset($errors['extrait_titre']) ? 'sio-admin__input--erreur' : '' ?>">
-                    <?php if (isset($errors['extrait_titre'])): ?>
-                        <p class="sio-admin__erreur"><?= esc($errors['extrait_titre']) ?></p>
-                    <?php endif; ?>
+                    <?= form_label('Titre', 'champ-extrait-titre', $labelRequis) ?>
+                    <?= form_input([
+                        'name'        => 'extrait_titre',
+                        'id'          => 'champ-extrait-titre',
+                        'value'       => $form->extrait_titre ?? '',
+                        'maxlength'   => '100',
+                        'placeholder' => 'JWT signé en HS256',
+                        'class'       => $classeChamp('glossary-form__input', 'extrait_titre'),
+                    ]) ?>
+                    <?= $erreurChamp('extrait_titre') ?>
                 </div>
 
                 <div class="glossary-form__field">
-                    <label for="champ-extrait-type" class="glossary-form__label glossary-form__label--required">Type</label>
-                    <select id="champ-extrait-type" name="extrait_type" class="sio-admin__select <?= isset($errors['extrait_type']) ? 'sio-admin__input--erreur' : '' ?>">
-                        <option value="">— Choisir un type —</option>
-                        <?php foreach ($typesExtrait as $valeur => $libelle): ?>
-                            <option value="<?= esc($valeur, 'attr') ?>" <?= ($form->extrait_type ?? '') === $valeur ? 'selected' : '' ?>><?= esc($libelle) ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                    <?php if (isset($errors['extrait_type'])): ?>
-                        <p class="sio-admin__erreur"><?= esc($errors['extrait_type']) ?></p>
-                    <?php endif; ?>
+                    <?= form_label('Type', 'champ-extrait-type', $labelRequis) ?>
+                    <?= form_dropdown('extrait_type', ['' => '— Choisir un type —'] + $optionsTypes, (string) ($form->extrait_type ?? ''), [
+                        'id'    => 'champ-extrait-type',
+                        'class' => $classeChamp('sio-admin__select', 'extrait_type'),
+                    ]) ?>
+                    <?= $erreurChamp('extrait_type') ?>
                 </div>
 
                 <div class="glossary-form__field">
-                    <label for="champ-extrait-contenu" class="glossary-form__label glossary-form__label--required">Contenu</label>
-                    <textarea id="champ-extrait-contenu" name="extrait_contenu" rows="6"
-                              class="glossary-form__input sio-admin__code <?= isset($errors['extrait_contenu']) ? 'sio-admin__input--erreur' : '' ?>"><?= esc($form->extrait_contenu ?? '') ?></textarea>
-                    <?php if (isset($errors['extrait_contenu'])): ?>
-                        <p class="sio-admin__erreur"><?= esc($errors['extrait_contenu']) ?></p>
-                    <?php endif; ?>
+                    <?= form_label('Contenu', 'champ-extrait-contenu', $labelRequis) ?>
+                    <?= form_textarea([
+                        'name'  => 'extrait_contenu',
+                        'id'    => 'champ-extrait-contenu',
+                        'value' => $form->extrait_contenu ?? '',
+                        'rows'  => '6',
+                        'class' => $classeChamp('glossary-form__input sio-admin__code', 'extrait_contenu'),
+                    ]) ?>
+                    <?= $erreurChamp('extrait_contenu') ?>
                 </div>
             <?php endif; ?>
-        </fieldset>
+
+        <?= form_fieldset_close() ?>
 
         <!-- Bonne réponse -->
-        <fieldset class="glossary-form__field sio-admin__fieldset">
-            <legend class="glossary-form__label glossary-form__label--required">Bonne réponse</legend>
+        <?= form_fieldset('<span class="glossary-form__label glossary-form__label--required">Bonne réponse</span>', ['class' => 'glossary-form__field sio-admin__fieldset']) ?>
             <div class="sio-admin__radios">
-                <label for="champ-vrai" class="sio-admin__choix">
-                    <input type="radio" id="champ-vrai" name="bonne_reponse" value="1" <?= $form->bonne_reponse == 1 ? 'checked' : '' ?>>
-                    Vrai
-                </label>
-                <label for="champ-faux" class="sio-admin__choix">
-                    <input type="radio" id="champ-faux" name="bonne_reponse" value="0" <?= $form->bonne_reponse == 0 ? 'checked' : '' ?>>
-                    Faux
-                </label>
+                <?= form_label(
+                    form_radio(['name' => 'bonne_reponse', 'id' => 'champ-vrai'], '1', $form->bonne_reponse == 1) . ' Vrai',
+                    'champ-vrai',
+                    ['class' => 'sio-admin__choix']
+                ) ?>
+                <?= form_label(
+                    form_radio(['name' => 'bonne_reponse', 'id' => 'champ-faux'], '0', $form->bonne_reponse == 0) . ' Faux',
+                    'champ-faux',
+                    ['class' => 'sio-admin__choix']
+                ) ?>
             </div>
-        </fieldset>
+        <?= form_fieldset_close() ?>
 
-        <!-- Explication (exemple en erreur) -->
-
+        <!-- Explication -->
         <div class="glossary-form__field">
-            <label for="champ-explication" class="glossary-form__label glossary-form__label--required">
-                Explication
-            </label>
-
-            <textarea
-                    id="champ-explication"
-                    name="explication"
-                    rows="4"
-                    class="glossary-form__input <?= isset($errors['explication']) ? 'sio-admin__input--erreur' : '' ?>"
-                        <?= isset($errors['explication']) ? 'aria-invalid="true" aria-describedby="erreur-explication"' : '' ?>><?= esc($form->explication ?? '') ?>
-            </textarea>
-
-            <?php if (isset($errors['explication'])): ?>
-                <p id="erreur-explication" class="sio-admin__erreur">
-                <?= esc($errors['explication']) ?>
-            </p>
-            <?php endif; ?>
+            <?= form_label('Explication', 'champ-explication', $labelRequis) ?>
+            <?php
+            $attributsExplication = [
+                'name'  => 'explication',
+                'id'    => 'champ-explication',
+                'value' => $form->explication ?? '',
+                'rows'  => '4',
+                'class' => $classeChamp('glossary-form__input', 'explication'),
+            ];
+            if (isset($errors['explication'])) {
+                $attributsExplication['aria-invalid'] = 'true';
+                $attributsExplication['aria-describedby'] = 'erreur-explication';
+            }
+            ?>
+            <?= form_textarea($attributsExplication) ?>
+            <?= $erreurChamp('explication') ?>
         </div>
 
-        <!-- Active -->
+        <!-- Active : le champ caché envoie 0 quand la case est décochée -->
         <div class="glossary-form__field">
-            <label for="champ-actif" class="sio-admin__choix">
-                <input type="hidden" name="actif" value="0">
-                <input type="checkbox" id="champ-actif" name="actif" value="1" <?= $form->actif == 1 ? 'checked' : '' ?>> Question active (visible dans les quiz)
-            </label>
+            <?= form_label(
+                form_hidden('actif', '0')
+                . form_checkbox(['name' => 'actif', 'id' => 'champ-actif'], '1', $form->actif == 1)
+                . ' Question active (visible dans les quiz)',
+                'champ-actif',
+                ['class' => 'sio-admin__choix']
+            ) ?>
         </div>
 
         <div class="glossary-form__field glossary-form__field--row">
-            <button type="submit" name="action" value="enregistrer" class="glossary-form__submit">Enregistrer</button>
+            <?= form_button([
+                'type'    => 'submit',
+                'name'    => 'action',
+                'value'   => 'enregistrer',
+                'content' => 'Enregistrer',
+                'class'   => 'glossary-form__submit',
+            ]) ?>
         </div>
 
         <?= form_close() ?>
     </div>
 </div>
 
-<!-- Exception autorisée à la règle 0 JS : uniquement pour le sélecteur de thème -->
+<!-- Exception autorisée à la règle 0 JS : renvoi du formulaire quand une liste change -->
 <?= script_tag(['src' => 'js/sio-admin-theme.js?v=' . filemtime(FCPATH . 'js/sio-admin-theme.js'), 'defer' => null]) ?>

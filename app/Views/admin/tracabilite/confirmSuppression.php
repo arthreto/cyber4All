@@ -17,7 +17,7 @@
             <?= form_open(base_url('floribondant/theme/questions/supprimer')) ?>
                 <?= form_hidden('id_question', '12') ?>
                 <?= form_hidden('confirmation', '1') ?>
-                <button type="submit" class="glossary-form__submit glossary-form__submit--refuser">Supprimer définitivement</button>
+                <?= form_button(['type' => 'submit', 'content' => 'Supprimer définitivement', 'class' => 'glossary-form__submit glossary-form__submit--refuser']) ?>
             <?= form_close() ?>
             <?= anchor(base_url('floribondant/theme'), 'Annuler', ['class' => 'sio-admin__btn-secondaire']) ?>
         </div>
