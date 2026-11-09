@@ -11,7 +11,6 @@
             <h1 class="titre">Gestion des termes</h1>
             <p class="sous-titre">Ajoute, modifie et classe les termes utilisés dans le quiz DICT.</p>
         </div>
-        <a href="?creer=1" class="bouton bouton-principal">+ Ajouter un terme</a>
     </div>
 
     <div class="colonnes">
@@ -116,84 +115,80 @@
                                 <span class="choix-contenu"><span class="lettre">T</span> Traçabilité</span>
                             </label>
                         </div>
+                        <div class="champ">
+                            <label class="etiquette" for="question">Question associée</label>
+                            <textarea class="zone-texte" id="question" name="question"
+                                      placeholder="Ex. : Un équipement filtre le trafic réseau… Quels critères protège-t-il ?"><?= esc($questionEdition['question'] ?? '') ?></textarea>
+                        </div>
                     </div>
 
                     <div class="boutons-formulaire">
+                        <button type="submit" form="form-supprimer" class="bouton bouton-supprimer"
+                                onclick="return confirm('Supprimer ce terme et sa question ?')">Supprimer</button>
                         <a href="<?= current_url() ?>" class="bouton bouton-annuler">Annuler</a>
                         <button type="submit" class="bouton bouton-principal">Enregistrer</button>
                     </div>
+                </form>
+
+                <!-- Formulaire de suppression (déclenché par le bouton Supprimer ci-dessus) -->
+                <form id="form-supprimer" method="post" action="<?= base_url('floribondant/groupe_c/admin/supprimer') ?>">
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="id_mot_cle" value="<?= esc($edition['id']) ?>">
                 </form>
             </div>
 
         <?php elseif ($creation): ?>
 
-            <!-- Création d'un terme -->
-            <div class="carte" id="formulaire">
+        <!-- Ajout d'un terme existant dans les concepts cyber -->
+        <div class="carte" id="formulaire">
 
-                <div class="carte-titre">
-                    <h2>Ajouter un terme</h2>
-                    <p>Nouveau contenu pour le quiz</p>
-                </div>
+            <div class="carte-titre">
+                <h2>Ajouter un terme</h2>
+                <p>Termes pas encore classés</p>
+            </div>
 
+            <?php if (empty($motsDisponibles)): ?>
                 <div class="formulaire">
-
-                    <div class="champ">
-                        <label class="etiquette" for="nom">Nom du terme <span class="obligatoire">*</span></label>
-                        <input class="saisie" id="nom" type="text" placeholder="Ex. : Journalisation">
+                    <p class="aide">Tous les termes sont déjà ajoutés.</p>
+                    <div class="boutons-formulaire">
+                        <a href="<?= current_url() ?>" class="bouton bouton-annuler">Retour</a>
                     </div>
+                </div>
+            <?php else: ?>
+                <form class="formulaire" method="post" action="<?= base_url('floribondant/groupe_c/admin/ajouter') ?>">
+                    <?= csrf_field() ?>
 
                     <div class="champ">
-                        <label class="etiquette" for="definition">Définition <span class="obligatoire">*</span></label>
-                        <textarea class="zone-texte" id="definition" placeholder="Une phrase claire, niveau débutant"></textarea>
-                    </div>
-
-                    <div class="champ">
-                        <span class="etiquette">Catégorie(s) associée(s) <span class="obligatoire">*</span></span>
-                        <div class="choix">
-                            <label class="choix-case choix-d">
-                                <input type="checkbox" name="categories[]" value="1">
-                                <span class="choix-contenu"><span class="lettre">D</span> Disponibilité</span>
-                            </label>
-                            <label class="choix-case choix-i">
-                                <input type="checkbox" name="categories[]" value="2">
-                                <span class="choix-contenu"><span class="lettre">I</span> Intégrité</span>
-                            </label>
-                            <label class="choix-case choix-c">
-                                <input type="checkbox" name="categories[]" value="3">
-                                <span class="choix-contenu"><span class="lettre">C</span> Confidentialité</span>
-                            </label>
-                            <label class="choix-case choix-t">
-                                <input type="checkbox" name="categories[]" value="4">
-                                <span class="choix-contenu"><span class="lettre">T</span> Traçabilité</span>
-                            </label>
-                        </div>
-                        <p class="aide">Un terme peut avoir plusieurs catégories.</p>
-                    </div>
-
-                    <div class="champ">
-                        <label class="etiquette" for="pourquoi">Pourquoi ces catégories ?</label>
-                        <textarea class="zone-texte" id="pourquoi" placeholder="Explication affichée après la réponse du quiz"></textarea>
+                        <label class="etiquette" for="id_mot_cle">Terme à ajouter</label>
+                        <select class="filtre" id="id_mot_cle" name="id_mot_cle"
+                                onchange="if (this.value) this.form.submit()">
+                            <option value="">Choisir un terme…</option>
+                            <?php foreach ($motsDisponibles as $m): ?>
+                                <option value="<?= esc($m['id']) ?>"><?= esc($m['mot']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <p class="aide">     Terme est ajouté sans catégorie</p>
                     </div>
 
                     <div class="boutons-formulaire">
                         <a href="<?= current_url() ?>" class="bouton bouton-annuler">Annuler</a>
-                        <button type="submit" class="bouton bouton-principal">Enregistrer</button>
                     </div>
+                </form>
+            <?php endif; ?>
 
-                </div>
-            </div>
+        </div>
 
         <?php else: ?>
 
-            <!-- Écran par défaut -->
-            <div class="carte" id="formulaire">
-                <div class="vide">
-                    <div class="vide-icone">+</div>
-                    <h2>Sélectionne un terme</h2>
-                    <p>Choisis une ligne à modifier ou crée une nouvelle notion.</p>
-                    <a href="?creer=1" class="bouton bouton-principal">Créer un terme</a>
-                </div>
+        <!-- Écran par défaut -->
+        <div class="carte" id="formulaire">
+            <div class="vide">
+                <div class="vide-icone">+</div>
+                <h2>Sélectionne un terme</h2>
+                <p>Choisis une ligne à modifier ou ajoute un terme existant au classement.</p>
+                <a href="?creer=1" class="bouton bouton-principal">Ajouter un terme</a>
             </div>
+        </div>
 
         <?php endif; ?>
 
