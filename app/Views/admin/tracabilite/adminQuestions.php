@@ -3,9 +3,6 @@
  * ADMINISTRATION - Espace compréhension SIO
  * Section Questions (les onglets sont affichés par onglets.php, appelé dans le contrôleur)
  *
- * Vue en dur. Zones à brancher signalées par « À brancher ».
- * Données prévues : $questions (liste), $quizList (filtre), $idQuizFiltre.
- * Penser à esc() sur toutes les données venant de la base.
  */
 ?>
 
@@ -16,7 +13,6 @@
             <div class="sio-admin__champ">
                 <label for="champ-theme" class="glossary-form__label">Quiz</label>
                 <select id="champ-theme" name="id_theme" class="sio-admin__select">
-                    <!-- À brancher : foreach ($quizList as $quiz) -->
 
                     <option value="-1" <?= $themeSelect == -1 ? 'selected' : '' ?>>Tous les quiz</option>
                     <?php foreach ($themeList as $theme): ?>
@@ -49,7 +45,6 @@
                 </tr>
                 </thead>
                 <tbody class="mots-table__body">
-                <!-- À brancher : foreach ($questions as $question) -->
                 <?php foreach ($questionList as $question): ?>
                     <tr class="mots-table__body-row">
                         <td class="mots-table__cell">
