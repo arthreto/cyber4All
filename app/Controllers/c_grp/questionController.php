@@ -90,6 +90,12 @@ class questionController extends BaseController
         $cc       = $model->conceptPourQuestion($idQ);
 
         $post = (array) $this->request->getPost('reponses');
+
+
+// Aucune case cochée : on refuse et on revient à la question
+        if (empty($post)) {
+            return redirect()->to(base_url('quiz/question'));
+        }
         $d = in_array('1', $post) ? 1 : 0;
         $i = in_array('2', $post) ? 1 : 0;
         $c = in_array('3', $post) ? 1 : 0;

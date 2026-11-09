@@ -1,6 +1,7 @@
 <?= link_tag(base_url('/css/css_grp/grp.css')) ?>
 
 <body>
+
 <main>
     <div class="presentation">
         <div class="retour-question">
@@ -35,7 +36,7 @@
             <p><?= esc($question['question']) ?></p>
             <p>Plusieurs réponses peuvent être justes</p>
         </div>
-        <form action="<?= base_url('quiz/question') ?>" method="post">
+        <form id="form-question" action="<?= base_url('quiz/question') ?>" method="post">
             <?= csrf_field() ?>
 
             <div class="cartes">
@@ -69,8 +70,21 @@
             </div>
 
             <div class="ligne-bouton">
-                <button type="submit" class="btn-val">Valider →</button>
+                <button type="submit" id="btn-valider" class="btn-val" disabled>Valider →</button>
             </div>
         </form>
         </div>
+    <script>
+        const form   = document.getElementById('form-question');
+        const bouton = document.getElementById('btn-valider');
+        const cases  = form.querySelectorAll('input[type="checkbox"]');
+
+        function majBouton() {
+            const auMoinsUne = Array.from(cases).some(c => c.checked);
+            bouton.disabled = !auMoinsUne;
+        }
+
+        cases.forEach(c => c.addEventListener('change', majBouton));
+        majBouton();
+    </script>
 </main>

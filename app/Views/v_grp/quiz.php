@@ -88,22 +88,13 @@
                     <label><input type="radio" name="duree" value="tout"><span>Tout</span></label>
                 </div>
 
-                <button type="submit" class="btn-lancer">Lancer le quiz →</button>
-            </form>
+
+
         </div>
 
         <div class="ligne-bouton">
-
-        <?= anchor(
-                base_url('quiz/question'),
-                'Lancer le quiz →',
-                [
-                        'title'=>"Tout le lexique de la cybersécurité",
-                        'class'=>"btn-lancer "
-                ]
-        ) ?>
-
-
+            <button type="submit" class="btn-lancer">Lancer le quiz →</button>
+            </form>
         </div>
     </div>
 </main>

@@ -20,7 +20,6 @@ $concepts = [
         <div class="progression">
             <div class="prog-infos">
                 <span class="prog-question">Question <?= esc($numero) ?> / <?= esc($total) ?></span>
-                <span class="prog-restantes"><?= esc($restantes) ?> restante<?= $restantes > 1 ? 's' : '' ?></span>
                 <span class="prog-score">Score : <?= esc($score) ?></span>
             </div>
             <progress class="prog-barre" value="<?= esc($numero) ?>" max="<?= esc($total) ?>"></progress>

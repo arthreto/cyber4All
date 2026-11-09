@@ -2,9 +2,23 @@
     --grey_sous_titre: #d1d5db;
     --black_font: #000000;
     --blu_quiz: #38a2d3;
+    --blu_text: #5b8aa0;
     --blu_background: #9fd3e8;
 
+    /* couleur pour les carte*/
+    .carte--d { --c: #f5a623; }
+    .carte--i { --c: #2fb89a; }
+    .carte--c { --c: #7c6cf0; }
+    .carte--t { --c: #e85d9c; }
+
+    /* couleur des reponse */
+
+    --vert_bon_background: #dcfce7;
+    --vert_bon: #16a34a;
+    --rouge_faux_background: #fee2e2;
+    --rouge_faux: #dc2626;
 }
+
 
 /* css/css_grp/grp.css */
 
@@ -19,6 +33,7 @@ main {
     padding: 0;
 }
 
+/* page principale quiz vue quiz.php */
 .presentation {
     flex: 0 0 50%;            /* exactement la moitié, pas flex: 1 */
     max-width: 50%;
@@ -32,7 +47,6 @@ main {
     max-width: 50%;
 }
 
-/* 3. Les blocs internes */
 .titre_quiz {
 
     text-align: left;
@@ -74,7 +88,7 @@ main {
 
 }
 
-
+/* "tableau des 4 concenpt */
 .cartes {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -109,11 +123,6 @@ main {
 
 }
 
-.carte--d { --c: #f5a623; }
-.carte--i { --c: #2fb89a; }
-.carte--c { --c: #7c6cf0; }
-
-.carte--t { --c: #e85d9c; }
 
 .lettre {
     display: grid;
@@ -127,16 +136,7 @@ main {
 }
 
 
-/* test=================================================================================================== */
-
-
-
-
-
-
-/* test=================================================================================================== */
-
-/* ===== LIGNE 1 : texte à gauche, choix à droite ===== */
+/*  Choix du nombre de question*/
 .ligne-duree {
     display: flex;
     justify-content: space-between;
@@ -150,7 +150,6 @@ main {
     color: black    ;
 }
 
-/* ===== CHOIX 5 / 10 / Tout ===== */
 .duree {
     display: flex;
     margin-left: auto;               /* collé à droite */
@@ -167,7 +166,7 @@ main {
     display: block;
     padding: 10px 22px;
     border-radius: 4px;
-    color: #5b8aa0;
+    color: var(--blu_text);
     cursor: pointer;
 }
 
@@ -204,11 +203,11 @@ main {
     margin-left: auto;        /* pousse le nombre au bord droit de la carte */
     font-family: monospace;
     font-size: 11px;
-    color: #5b8aa0;
+    color: var(--blu_text);
 }
 
 /*===============================================================
-/* Question*/
+/* page des question vu questionQuiz.php*/
 
 .btn-retour-question{
     font-size: 12px;
@@ -222,7 +221,7 @@ main {
     padding: 14px 28px;
     border: none;
     border-radius: 10px;
-    background: #4f46e5;     /* reprends la couleur de ton ancien bouton */
+    background: var(--blu_quiz);     /* reprends la couleur de ton ancien bouton */
     color: #fff;
     font-size: 1rem;
     font-weight: 600;
@@ -280,25 +279,152 @@ main {
 }
 
 .carte-correction.ok {
-    background: #dcfce7;
-    border-color: #16a34a;
+    background: var(--vert_bon_background);
+    border-color: var(--vert_bon);
 }
 
 .carte-correction.ko {
-    background: #fee2e2;
-    border-color: #dc2626;
+    background: var(--rouge_faux_background);
+    border-color: var(--rouge_faux);
 }
 
 .carte-correction.oubli {
-    border: 2px dashed #16a34a;
-    background: #dcfce7;
+    border: 2px dashed var(--vert_bon);
+    background: var(--vert_bon_background);
 }
 
-.msg-ok { color: #16a34a; font-weight: 700; }
-.msg-ko { color: #dc2626; font-weight: 700; }
+.msg-ok { color:var(--vert_bon); font-weight: 700; }
+.msg-ko { color:var(--rouge_faux); font-weight: 700; }
 
 .explication {
     margin-top: 20px;
     padding: 12px 16px;
     border-left: 4px solid var(--blu_quiz);
+}
+
+.btn-val:disabled {
+    background: #9ca3af;     /* gris */
+    color: #e5e7eb;
+    cursor: not-allowed;
+    opacity: 1;
+}
+
+.btn-val:disabled:hover {
+    opacity: 1;              /* annule l'effet de survol */
+}
+
+/* =========== page des resultat resultatQuiz.php */
+
+.resultat-ligne {
+    flex: 0 0 100%;        /* occupe une ligne entière dans le main en flex-wrap */
+    display: flex;
+    justify-content: center;
+    padding: 0;
+}
+
+.resultat {
+    flex: none;
+    width: 100%;           /* identique à .panneau */
+    max-width: 1500px;     /* identique à .panneau */
+    margin: 40px auto;     /* identique à .panneau */
+    text-align: center;
+}
+
+
+
+.resultat-titre {
+    margin: 6px 0;
+    font-size: 36px;
+    color: black;
+}
+
+.resultat-message {
+    margin: 0 0 24px;
+    color: #5b8aa0;
+    font-size: 18px;
+}
+
+/* Cercle de score : le dégradé conique suit --pct */
+.resultat-cercle {
+    width: 200px;
+    height: 200px;
+    margin: 0 auto 28px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: conic-gradient(var(--blu_quiz) calc(var(--pct) * 1%), #e5e7eb 0);
+}
+
+.resultat-cercle-interieur {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.resultat-score {
+    font-size: 48px;
+    font-weight: 800;
+    color: black;
+}
+
+.resultat-score small {
+    font-size: 22px;
+    color: #9ca3af;
+}
+
+.resultat-pct {
+    color: var(--blu_quiz);
+    font-weight: 700;
+}
+
+/* Statistiques */
+.resultat-stats {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 28px;
+}
+
+.stat {
+    flex: 1;
+    max-width: 200px;
+    padding: 14px;
+    border-radius: 10px;
+}
+
+.stat strong {
+    display: block;
+    font-size: 28px;
+}
+
+.stat span {
+    font-size: 14px;
+}
+
+.stat-ok { background: var(--vert_bon_background); color: var(--vert_bon); }
+.stat-ko { background: var(--rouge_faux_background); color: var(--rouge_faux); }
+
+/* Boutons */
+.resultat-boutons {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}
+
+.btn-secondaire {
+    padding: 14px 24px;
+    border: 1px solid var(--blu_quiz);
+    border-radius: 6px;
+    color: var(--blu_quiz);
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.btn-secondaire:hover {
+    background: #eef7fc;
 }
