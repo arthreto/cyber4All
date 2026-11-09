@@ -1,24 +1,24 @@
-<main class="detail-preview">
+ <main class="detail-preview">
     <article class="detail-page">
-
-        <section class="api-top-ten">
+        <p class="eyebrow">Classement officiel</p>
+        <section class="top-ten">
             <div class="section-heading">
-                <p class="eyebrow">Classement officiel</p>
-                <h2>Top 10 des risques de sécurité API – 2023</h2>
+
+                <h2>Top 10 des risques de sécurité</h2>
                 <p>Chaque élément présente la traduction française de la description officielle.</p>
             </div>
 
-            <ol class="api-risk-list">
+            <ol class="risk-list">
                 <?php if (!empty($Vulnerabilities)):
-                    foreach ($Vulnerabilities as $x => $y):
+                    foreach ($Vulnerabilities as $nom => $id):
                         $contenu = '
-                            <span class="risk-rank">' . $y . '</span>
-                            <div class="api-risk-content">
-                                <strong>' . esc($x) . '</strong>
+                            <span class="risk-rank">' . $id . '</span>
+                            <div class="risk-content">
+                                <strong>' . esc($nom) . '</strong>
                             </div>
                             <span class="risk-list-arrow" aria-hidden="true">⟶</span>'; ?>
                         <li>
-                            <?= anchor(base_url() . 'top10/api/detail/' . $y, $contenu, ['class' => 'api-risk-card']) ?>
+                            <?= anchor(base_url() . 'top10/api/detail/' . $id, $contenu, ['class' => 'risk-card']) ?>
                         </li>
                     <?php endforeach;
                 endif; ?>

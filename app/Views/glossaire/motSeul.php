@@ -126,13 +126,13 @@ $utilisateur = session()->get("utilisateur");
                         <p class="top10-intro">Retrouvez pour chaque risque une explication en français et une contre-mesure applicable.</p>
 
                         <div class="top10-cards">
-                            <a href="<?= base_url('glossaire/top10/web') ?>" class="top10-card top10-card--web">
+                            <a href="<?= base_url('top10/1') ?>" class="top10-card top10-card--web">
                                 <span class="top10-tag">Web · 2025</span>
                                 <h3>Top 10 Vulnérabilités Web</h3>
                                 <span class="top10-link">Consulter le classement</span>
                             </a>
 
-                            <a href="<?= base_url('top10/api') ?>" class="top10-card top10-card--api">
+                            <a href="<?= base_url('top10/2') ?>" class="top10-card top10-card--api">
                                 <span class="top10-tag">API · 2023</span>
                                 <h3>Top 10 Vulnérabilités API</h3>
                                 <span class="top10-link">Consulter le classement</span>
