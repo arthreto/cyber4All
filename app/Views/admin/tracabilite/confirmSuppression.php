@@ -19,7 +19,7 @@
                 <?= form_hidden('confirmation', '1') ?>
                 <button type="submit" class="glossary-form__submit glossary-form__submit--refuser">Supprimer définitivement</button>
             <?= form_close() ?>
-            <a href="<?= base_url('floribondant/theme') ?>" class="sio-admin__btn-secondaire">Annuler</a>
+            <?= anchor(base_url('floribondant/theme'), 'Annuler', ['class' => 'sio-admin__btn-secondaire']) ?>
         </div>
     </div>
 </div>

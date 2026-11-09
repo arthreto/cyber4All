@@ -103,6 +103,7 @@ class AdminThemeController extends BaseController
 
                 if ($question !== null) {
                     $form->fill($question);
+                    $form->modifier = $idQuestionModif;
                 }
             }
         }
@@ -141,6 +142,7 @@ class AdminThemeController extends BaseController
                     'bonne_reponse' => $this->request->getPost('bonne_reponse'),
                     'explication'   => $this->request->getPost('explication') ?? '',
                     'actif'         => $this->request->getPost('actif') ?? '0',
+                    'modifier'      => $this->request->getPost('modifier') ?? '0',
                 ];
 
 
