@@ -14,18 +14,22 @@
     <div class="sio-admin__actions">
         <?= form_open(base_url('floribondant/theme/quiz'), ['method' => 'post', 'class' => 'sio-admin__filtre']) ?>
             <div class="sio-admin__champ">
-                <label for="champ-theme" class="glossary-form__label">Thème</label>
-                <select id="champ-theme" name="id_theme" class="sio-admin__select">
-                    <option value="-1" <?= $themeSelect == -1 ? 'selected' : '' ?>>Tous les thèmes</option>
-                    <?php foreach ($themeList as $theme): ?>
-                        <option value="<?= esc($theme->id) ?>" <?= $themeSelect == $theme->id ? 'selected' : '' ?>>
-                            <?= esc($theme->nom) ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
+                <?= form_label('Thème', 'champ-theme', ['class' => 'glossary-form__label']) ?>
+                <?= form_dropdown(
+                    'id_theme',
+                    ['-1' => 'Tous les thèmes'] + esc(array_column($themeList, 'nom', 'id')),
+                    (string) $themeSelect,
+                    ['id' => 'champ-theme', 'class' => 'sio-admin__select']
+                ) ?>
             </div>
             <noscript>
-                <button type="submit" name="action" value="choisir_theme" class="sio-admin__btn-secondaire">Filtrer</button>
+                <?= form_button([
+                    'type'    => 'submit',
+                    'name'    => 'action',
+                    'value'   => 'choisir_theme',
+                    'content' => 'Filtrer',
+                    'class'   => 'sio-admin__btn-secondaire',
+                ]) ?>
             </noscript>
         <?= form_close() ?>
 
@@ -69,7 +73,7 @@
                                 <?= anchor($urlModifier, 'Modifier', ['class' => 'mots-table__link']) ?>
                                 <?= form_open(base_url('floribondant/theme/quiz/supprimer/' . $quiz['id']), ['class' => 'mots-table__delete-form']) ?>
                                     <?= form_hidden('id_quiz', $quiz['id']) ?>
-                                    <button type="submit" class="sio-admin__btn-supprimer">Supprimer</button>
+                                    <?= form_button(['type' => 'submit', 'content' => 'Supprimer', 'class' => 'sio-admin__btn-supprimer']) ?>
                                 <?= form_close() ?>
                             </div>
                         </td>

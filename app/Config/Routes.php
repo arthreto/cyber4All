@@ -56,7 +56,7 @@ $routes->group('floribondant', static function ($routes) {
     $routes->match(['GET', 'POST'], 'mots/validation/decision/(:num)', 'admin\AdminMotController::decisionMotCle/$1');
 
     $routes->match(['GET', 'POST'], 'theme', 'admin\AdminThemeController::index');
-    $routes->match(['GET', 'POST'], 'theme/quiz', 'admin\AdminThemeController::quizSection');
+    $routes->match(['GET', 'POST'], 'theme/quiz', 'admin\AdminThemeController::quizSection', ['as' => 'quizList']);
     $routes->match(['GET', 'POST'], 'theme/lecons', 'admin\AdminThemeController::leconsSection');
     $routes->match(['GET', 'POST'], 'theme/questions/ajouter', 'admin\AdminThemeController::questionAjouter');
     $routes->match(['GET', 'POST'], 'theme/questions/modifier/(:num)', 'admin\AdminThemeController::questionAjouter/$1');

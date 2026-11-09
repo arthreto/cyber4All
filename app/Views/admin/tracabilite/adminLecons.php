@@ -11,19 +11,22 @@
     <div class="sio-admin__actions">
         <?= form_open(base_url('floribondant/theme/lecons'), ['method' => 'post', 'class' => 'sio-admin__filtre']) ?>
         <div class="sio-admin__champ">
-            <label for="champ-theme" class="glossary-form__label">Thème</label>
-            <select id="champ-theme" name="id_theme" class="sio-admin__select">
-
-                <option value="-1" <?= $themeSelect == -1 ? 'selected' : '' ?>>Tous les thèmes</option>
-                <?php foreach ($themeList as $theme): ?>
-                    <option value="<?= esc($theme->id, 'attr') ?>" <?= $themeSelect == $theme->id ? 'selected' : '' ?>>
-                        <?= esc($theme->nom) ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
+            <?= form_label('Quiz', 'champ-theme', ['class' => 'glossary-form__label']) ?>
+            <?= form_dropdown(
+                'id_theme',
+                ['-1' => 'Tous les quiz'] + esc(array_column($themeList, 'nom', 'id')),
+                (string) $themeSelect,
+                ['id' => 'champ-theme', 'class' => 'sio-admin__select']
+            ) ?>
         </div>
         <noscript>
-            <button type="submit" name="action" value="choisir_theme" class="sio-admin__btn-secondaire">Afficher les leçons</button>
+            <?= form_button([
+                'type'    => 'submit',
+                'name'    => 'action',
+                'value'   => 'choisir_theme',
+                'content' => 'Afficher les quiz',
+                'class'   => 'sio-admin__btn-secondaire',
+            ]) ?>
         </noscript>
         <?= form_close() ?>
 
@@ -83,4 +86,4 @@
         </div>
     </div>
 
-<?= script_tag(['src' => 'js/sio-admin-theme.js', 'defer' => null]) ?>
+<?= script_tag(['src' => 'js/sio-admin-theme.js?v=' . filemtime(FCPATH . 'js/sio-admin-theme.js'), 'defer' => null]) ?>

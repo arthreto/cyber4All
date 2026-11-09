@@ -2,11 +2,33 @@
 /**
  * ADMINISTRATION - Espace compréhension SIO
  * Formulaire d'ajout / de modification d'un quiz
+ *
+ * Helpers utilisés : url (anchor, base_url), html (ul, script_tag),
+ * form (form_open, form_label, form_dropdown, form_input, form_textarea, form_checkbox,
+ * form_hidden, form_fieldset, form_button, form_fieldset_close, form_close).
+ *
+ * Attention : form_dropdown et form_label n'échappent pas les libellés, d'où les esc().
  */
 $estModification = ! empty($form->modifier);
 $actionFormulaire = $estModification
     ? 'floribondant/theme/quiz/modifier/' . (int) $form->modifier
     : 'floribondant/theme/quiz/ajouter';
+
+// Classe d'un champ, avec la classe d'erreur si le champ est en erreur
+$classeChamp = static fn (string $classe, string $champ): string
+    => $classe . (isset($errors[$champ]) ? ' sio-admin__input--erreur' : '');
+
+// Message d'erreur sous un champ
+$erreurChamp = static fn (string $champ): string
+    => isset($errors[$champ]) ? '<p class="sio-admin__erreur">' . esc($errors[$champ]) . '</p>' : '';
+
+$label = ['class' => 'glossary-form__label'];
+$labelRequis = ['class' => 'glossary-form__label glossary-form__label--required'];
+
+// Listes déroulantes (libellés échappés)
+$optionsThemes = esc(array_column($themeList ?? [], 'nom', 'id'));
+$optionsQuestions = esc(array_column($questionsDisponibles ?? [], 'libelle', 'id'));
+$nbQuestions = count($questionsAjoutees ?? []);
 ?>
 <div class="sio-admin sio-admin--formulaire">
 
@@ -20,11 +42,7 @@ $actionFormulaire = $estModification
         <?php if (! empty($errors)): ?>
             <div class="sio-admin__erreur-globale" role="alert">
                 <strong>Le formulaire contient <?= count($errors) ?> erreur(s).</strong>
-                <ul>
-                    <?php foreach ($errors as $error): ?>
-                        <li style="margin-left: 5%;"><?= esc($error) ?></li>
-                    <?php endforeach; ?>
-                </ul>
+                <?= ul(esc($errors), ['style' => 'margin-left: 5%;']) ?>
             </div>
         <?php endif; ?>
 
@@ -32,93 +50,107 @@ $actionFormulaire = $estModification
 
         <!-- Thème -->
         <div class="glossary-form__field">
-            <label for="champ-theme-quiz" class="glossary-form__label glossary-form__label--required">Thème</label>
-            <select id="champ-theme-quiz" name="id_theme" required
-                    class="sio-admin__select <?= isset($errors['id_theme']) ? 'sio-admin__input--erreur' : '' ?>">
-                <?php foreach ($themeList ?? [] as $theme): ?>
-                    <option value="<?= esc($theme->id) ?>" <?= ($form->id_theme ?? null) == $theme->id ? 'selected' : '' ?>>
-                        <?= esc($theme->nom) ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-
-            <?php if (isset($errors['id_theme'])): ?>
-                <p class="sio-admin__erreur"><?= esc($errors['id_theme']) ?></p>
-            <?php endif; ?>
+            <?= form_label('Thème', 'champ-theme-quiz', $labelRequis) ?>
+            <?= form_dropdown('id_theme', $optionsThemes, (string) ($form->id_theme ?? ''), [
+                'id'       => 'champ-theme-quiz',
+                'class'    => $classeChamp('sio-admin__select', 'id_theme'),
+                'required' => 'required',
+            ]) ?>
+            <?= $erreurChamp('id_theme') ?>
         </div>
 
         <!-- Titre -->
         <div class="glossary-form__field">
-            <label for="champ-titre" class="glossary-form__label glossary-form__label--required">Titre</label>
-            <input type="text" id="champ-titre" name="titre" required maxlength="150"
-                   value="<?= esc($form->titre ?? '') ?>"
-                   placeholder="Reconnaître un token valide"
-                   class="glossary-form__input <?= isset($errors['titre']) ? 'sio-admin__input--erreur' : '' ?>">
-
-            <?php if (isset($errors['titre'])): ?>
-                <p class="sio-admin__erreur"><?= esc($errors['titre']) ?></p>
-            <?php endif; ?>
+            <?= form_label('Titre', 'champ-titre', $labelRequis) ?>
+            <?= form_input([
+                'name'        => 'titre',
+                'id'          => 'champ-titre',
+                'value'       => $form->titre ?? '',
+                'minlength'   => '14',
+                'maxlength'   => '150',
+                'placeholder' => 'Reconnaître un token valide',
+                'class'       => $classeChamp('glossary-form__input', 'titre'),
+                'required'    => true,
+            ]) ?>
+            <?= $erreurChamp('titre') ?>
         </div>
 
         <!-- Description -->
         <div class="glossary-form__field">
-            <label for="champ-description" class="glossary-form__label">Description (facultatif)</label>
-            <textarea id="champ-description" name="description" rows="4" aria-describedby="aide-description"
-                      class="glossary-form__input <?= isset($errors['description']) ? 'sio-admin__input--erreur' : '' ?>"><?= esc($form->description ?? '') ?></textarea>
+            <?= form_label('Description (facultatif)', 'champ-description', $label) ?>
+            <?= form_textarea([
+                'name'             => 'description',
+                'id'               => 'champ-description',
+                'value'            => $form->description ?? '',
+                'rows'             => '4',
+                'class'            => $classeChamp('glossary-form__input sio-admin__textarea--fixe', 'description'),
+                'aria-describedby' => 'aide-description',
+            ]) ?>
             <p id="aide-description" class="glossary-form__help">Courte présentation affichée dans la liste des quiz.</p>
-
-            <?php if (isset($errors['description'])): ?>
-                <p class="sio-admin__erreur"><?= esc($errors['description']) ?></p>
-            <?php endif; ?>
+            <?= $erreurChamp('description') ?>
         </div>
 
-        <!-- Actif -->
+        <!-- Actif : le champ caché envoie 0 quand la case est décochée -->
         <div class="glossary-form__field">
-            <label for="champ-actif" class="sio-admin__choix">
-                <input type="hidden" name="actif" value="0">
-                <input type="checkbox" id="champ-actif" name="actif" value="1" <?= ($form->actif ?? 1) == 1 ? 'checked' : '' ?>>
-                Quiz actif (visible sur la page des quiz)
-            </label>
+            <?= form_label(
+                form_hidden('actif', '0')
+                . form_checkbox(['name' => 'actif', 'id' => 'champ-actif'], '1', ($form->actif ?? 1) == 1)
+                . ' Quiz actif (visible sur la page des quiz)',
+                'champ-actif',
+                ['class' => 'sio-admin__choix']
+            ) ?>
         </div>
 
-        <fieldset class="sio-admin__bloc-quiz">
-            <legend class="glossary-form__label">Questions du quiz</legend>
+        <?= form_fieldset('<span class="glossary-form__label">Questions du quiz</span>', ['class' => 'sio-admin__bloc-quiz']) ?>
 
             <div class="sio-admin__ligne">
                 <div class="sio-admin__champ">
-                    <label for="champ-theme-questions" class="glossary-form__label">1. Thème des questions</label>
-                    <select id="champ-theme-questions" name="id_theme_questions" class="sio-admin__select" data-envoi-auto>
-                        <?php foreach ($themeList ?? [] as $theme): ?>
-                            <option value="<?= esc($theme->id) ?>" <?= ($form->id_theme_questions ?? null) == $theme->id ? 'selected' : '' ?>>
-                                <?= esc($theme->nom) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
+                    <?= form_label('1. Thème des questions', 'champ-theme-questions', $label) ?>
+                    <?= form_dropdown('id_theme_questions', $optionsThemes, (string) ($form->id_theme_questions ?? ''), [
+                        'id'              => 'champ-theme-questions',
+                        'class'           => 'sio-admin__select',
+                        'data-envoi-auto' => 'true',
+                    ]) ?>
                 </div>
                 <noscript>
-                    <button type="submit" name="action" value="choisir_theme" formnovalidate class="sio-admin__btn-secondaire">Afficher les questions</button>
+                    <?= form_button([
+                        'type'           => 'submit',
+                        'name'           => 'action',
+                        'value'          => 'choisir_theme',
+                        'content'        => 'Afficher les questions',
+                        'class'          => 'sio-admin__btn-secondaire',
+                        'formnovalidate' => true,
+                    ]) ?>
                 </noscript>
             </div>
 
             <div class="sio-admin__ligne">
                 <div class="sio-admin__champ">
-                    <label for="champ-question" class="glossary-form__label">2. Question à ajouter</label>
-                    <select id="champ-question" name="id_question_ajout" class="sio-admin__select" aria-describedby="aide-question">
-                        <?php foreach ($questionsDisponibles ?? [] as $question): ?>
-                            <option value="<?= esc($question['id']) ?>"><?= esc($question['libelle']) ?></option>
-                        <?php endforeach; ?>
-                    </select>
+                    <?= form_label('2. Question à ajouter', 'champ-question', $label) ?>
+                    <?= form_dropdown('id_question_ajout', $optionsQuestions, '', [
+                        'id'    => 'champ-question',
+                        'class' => 'sio-admin__select',
+                    ]) ?>
                 </div>
-                <button type="submit" name="action" value="ajouter_question" formnovalidate
-                        class="sio-admin__btn-principal" <?= empty($questionsDisponibles) ? 'disabled' : '' ?>>
-                    Ajouter cette question
-                </button>
+                <?php
+                $boutonAjout = [
+                    'type'           => 'submit',
+                    'name'           => 'action',
+                    'value'          => 'ajouter_question',
+                    'content'        => 'Ajouter cette question',
+                    'class'          => 'sio-admin__btn-principal',
+                    'formnovalidate' => true,
+                ];
+                // Les attributs booléens sont toujours écrits par CodeIgniter : on n'ajoute disabled que si besoin
+                if ($optionsQuestions === []) {
+                    $boutonAjout['disabled'] = true;
+                }
+                ?>
+                <?= form_button($boutonAjout) ?>
             </div>
 
             <div class="sio-admin__rattaches">
-                <p class="glossary-form__label">
-                    <?= count($questionsAjoutees ?? []) ?> question<?= count($questionsAjoutees ?? []) > 1 ? 's' : '' ?> dans ce quiz
-                </p>
+                <p class="glossary-form__label"><?= $nbQuestions ?> question<?= $nbQuestions > 1 ? 's' : '' ?> dans ce quiz</p>
                 <ol class="sio-admin__rattaches-liste">
                     <?php foreach ($questionsAjoutees ?? [] as $question): ?>
                         <li class="sio-admin__rattache">
@@ -126,18 +158,31 @@ $actionFormulaire = $estModification
                                 <?= esc($question['libelle']) ?>
                                 <strong>· <?= $question['bonne_reponse'] == 1 ? 'Vrai' : 'Faux' ?></strong>
                             </span>
-                            <button type="submit" name="retirer_question" value="<?= esc($question['id']) ?>"
-                                    formnovalidate class="sio-admin__btn-supprimer">Retirer</button>
+                            <?= form_button([
+                                'type'           => 'submit',
+                                'name'           => 'retirer_question',
+                                'value'          => (string) $question['id'],
+                                'content'        => 'Retirer',
+                                'class'          => 'sio-admin__btn-supprimer',
+                                'formnovalidate' => true,
+                            ]) ?>
                         </li>
                     <?php endforeach; ?>
                 </ol>
             </div>
 
             <?= anchor(base_url('floribondant/theme/questions/ajouter'), '+ Créer une nouvelle question', ['class' => 'sio-admin__retour']) ?>
-        </fieldset>
+
+        <?= form_fieldset_close() ?>
 
         <div class="glossary-form__field glossary-form__field--row">
-            <button type="submit" name="action" value="enregistrer" class="glossary-form__submit">Enregistrer</button>
+            <?= form_button([
+                'type'    => 'submit',
+                'name'    => 'action',
+                'value'   => 'enregistrer',
+                'content' => 'Enregistrer',
+                'class'   => 'glossary-form__submit',
+            ]) ?>
         </div>
 
         <?= form_close() ?>
