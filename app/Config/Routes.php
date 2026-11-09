@@ -1,5 +1,6 @@
 <?php
 
+use App\Controllers\admin\AdminLeconController;
 use CodeIgniter\Router\RouteCollection;
 
 /**
@@ -64,6 +65,12 @@ $routes->group('floribondant', static function ($routes) {
     $routes->match(['GET', 'POST'], 'theme/quiz/ajouter', 'admin\AdminQuizController::quizAjouter');
     $routes->match(['GET', 'POST'], 'theme/quiz/modifier/(:num)', 'admin\AdminQuizController::quizAjouter/$1');
     $routes->match(['GET', 'POST'], 'theme/quiz/supprimer/(:num)', 'admin\AdminQuizController::quizSupprimer/$1');
+
+    $routes->match(['GET', 'POST'], 'theme/lecons/ajouter', 'admin\AdminLeconController::leconAjouter');
+    $routes->match(['GET', 'POST'], 'theme/lecons/modifier/(:num)', 'admin\AdminLeconController::leconAjouter/$1');
+    $routes->match(['GET', 'POST'], 'theme/lecons/supprimer/(:num)', 'admin\AdminLeconController::leconSupprimer/$1');
+
+
 
 
     $routes->post('signalement/supprimer', 'SignalementController::supprimerSignalement');
