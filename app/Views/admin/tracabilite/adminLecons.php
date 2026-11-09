@@ -62,7 +62,7 @@
                     <td class="mots-table__cell mots-table__date"><?= esc($lecon->date_modif) ?></td>
                     <td class="mots-table__cell">
                         <div class="sio-admin__ligne-actions">
-                            <?= anchor(base_url('floribondant/theme/lecons/update/1'), 'Modifier', ['class' => 'mots-table__link']) ?>
+                            <?= anchor(base_url('floribondant/theme/lecons/modifier/1'), 'Modifier', ['class' => 'mots-table__link']) ?>
                             <?= form_open(base_url('floribondant/theme/lecons/supprimer'), ['class' => 'mots-table__delete-form']) ?>
                                 <?= form_hidden('id_lecon', '1') ?>
                                 <button type="submit" class="sio-admin__btn-supprimer">Supprimer</button>

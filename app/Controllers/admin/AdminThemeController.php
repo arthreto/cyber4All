@@ -93,6 +93,19 @@ class AdminThemeController extends BaseController
             . view('footer');
     }
 
+    /**
+     * Suppresion d'une Question
+     *
+     * @param int|null $idQuestion Identifiant de la question à supprimer
+     * @return boolean Suppresion reussi, Vrai = Oui, Faux = Non
+     */
+    public function questionSupprimer(int $idQuestion)
+    {
+        $this->quiz_question_model->delete($idQuestion);
+        $this->question_model->delete($idQuestion);
+
+        return $this->index();
+    }
 
 
     public function questionAjouter(?int $idQuestionModif = null)
@@ -182,11 +195,11 @@ class AdminThemeController extends BaseController
                         'rules' => [
                             'permit_empty',
                             'max_length[255]',
-                            'regex_match[/\.(png|jpg|jpeg|webp)$/i]',
+                            'regex_match[/\.(png|jpg|jpeg|webp|avif)$/i]',
                         ],
                         'errors' => [
                             'max_length' => 'Le chemin de l’image ne peut pas dépasser 255 caractères.',
-                            'regex_match' => 'L’image doit être au format PNG, JPG, JPEG ou WEBP.',
+                            'regex_match' => 'L’image doit être au format PNG, AVIF, JPG, JPEG ou WEBP.',
                         ],
                     ],
                     'detail' => [
@@ -287,17 +300,28 @@ class AdminThemeController extends BaseController
             . view('footer');
     }
 
+    /**
+     * Onglet Quiz : liste des quiz, filtrable par thème.
+     * Même fonctionnement que index() pour les questions.
+     */
     public function quizSection()
     {
         $data = [
             'onglet' => 'quiz',
             'themeList' => $this->theme_model->getAllThemes(),
+            'themeSelect' => -1,
         ];
 
-        return view('header', $data)
+        if ($this->request->is('post')) {
+            $data['themeSelect'] = (int) $this->request->getPost('id_theme');
+        }
+
+        $data['quizList'] = $this->quiz_model->getQuizAdmin($data['themeSelect']);
+
+        return view('header')
             . view('notice')
             . view('admin/tracabilite/onglets', $data)
-            . view('admin/tracabilite/adminQuiz')
+            . view('admin/tracabilite/adminQuiz', $data)
             . view('footer');
     }
 

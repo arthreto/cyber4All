@@ -114,7 +114,7 @@
             <label for="champ-image" class="glossary-form__label">Chemin de l'image (facultatif)</label>
             <input type="text" id="champ-image" name="image" value="<?= esc($form->image ?? '') ?>"
                    placeholder="images/questions/jwt-expire.png" class="glossary-form__input <?= isset($errors['image']) ? 'sio-admin__input--erreur' : '' ?>" aria-describedby="aide-image">
-            <p id="aide-image" class="glossary-form__help">Chemin de l'image à partir du dossier public (PNG ou JPG). Affichée au-dessus de l'énoncé.</p>
+            <p id="aide-image" class="glossary-form__help">Nom de l'image avec extension dans images/questions/</p>
 
             <?php if (isset($errors['image'])): ?>
                 <p id="erreur-image" class="sio-admin__erreur">

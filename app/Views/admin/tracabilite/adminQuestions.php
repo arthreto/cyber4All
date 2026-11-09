@@ -48,7 +48,17 @@
                 <?php foreach ($questionList as $question): ?>
                     <tr class="mots-table__body-row">
                         <td class="mots-table__cell">
-                            <?= anchor(base_url('floribondant/theme/questions/modifier/' . $question['id']), esc($question['libelle']), ['class' => 'mots-table__link']) ?>
+                            <div class="sio-admin__enonce">
+                                <?php if (!empty($question['image'])): ?>
+                                    <?= img([
+                                        'src'     => esc('images/questions/' . $question['image'], 'attr'),
+                                        'alt'     => 'Illustration de la question',
+                                        'class'   => 'sio-admin__miniature',
+                                        'loading' => 'lazy',
+                                    ]) ?>
+                                <?php endif; ?>
+                                <?= anchor(base_url('floribondant/theme/questions/modifier/' . $question['id']), esc($question['libelle']), ['class' => 'mots-table__link']) ?>
+                            </div>
                         </td>
                         <td class="mots-table__cell">
                             <ul class="sio-admin__quiz-liste">
@@ -64,7 +74,7 @@
                         <td class="mots-table__cell">
                             <div class="sio-admin__ligne-actions">
                                 <?= anchor(base_url('floribondant/theme/questions/modifier/' . $question['id']), 'Modifier', ['class' => 'mots-table__link']) ?>
-                                <?= form_open(base_url('floribondant/theme/questions/supprimer'), ['class' => 'mots-table__delete-form']) ?>
+                                <?= form_open(base_url('floribondant/theme/questions/supprimer/' . $question['id']), ['class' => 'mots-table__delete-form']) ?>
                                     <?= form_hidden('id_question', '12') ?>
                                     <button type="submit" class="sio-admin__btn-supprimer">Supprimer</button>
                                 <?= form_close() ?>
