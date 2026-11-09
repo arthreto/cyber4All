@@ -10,18 +10,15 @@
 
             <ol class="risk-list">
                 <?php if (!empty($Vulnerabilities)):
-                    $compteur_temp = 0;
-                    foreach ($Vulnerabilities as $nom => $description):
-                        $compteur_temp++;
+                    foreach ($Vulnerabilities as $nom => $id):
                         $contenu = '
-                            <span class="risk-rank">' . $compteur_temp . '</span>
+                            <span class="risk-rank">' . $id . '</span>
                             <div class="risk-content">
                                 <strong>' . esc($nom) . '</strong>
-                                <span>' . esc($description) . '</span>
                             </div>
                             <span class="risk-list-arrow" aria-hidden="true">⟶</span>'; ?>
                         <li>
-                            <?= anchor(base_url() . '/detail/' . $compteur_temp, $contenu, ['class' => 'risk-card']) ?>
+                            <?= anchor(base_url() . 'top10/api/detail/' . $id, $contenu, ['class' => 'risk-card']) ?>
                         </li>
                     <?php endforeach;
                 endif; ?>
