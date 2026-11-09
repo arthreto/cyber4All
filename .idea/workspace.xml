@@ -5,15 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1a4065f7-ed27-4364-ae71-5b4cd082b4f1" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/php.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/php.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/Controllers/admin/AdminThemeController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Controllers/admin/AdminThemeController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/Views/admin/tracabilite/adminLecons.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Views/admin/tracabilite/adminLecons.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/Views/admin/tracabilite/adminQuestions.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Views/admin/tracabilite/adminQuestions.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/Views/admin/tracabilite/adminQuiz.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Views/admin/tracabilite/adminQuiz.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/Views/admin/tracabilite/confirmSuppression.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Views/admin/tracabilite/confirmSuppression.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/Models/QuestionModel.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Models/QuestionModel.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/Models/QuizQuestionModel.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Models/QuizQuestionModel.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/Views/admin/tracabilite/formQuestion.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Views/admin/tracabilite/formQuestion.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/Views/admin/tracabilite/onglets.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Views/admin/tracabilite/onglets.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -115,7 +111,7 @@
       <workItem from="1793622266657" duration="9171000" />
       <workItem from="1793780695947" duration="1714000" />
       <workItem from="1793782466756" duration="97000" />
-      <workItem from="1794209397720" duration="1085000" />
+      <workItem from="1794209397720" duration="2895000" />
     </task>
     <servers />
   </component>

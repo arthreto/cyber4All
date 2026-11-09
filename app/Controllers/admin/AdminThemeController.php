@@ -91,9 +91,17 @@ class AdminThemeController extends BaseController
             . view('footer');
     }
 
-    public function questionAjouter($idQuestionModif)
+
+
+    public function questionAjouter(?int $idQuestionModif = null)
     {
         $form = $this->session->get('questionForm');
+
+        // Le mode (ajout ou modification) vient de l'URL : un formulaire en session
+        // qui ne correspond pas à cette URL (autre question, ou ajout) est abandonné.
+        if ($form !== null && (int) ($form->modifier ?? 0) !== (int) ($idQuestionModif ?? 0)) {
+            $form = null;
+        }
 
         if ($form === null) {
             $form = new QuestionForm();
@@ -104,6 +112,17 @@ class AdminThemeController extends BaseController
                 if ($question !== null) {
                     $form->fill($question);
                     $form->modifier = $idQuestionModif;
+
+                    $form->quiz = $this->quiz_question_model->getIdsQuizByQuestion($idQuestionModif);
+
+                    // Preselectionne le premier quiz
+                    if (!empty($form->quiz)) {
+                        $premierQuiz = $this->quiz_model->find($form->quiz[0]);
+
+                        if ($premierQuiz !== null) {
+                            $form->id_theme = $premierQuiz->id_theme;
+                        }
+                    }
                 }
             }
         }
@@ -209,17 +228,31 @@ class AdminThemeController extends BaseController
                         $errors = $this->validator->getErrors();
                     }
 
+                    // En cas d'erreur, on ne redirige pas : le formulaire est réaffiché
+                    // plus bas avec $errors et la saisie conservée en session.
                     if (empty($errors)) {
-                        $newId = $this->question_model->creerQuestion($formData);
-                        forEach ($form->quiz as $quizId) {
-                            $this->quiz_question_model->creerLiaison($newId, $quizId);
+                        $estModification = !empty($form->modifier);
+
+                        if ($estModification) {
+                            $idQuestion = $this->question_model->updateQuestion($formData, (int) $form->modifier)
+                                ? (int) $form->modifier
+                                : false;
+                        } else {
+                            $idQuestion = $this->question_model->creerQuestion($formData);
                         }
+
+                        if ($idQuestion !== false
+                            && $this->quiz_question_model->updateLiaisons($idQuestion, $form->quiz ?? [])) {
+                            $this->session->remove('questionForm');
+
+                            return redirect()->to(base_url('floribondant/theme'))
+                                ->with('success', $estModification
+                                    ? 'Question modifiée avec succès !'
+                                    : 'Question créée avec succès !');
+                        }
+
+                        $errors['enregistrement'] = "La question n'a pas pu être enregistrée. Veuillez réessayer.";
                     }
-
-                    $this->session->remove('questionForm');
-
-                    return redirect()->to(base_url('floribondant/theme'))
-                        ->with('success', 'Question créée avec succès !');
                 }
             }
 

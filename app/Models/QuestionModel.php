@@ -53,6 +53,24 @@ class QuestionModel extends Model
         }
     }
 
+    /**
+     * Modifie une question existante dans la base de données.
+     *
+     * @param array $formData Données de la question à modifier.
+     * @param int $idQuestion Identifiant de la question à modifier.
+     * @return bool True si la modification a réussi, false sinon.
+     */
+    public function updateQuestion(array $formData, int $idQuestion): bool
+    {
+        try {
+            return $this->update($idQuestion, $formData);
+
+        } catch (DatabaseException $e) {
+            log_message('error', "Erreur de modification d'une question : " . $e->getMessage());
+            return false;
+        }
+    }
+
 
     /**
      * Récupère toutes les questions de la base de données.

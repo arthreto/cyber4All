@@ -36,7 +36,13 @@
         <?php endif; ?>
 
 
-        <?= form_open(base_url('floribondant/theme/questions/ajouter'), ['class' => 'glossary-form__form']) ?>
+        <?php
+        // En modification, l'id de la question est dans l'URL : c'est ce qui indique le mode au contrôleur
+        $actionFormulaire = ! empty($form->modifier)
+            ? 'floribondant/theme/questions/modifier/' . (int) $form->modifier
+            : 'floribondant/theme/questions/ajouter';
+        ?>
+        <?= form_open(base_url($actionFormulaire), ['class' => 'glossary-form__form']) ?>
 
         <!-- Quiz de la question -->
         <fieldset class="sio-admin__bloc-quiz">
@@ -139,7 +145,7 @@
                     Vrai
                 </label>
                 <label for="champ-faux" class="sio-admin__choix">
-                    <input type="radio" id="champ-faux" name="mauvaise_reponse" value="0" <?= $form->bonne_reponse == 0 ? 'checked' : '' ?>>
+                    <input type="radio" id="champ-faux" name="bonne_reponse" value="0" <?= $form->bonne_reponse == 0 ? 'checked' : '' ?>>
                     Faux
                 </label>
             </div>
