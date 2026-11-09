@@ -99,4 +99,72 @@ class QuizQuestionModel extends Model
             return false;
         }
     }
+
+    /**
+     * Récupère les identifiants des questions rattachées à un quiz.
+     *
+     * @param int $idQuiz Identifiant du quiz.
+     * @return array Liste des identifiants de questions (tableau vide en cas d'erreur).
+     */
+    public function getIdsQuestionsByQuiz(int $idQuiz): array
+    {
+        try {
+            $liaisons = $this->db->table('quiz_question')
+                ->select('id_question')
+                ->where('id_quiz', $idQuiz)
+                ->get()
+                ->getResultArray();
+
+            return array_map('strval', array_column($liaisons, 'id_question'));
+
+        } catch (DatabaseException $e) {
+            log_message('error', "Erreur de récupération des questions d'un quiz : " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Met à jour les liaisons entre un quiz et ses questions.
+     *
+     * Ajoute les nouvelles associations et supprime celles qui
+     * ne sont plus présentes dans la liste fournie.
+     *
+     * @param int $idQuiz Identifiant du quiz.
+     * @param array $questions Liste des identifiants des questions souhaitées.
+     * @return bool True si la mise à jour réussit, false sinon.
+     */
+    public function updateLiaisonsQuiz(int $idQuiz, array $questions): bool
+    {
+        try {
+            $builder = $this->db->table('quiz_question');
+
+            $idsExistants = array_map('intval', $this->getIdsQuestionsByQuiz($idQuiz));
+            $questions = array_unique(array_map('intval', $questions));
+
+            // Ajout des nouvelles liaisons
+            foreach ($questions as $idQuestion) {
+                if (!in_array($idQuestion, $idsExistants, true)) {
+                    $builder->insert([
+                        'id_question' => $idQuestion,
+                        'id_quiz' => $idQuiz
+                    ]);
+                }
+            }
+
+            // Suppression des liaisons qui n'existent plus
+            foreach ($idsExistants as $idQuestion) {
+                if (!in_array($idQuestion, $questions, true)) {
+                    $builder->where('id_quiz', $idQuiz)
+                        ->where('id_question', $idQuestion)
+                        ->delete();
+                }
+            }
+
+            return true;
+
+        } catch (DatabaseException $e) {
+            log_message('error', "Erreur de mise à jour des liaisons quiz-question : " . $e->getMessage());
+            return false;
+        }
+    }
 }

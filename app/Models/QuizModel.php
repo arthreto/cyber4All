@@ -62,4 +62,88 @@ class QuizModel extends Model
             return [];
         }
     }
+
+    /**
+     * Garde uniquement les champs qui existent dans la table `quiz`.
+     *
+     * @param array $donnees Données du formulaire.
+     * @return array Données filtrées.
+     */
+    private function filtrerColonnes(array $donnees): array
+    {
+        $colonnes = $this->db->getFieldNames($this->table);
+
+        return array_intersect_key($donnees, array_flip($colonnes));
+    }
+
+    /**
+     * Crée un quiz.
+     *
+     * @param array $donnees Données du quiz
+     * @return int|false Identifiant du quiz créé, false en cas d'échec.
+     */
+    public function creerQuiz(array $donnees): int|false
+    {
+        try {
+            $idQuiz = $this->db->table($this->table)->insert($this->filtrerColonnes($donnees))
+                ? $this->db->insertID()
+                : false;
+
+            return $idQuiz === false ? false : (int) $idQuiz;
+
+        } catch (DatabaseException $e) {
+            log_message('error', "Erreur de création d'un quiz : " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Modifie un quiz.
+     *
+     * @param array $donnees Données du quiz (id_theme, titre, description, actif).
+     * @param int $idQuiz Identifiant du quiz.
+     * @return bool True si la modification réussit, false sinon.
+     */
+    public function updateQuiz(array $donnees, int $idQuiz): bool
+    {
+        try {
+            return $this->db->table($this->table)
+                ->where($this->primaryKey, $idQuiz)
+                ->update($this->filtrerColonnes($donnees));
+
+        } catch (DatabaseException $e) {
+            log_message('error', "Erreur de modification d'un quiz : " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Récupère les quiz pour la page d'administration, avec le nom du thème
+     * et le nombre de questions rattachées. Triés par thème puis par titre.
+     *
+     * @param int|null $idTheme Filtre sur un thème, null ou -1 pour tous les quiz.
+     * @return array Liste des quiz (tableaux), vide en cas d'erreur.
+     */
+    public function getQuizAdmin(?int $idTheme = null): array
+    {
+        try {
+            $builder = $this->db->table($this->table)
+                ->select('quiz.*, theme.nom AS theme_nom, COUNT(quiz_question.id_question) AS nb_questions')
+                ->join('theme', 'theme.id = quiz.id_theme', 'left')
+                ->join('quiz_question', 'quiz_question.id_quiz = quiz.id', 'left')
+                ->groupBy('quiz.id')
+                ->orderBy('theme.nom', 'ASC')
+                ->orderBy('quiz.titre', 'ASC');
+
+            if ($idTheme !== null && $idTheme !== -1) {
+                $builder->where('quiz.id_theme', $idTheme);
+            }
+
+            return $builder->get()->getResultArray();
+
+        } catch (DatabaseException $e) {
+            log_message('error', "Erreur de récupération des quiz (admin) : " . $e->getMessage());
+            return [];
+        }
+    }
 }

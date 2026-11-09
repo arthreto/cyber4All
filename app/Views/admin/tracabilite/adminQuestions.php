@@ -53,7 +53,17 @@
                 <?php foreach ($questionList as $question): ?>
                     <tr class="mots-table__body-row">
                         <td class="mots-table__cell">
-                            <?= anchor(base_url('floribondant/theme/questions/modifier/' . $question['id']), esc($question['libelle']), ['class' => 'mots-table__link']) ?>
+                            <div class="sio-admin__enonce">
+                                <?php if (!empty($question['image'])): ?>
+                                    <?= img([
+                                        'src'     => esc('images/questions/' . $question['image'], 'attr'),
+                                        'alt'     => 'Illustration de la question',
+                                        'class'   => 'sio-admin__miniature',
+                                        'loading' => 'lazy',
+                                    ]) ?>
+                                <?php endif; ?>
+                                <?= anchor(base_url('floribondant/theme/questions/modifier/' . $question['id']), esc($question['libelle']), ['class' => 'mots-table__link']) ?>
+                            </div>
                         </td>
                         <td class="mots-table__cell">
                             <ul class="sio-admin__quiz-liste">
