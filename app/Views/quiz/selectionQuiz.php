@@ -35,14 +35,15 @@
 
         <ul class="quiz-liste__items">
             <!-- À brancher : foreach ($quizList as $quiz) -->
-            <?php foreach ($quizList as $quiz): ?>
+            <?php $id = 1;
+            foreach ($quizList as $quiz): ?>
                 <li class="quiz-carte">
                     <div class="quiz-carte__infos">
                         <h3 class="quiz-carte__titre"><?= esc($quiz->titre) ?></h3>
                     </div>
-                    <a href="#" class="btn-connexion quiz-carte__btn">Commencer</a>
+                    <?= anchor(base_url('/quiz/' . $themeActif->id . '/' . $id), 'Commencer', ['class' => 'btn-connexion quiz-carte__btn']) ?>
                 </li>
-            <?php endforeach; ?>
+            <?php $id++; endforeach; ?>
         </ul>
     </section>
 

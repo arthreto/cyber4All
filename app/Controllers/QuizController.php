@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Models\QuestionModel;
 use App\Models\QuizModel;
 use App\Models\ThemeModel;
 use CodeIgniter\Exceptions\PageNotFoundException;
@@ -18,11 +19,47 @@ class QuizController extends BaseController
 {
     protected ThemeModel $theme_model;
     protected QuizModel $quiz_model;
+    protected QuestionModel $question_model;
 
     public function __construct()
     {
         $this->theme_model = new ThemeModel();
         $this->quiz_model = new QuizModel();
+        $this->question_model = new QuestionModel();
+    }
+
+    /**
+     * @param int $themeId Identifiant du thème
+     * @param int $quizNum Numéro du Quiz par rapport au thème
+     * @return string
+     */
+    public function jouerQuiz(int $themeId, int $quizNum) {
+        $themeList = $this->theme_model->getAllThemes();
+        $themeNom = null;
+
+        foreach ($themeList as $theme) {
+            if ($theme->id == $themeId) {
+                $themeNom = $theme->nom;
+                break;
+            }
+        }
+
+        $quizInfo = $this->quiz_model->getQuizByPosition($themeId, $quizNum);
+        $questionQuizList = $this->question_model->getQuestionFromQuiz($quizInfo->id);
+
+        $data = [
+            'themeList'  => $themeList,
+            'themeId'    => $themeId,
+            'themeNom' => $themeNom,
+            'quizData'  => $quizInfo,
+            'questionQuizList' => $questionQuizList,
+            'nbQuestions' => count($questionQuizList),
+        ];
+
+        return view('header', $data)
+            . view('notice')
+            . view('quiz/quiz', $data)
+            . view('footer');
     }
 
     /**

@@ -144,4 +144,4 @@ $actionFormulaire = $estModification
     </div>
 </div>
 
-<?= script_tag(['src' => 'js/sio-admin-theme.js', 'defer' => null]) ?>
+<?= script_tag(['src' => 'js/sio-admin-theme.js?v=' . filemtime(FCPATH . 'js/sio-admin-theme.js'), 'defer' => null]) ?>

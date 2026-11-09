@@ -8,6 +8,7 @@ use App\Entities\MotCle;
 use App\Entities\QuestionForm;
 use App\Entities\Utilisateur;
 use App\Models\CategorieModel;
+use App\Models\ExtraitModel;
 use App\Models\ImageModel;
 use App\Models\MotCle\MotCleCategorieModel;
 use App\Models\MotCle\MotCleModel;
@@ -39,6 +40,7 @@ class AdminThemeController extends BaseController
     protected QuizModel $quiz_model;
     protected QuestionModel $question_model;
     protected QuizQuestionModel $quiz_question_model;
+    protected ExtraitModel $extrait_model;
 
     public function __construct()
     {
@@ -49,6 +51,7 @@ class AdminThemeController extends BaseController
         $this->quiz_model = new QuizModel();
         $this->question_model = new QuestionModel();
         $this->quiz_question_model = new QuizQuestionModel();
+        $this->extrait_model = new ExtraitModel();
 
         // Vérification de la session et du rôle de l'utilisateur
         $utilisateur = $this->session->get('utilisateur');
@@ -126,6 +129,9 @@ class AdminThemeController extends BaseController
                     $form->fill($question);
                     $form->modifier = $idQuestionModif;
 
+                    // Détail : la question a-t-elle déjà un extrait ?
+                    $form->detail_mode = !empty($question['id_extrait']) ? 'existant' : 'aucun';
+
                     $form->quiz = $this->quiz_question_model->getIdsQuizByQuestion($idQuestionModif);
 
                     // Preselectionne le premier quiz
@@ -141,6 +147,8 @@ class AdminThemeController extends BaseController
         }
 
         $errors = [];
+        $infoDetail = null;
+        $extraitList = $this->extrait_model->getAllExtraits();
 
         if ($this->request->is('post')) {
             $post = $this->request->getPost();
@@ -148,7 +156,19 @@ class AdminThemeController extends BaseController
 
             $form->fill($post);
 
-            if ($this->request->getPost('action') === 'ajouter_quiz') {
+            $action = (string) $this->request->getPost('action');
+            $actionsExtrait = ['modifier_extrait', 'enregistrer_extrait', 'supprimer_extrait', 'annuler_extrait'];
+
+            // Toute autre action (changement d'option, d'extrait, de thème…) ferme
+            // la modification / suppression d'extrait en cours
+            if (!in_array($action, $actionsExtrait, true)) {
+                $form->extrait_action = null;
+            }
+
+            if (in_array($action, $actionsExtrait, true)) {
+                $infoDetail = $this->gererActionExtrait($action, $form, $errors);
+                $extraitList = $this->extrait_model->getAllExtraits();
+            } elseif ($action === 'ajouter_quiz') {
                 $quiz = $form->quiz;
                 $idQuiz = $this->request->getPost('id_quiz_ajout');
 
@@ -170,7 +190,11 @@ class AdminThemeController extends BaseController
                     'id_quiz_ajout' => $this->request->getPost('id_quiz_ajout') ?? '',
                     'libelle'        => $this->request->getPost('libelle') ?? '',
                     'image'         => $this->request->getPost('image') ?? '',
-                    'detail'        => $this->request->getPost('detail') ?? '',
+                    'detail_mode'     => $form->detail_mode ?? 'aucun',
+                    'id_extrait'      => $form->id_extrait ?? '',
+                    'extrait_titre'   => $form->extrait_titre ?? '',
+                    'extrait_type'    => $form->extrait_type ?? '',
+                    'extrait_contenu' => $form->extrait_contenu ?? '',
                     'bonne_reponse' => $this->request->getPost('bonne_reponse'),
                     'explication'   => $this->request->getPost('explication') ?? '',
                     'actif'         => $this->request->getPost('actif') ?? '0',
@@ -200,11 +224,12 @@ class AdminThemeController extends BaseController
                             'regex_match' => 'L’image doit être au format PNG, AVIF, JPG, JPEG ou WEBP.',
                         ],
                     ],
-                    'detail' => [
+                    'detail_mode' => [
                         'label' => 'Détail',
-                        'rules' => 'permit_empty|max_length[5000]',
+                        'rules' => 'required|in_list[aucun,existant,nouveau]',
                         'errors' => [
-                            'max_length' => 'Le détail ne peut pas dépasser 5000 caractères.',
+                            'required' => 'Veuillez choisir une option pour le détail.',
+                            'in_list' => 'L’option choisie pour le détail est invalide.',
                         ],
                     ],
                     'bonne_reponse' => [
@@ -234,6 +259,42 @@ class AdminThemeController extends BaseController
                     ],
                 ];
 
+                // Règles du détail selon l'option choisie
+                if ($formData['detail_mode'] === 'existant') {
+                    $rules['id_extrait'] = [
+                        'label' => 'Extrait',
+                        'rules' => 'required|in_list[' . implode(',', array_column($extraitList, 'id')) . ']',
+                        'errors' => [
+                            'required' => 'Veuillez choisir un extrait existant.',
+                            'in_list' => 'L’extrait choisi n’existe pas.',
+                        ],
+                    ];
+                } elseif ($formData['detail_mode'] === 'nouveau') {
+                    $rules['extrait_titre'] = [
+                        'label' => 'Titre de l’extrait',
+                        'rules' => 'required|max_length[100]',
+                        'errors' => [
+                            'required' => 'Veuillez renseigner le titre de l’extrait.',
+                            'max_length' => 'Le titre de l’extrait ne peut pas dépasser 100 caractères.',
+                        ],
+                    ];
+                    $rules['extrait_type'] = [
+                        'label' => 'Type de l’extrait',
+                        'rules' => 'required|in_list[' . implode(',', array_keys(ExtraitModel::TYPES)) . ']',
+                        'errors' => [
+                            'required' => 'Veuillez choisir le type de l’extrait.',
+                            'in_list' => 'Le type de l’extrait est invalide.',
+                        ],
+                    ];
+                    $rules['extrait_contenu'] = [
+                        'label' => 'Contenu de l’extrait',
+                        'rules' => 'required|max_length[5000]',
+                        'errors' => [
+                            'required' => 'Veuillez renseigner le contenu de l’extrait.',
+                            'max_length' => 'Le contenu de l’extrait ne peut pas dépasser 5000 caractères.',
+                        ],
+                    ];
+                }
 
                 if ($this->request->getPost('action') === 'enregistrer') {
 
@@ -246,16 +307,40 @@ class AdminThemeController extends BaseController
                     if (empty($errors)) {
                         $estModification = !empty($form->modifier);
 
-                        if ($estModification) {
-                            $idQuestion = $this->question_model->updateQuestion($formData, (int) $form->modifier)
-                                ? (int) $form->modifier
-                                : false;
-                        } else {
-                            $idQuestion = $this->question_model->creerQuestion($formData);
+                        // Extrait, question et liaisons sont enregistrés ensemble ou pas du tout
+                        $db = \Config\Database::connect('tracabilite');
+                        $db->transBegin();
+
+                        // Détail : aucun, extrait existant, ou nouvel extrait créé maintenant
+                        $idExtrait = null;
+
+                        if ($formData['detail_mode'] === 'existant') {
+                            $idExtrait = (int) $formData['id_extrait'];
+                        } elseif ($formData['detail_mode'] === 'nouveau') {
+                            $idExtrait = $this->extrait_model->creerExtrait([
+                                'titre'   => $formData['extrait_titre'],
+                                'type'    => $formData['extrait_type'],
+                                'contenu' => $formData['extrait_contenu'],
+                            ]);
+                        }
+
+                        $idQuestion = false;
+
+                        if ($idExtrait !== false) {
+                            $formData['id_extrait'] = $idExtrait;
+
+                            if ($estModification) {
+                                $idQuestion = $this->question_model->updateQuestion($formData, (int) $form->modifier)
+                                    ? (int) $form->modifier
+                                    : false;
+                            } else {
+                                $idQuestion = $this->question_model->creerQuestion($formData);
+                            }
                         }
 
                         if ($idQuestion !== false
                             && $this->quiz_question_model->updateLiaisons($idQuestion, $form->quiz ?? [])) {
+                            $db->transCommit();
                             $this->session->remove('questionForm');
 
                             return redirect()->to(base_url('floribondant/theme'))
@@ -264,6 +349,7 @@ class AdminThemeController extends BaseController
                                     : 'Question créée avec succès !');
                         }
 
+                        $db->transRollback();
                         $errors['enregistrement'] = "La question n'a pas pu être enregistrée. Veuillez réessayer.";
                     }
                 }
@@ -289,6 +375,9 @@ class AdminThemeController extends BaseController
             'themeList' => $this->theme_model->getAllThemes(),
             'quizList' => $quizList,
             'quizAdded' => $quizAdded,
+            'extraitList' => $extraitList,
+            'typesExtrait' => ExtraitModel::TYPES,
+            'infoDetail' => $infoDetail,
             'errors' => $errors,
         ];
 
@@ -296,6 +385,116 @@ class AdminThemeController extends BaseController
             . view('notice')
             . view('admin/tracabilite/formQuestion', $data)
             . view('footer');
+    }
+
+    /**
+     * Modification / suppression de l'extrait existant choisi dans le formulaire de question.
+     *
+     * @param string $action Action demandée (modifier_extrait, enregistrer_extrait, supprimer_extrait,
+     *                       annuler_extrait). La suppression est immédiate, sans confirmation.
+     * @param QuestionForm $form Formulaire en cours (mis à jour).
+     * @param array $errors Erreurs à afficher (complété).
+     * @return string|null Message de réussite à afficher, ou null.
+     */
+    private function gererActionExtrait(string $action, QuestionForm $form, array &$errors): ?string
+    {
+        if ($action === 'annuler_extrait') {
+            $form->extrait_action = null;
+            return null;
+        }
+
+        $idExtrait = (int) ($form->id_extrait ?? 0);
+        $extrait = $idExtrait > 0 ? $this->extrait_model->find($idExtrait) : null;
+
+        if ($extrait === null) {
+            $form->extrait_action = null;
+            $errors['id_extrait'] = 'Veuillez choisir un extrait existant.';
+            return null;
+        }
+
+        // Autres questions que celle en cours qui utilisent cet extrait
+        $autresQuestions = $this->extrait_model->compterQuestions($idExtrait, (int) ($form->modifier ?? 0));
+
+        switch ($action) {
+            case 'modifier_extrait':
+                $form->extrait_action = 'modifier';
+                $form->edit_titre = $extrait['titre'];
+                $form->edit_type = $extrait['type'];
+                $form->edit_contenu = $extrait['contenu'];
+                return null;
+
+            case 'enregistrer_extrait':
+                $donnees = [
+                    'edit_titre'   => $form->edit_titre ?? '',
+                    'edit_type'    => $form->edit_type ?? '',
+                    'edit_contenu' => $form->edit_contenu ?? '',
+                ];
+
+                $rules = [
+                    'edit_titre' => [
+                        'label' => 'Titre de l’extrait',
+                        'rules' => 'required|max_length[100]',
+                        'errors' => [
+                            'required' => 'Veuillez renseigner le titre de l’extrait.',
+                            'max_length' => 'Le titre de l’extrait ne peut pas dépasser 100 caractères.',
+                        ],
+                    ],
+                    'edit_type' => [
+                        'label' => 'Type de l’extrait',
+                        'rules' => 'required|in_list[' . implode(',', array_keys(ExtraitModel::TYPES)) . ']',
+                        'errors' => [
+                            'required' => 'Veuillez choisir le type de l’extrait.',
+                            'in_list' => 'Le type de l’extrait est invalide.',
+                        ],
+                    ],
+                    'edit_contenu' => [
+                        'label' => 'Contenu de l’extrait',
+                        'rules' => 'required|max_length[5000]',
+                        'errors' => [
+                            'required' => 'Veuillez renseigner le contenu de l’extrait.',
+                            'max_length' => 'Le contenu de l’extrait ne peut pas dépasser 5000 caractères.',
+                        ],
+                    ],
+                ];
+
+                if (!$this->validateData($donnees, $rules)) {
+                    $errors = array_merge($errors, $this->validator->getErrors());
+                    return null;
+                }
+
+                $ok = $this->extrait_model->modifierExtrait($idExtrait, [
+                    'titre'   => $donnees['edit_titre'],
+                    'type'    => $donnees['edit_type'],
+                    'contenu' => $donnees['edit_contenu'],
+                ]);
+
+                if (!$ok) {
+                    $errors['extrait'] = "L'extrait n'a pas pu être modifié. Veuillez réessayer.";
+                    return null;
+                }
+
+                $form->extrait_action = null;
+                return 'Extrait modifié.';
+
+            case 'supprimer_extrait':
+                if ($autresQuestions > 0) {
+                    $form->extrait_action = null;
+                    $errors['extrait'] = "Cet extrait est utilisé par {$autresQuestions} autre(s) question(s) : il ne peut pas être supprimé.";
+                    return null;
+                }
+
+                if (!$this->extrait_model->supprimerExtrait($idExtrait)) {
+                    $errors['extrait'] = "L'extrait n'a pas pu être supprimé. Veuillez réessayer.";
+                    return null;
+                }
+
+                $form->extrait_action = null;
+                $form->id_extrait = null;
+                $form->detail_mode = 'aucun';
+                return 'Extrait supprimé.';
+        }
+
+        return null;
     }
 
     /**

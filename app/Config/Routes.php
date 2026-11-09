@@ -24,6 +24,7 @@ $routes->get('theme/(:num)/(:num)', 'ThemeController::afficherPageLecon/$1/$2', 
 // Quiz Vrai / Faux
 $routes->get('quiz', 'QuizController::index');
 $routes->get('quiz/(:num)', 'QuizController::index/$1');
+$routes->get('quiz/(:num)/(:num)', 'QuizController::jouerQuiz/$1/$2');
 
 //Gestion de l'espace de connexion
 $routes->match(['GET', 'POST'], '/connexion', 'ConnexionController::connexion');

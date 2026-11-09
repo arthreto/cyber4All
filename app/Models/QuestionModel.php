@@ -154,4 +154,47 @@ class QuestionModel extends Model
         }
     }
 
+    /**
+     * Récupère les questions associées à un Quiz.
+     *
+     * Cette méthode recherche les questions appartenant
+     * aux quiz.
+     *
+     * En cas de succès, elle retourne un tableau de questions.
+     * En cas d'échec, elle retourne un tableau vide.
+     *
+     * @param int $idTheme Identifiant du quiz recherché.
+     * @return array Liste des questions du quiz ou tableau vide.
+     *
+     * @since 1.0.0
+     * @author Arthur
+     */
+    public function getQuestionFromQuiz(int $idQuiz): array
+    {
+        try {
+            $questions = $this->select('question.*')
+                ->join('quiz_question', 'quiz_question.id_question = question.id')
+                ->join('quiz', 'quiz.id = quiz_question.id_quiz')
+                ->where('quiz_question.id_quiz', $idQuiz)
+                ->distinct()
+                ->findAll();
+
+            foreach ($questions as &$question) {
+                $question['quiz'] = $this->db->table('quiz')
+                    ->select('quiz.id, quiz.titre')
+                    ->join('quiz_question', 'quiz_question.id_quiz = quiz.id')
+                    ->where('quiz_question.id_question', $question['id'])
+                    ->where('quiz.id_theme', $idQuiz)
+                    ->get()
+                    ->getResultArray();
+            }
+            unset($question);
+
+            return $questions;
+
+        } catch (DatabaseException $e) {
+            log_message('error', "Erreur de récupération des questions du thème : " . $e->getMessage());
+            return [];
+        }
+    }
 }

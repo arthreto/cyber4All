@@ -77,6 +77,20 @@ class QuizModel extends Model
     }
 
     /**
+     * Récupère un quiz selon sa position dans une catégorie.
+     *
+     * @param int $themeId Identifiant du thème
+     * @param int $position Position du quiz dans la catégorie
+     * @return object|null Quiz correspondant ou null si inexistant
+     */
+    public function getQuizByPosition(int $themeId, int $position)
+    {
+        return $this->where('id_theme', $themeId)
+            ->orderBy('id', 'ASC')
+            ->findAll()[$position - 1] ?? null;
+    }
+
+    /**
      * Crée un quiz.
      *
      * @param array $donnees Données du quiz
