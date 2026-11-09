@@ -26,6 +26,7 @@ endif;
     <?= link_tag(base_url('/css/sio/menuSio.css') . '?v=' . filemtime(FCPATH . 'css/sio/menuSio.css')) ?>
     <?= link_tag(base_url('/css/sio/lecon.css') . '?v=' . filemtime(FCPATH . 'css/sio/lecon.css')) ?>
     <?= link_tag(base_url('/css/sio/adminSio.css') . '?v=' . filemtime(FCPATH . 'css/sio/adminSio.css')) ?>
+    <?= link_tag(base_url('/css/sio/quiz.css') . '?v=' . filemtime(FCPATH . 'css/sio/quiz.css')) ?>
     <script src="<?= base_url('/js/script.js')?>" defer></script>
     <link rel="icon" type="image/x-icon" href="<?= base_url("images/logos/cyber4all_nobg_notxt.png")?>">
 </head>
@@ -131,7 +132,7 @@ endif;
                                         </a>
                                     </li>
                                 <?php endforeach ?>
-                                <li class="menu-sio__separateur"><a href="#" class="dropdown-menu__item menu-sio__quiz" title="Choisir un quiz Vrai / Faux">Quiz Vrai / Faux</a></li>
+                                <li class="menu-sio__separateur"><a href="<?= site_url('quiz') ?>" class="dropdown-menu__item menu-sio__quiz" title="Choisir un quiz Vrai / Faux">Quiz Vrai / Faux</a></li>
                             </ul>
                         </details>
                     </li>

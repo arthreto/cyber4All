@@ -91,6 +91,19 @@ class AdminThemeController extends BaseController
             . view('footer');
     }
 
+    /**
+     * Suppresion d'une Question
+     *
+     * @param int|null $idQuestion Identifiant de la question à supprimer
+     * @return boolean Suppresion reussi, Vrai = Oui, Faux = Non
+     */
+    public function questionSupprimer(int $idQuestion)
+    {
+        $this->quiz_question_model->delete($idQuestion);
+        $this->question_model->delete($idQuestion);
+
+        return $this->index();
+    }
 
 
     public function questionAjouter(?int $idQuestionModif = null)

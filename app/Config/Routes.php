@@ -21,6 +21,10 @@ $routes->group('glossaire', static function ($routes) {
 $routes->get('theme/(:num)', 'ThemeController::afficherPageLecon/$1');
 $routes->get('theme/(:num)/(:num)', 'ThemeController::afficherPageLecon/$1/$2', ['as' => 'lecon']);
 
+// Quiz Vrai / Faux
+$routes->get('quiz', 'QuizController::index');
+$routes->get('quiz/(:num)', 'QuizController::index/$1');
+
 //Gestion de l'espace de connexion
 $routes->match(['GET', 'POST'], '/connexion', 'ConnexionController::connexion');
 $routes->get('/deconnexion', 'ConnexionController::deconnexion');
@@ -54,9 +58,11 @@ $routes->group('floribondant', static function ($routes) {
     $routes->match(['GET', 'POST'], 'theme/lecons', 'admin\AdminThemeController::leconsSection');
     $routes->match(['GET', 'POST'], 'theme/questions/ajouter', 'admin\AdminThemeController::questionAjouter');
     $routes->match(['GET', 'POST'], 'theme/questions/modifier/(:num)', 'admin\AdminThemeController::questionAjouter/$1');
+    $routes->match(['GET', 'POST'], 'theme/questions/supprimer/(:num)', 'admin\AdminThemeController::questionSupprimer/$1');
 
     $routes->match(['GET', 'POST'], 'theme/quiz/ajouter', 'admin\AdminQuizController::quizAjouter');
     $routes->match(['GET', 'POST'], 'theme/quiz/modifier/(:num)', 'admin\AdminQuizController::quizAjouter/$1');
+    $routes->match(['GET', 'POST'], 'theme/quiz/supprimer/(:num)', 'admin\AdminQuizController::quizSupprimer/$1');
 
 
     $routes->post('signalement/supprimer', 'SignalementController::supprimerSignalement');

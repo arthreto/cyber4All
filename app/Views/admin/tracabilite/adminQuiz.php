@@ -53,7 +53,7 @@
                 <tbody class="mots-table__body">
                 <?php foreach ($quizList as $quiz): ?>
                     <?php
-                    $urlModifier = base_url('floribondant/theme/quiz/modifier/' . (int) $quiz['id']);
+                    $urlModifier = base_url('floribondant/theme/quiz/modifier/' . $quiz['id']);
                     $estActif = (int) ($quiz['actif'] ?? 1) === 1;
                     $nbQuestions = (int) $quiz['nb_questions'];
                     ?>
@@ -67,8 +67,8 @@
                         <td class="mots-table__cell">
                             <div class="sio-admin__ligne-actions">
                                 <?= anchor($urlModifier, 'Modifier', ['class' => 'mots-table__link']) ?>
-                                <?= form_open(base_url('floribondant/theme/quiz/supprimer'), ['class' => 'mots-table__delete-form']) ?>
-                                    <?= form_hidden('id_quiz', (string) (int) $quiz['id']) ?>
+                                <?= form_open(base_url('floribondant/theme/quiz/supprimer/' . $quiz['id']), ['class' => 'mots-table__delete-form']) ?>
+                                    <?= form_hidden('id_quiz', $quiz['id']) ?>
                                     <button type="submit" class="sio-admin__btn-supprimer">Supprimer</button>
                                 <?= form_close() ?>
                             </div>

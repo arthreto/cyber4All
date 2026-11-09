@@ -74,7 +74,7 @@
                         <td class="mots-table__cell">
                             <div class="sio-admin__ligne-actions">
                                 <?= anchor(base_url('floribondant/theme/questions/modifier/' . $question['id']), 'Modifier', ['class' => 'mots-table__link']) ?>
-                                <?= form_open(base_url('floribondant/theme/questions/supprimer'), ['class' => 'mots-table__delete-form']) ?>
+                                <?= form_open(base_url('floribondant/theme/questions/supprimer/' . $question['id']), ['class' => 'mots-table__delete-form']) ?>
                                     <?= form_hidden('id_question', '12') ?>
                                     <button type="submit" class="sio-admin__btn-supprimer">Supprimer</button>
                                 <?= form_close() ?>

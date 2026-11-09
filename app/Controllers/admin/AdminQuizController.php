@@ -49,6 +49,20 @@ class AdminQuizController extends BaseController
     }
 
     /**
+     * Suppresion d'un Quiz
+     *
+     * @param int|null $idQuiz Identifiant du quiz à supprimer
+     * @return boolean Suppresion reussi, Vrai = Oui, Faux = Non
+     */
+    public function quizSupprimer(int $idQuiz)
+    {
+        $this->quiz_question_model->delete($idQuiz);
+        $this->question_model->delete($idQuiz);
+
+        return $this->index();
+    }
+
+    /**
      * Ajout ou modification d'un quiz,
      * avec le rattachement de ses questions.
      *
