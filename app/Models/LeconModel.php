@@ -97,38 +97,47 @@ class LeconModel extends Model
      * En cas d'erreur (ex. problème de connexion ou de requête), un message
      * d'erreur est logué et un tableau vide est retourné.
      *
+     * @param int|null $idTheme Identifiant du thème pour filtrer, null pour toutes les leçons.
      * @return Lecon[] Tableau d'objets `Lecon`, vide en cas d'erreur.
      *
      * @since 1.0.0
      * @author Raphael BIERLAIRE
      */
-    public function getAllLecons(): array
-    {
-        try {
-            // Requête ordonnée par thème, puis par le champ id en ASC
-            $lecons = $this->select('lecon.*, theme.nom AS nom_theme')
-                ->join('theme', 'theme.id = lecon.id_theme')
-                ->orderBy('lecon.id_theme', 'ASC')
-                ->orderBy('lecon.id', 'ASC')
-                ->findAll();
-        } catch (DatabaseException $e) {
-            log_message('error', 'Erreur getAllLecons : ' . $e->getMessage());
-            return [];
+    public function getAllLecons(?int $idTheme = null): array
+{
+    try {
+        $this->select('lecon.*, theme.nom AS nom_theme')
+            ->join('theme', 'theme.id = lecon.id_theme');
+
+        // Filtre facultatif : uniquement les leçons du thème choisi
+        if ($idTheme !== null) {
+            $this->where('lecon.id_theme', $idTheme);
         }
 
-        $utilisateurModel = new UtilisateurModel();
-
-        // Pseudos déjà trouvés (auteurs et modificateurs), sous la forme [id => pseudo]
-        $pseudos = [];
-
-        foreach ($lecons as $lecon) {
-            log_message('error', 'id_auteur: ' . $lecon->id_auteur);
-            $lecon->user_auteur       = $utilisateurModel->getUtilisateurById($lecon->id_auteur);
-            $lecon->user_modificateur = isset($lecon->id_auteur_modif) ? $utilisateurModel->getUtilisateurById($lecon->id_auteur_modif) : null;
-        }
-
-        return $lecons;
+        // Requête ordonnée par thème, puis par le champ id en ASC
+        $lecons = $this->orderBy('lecon.id_theme', 'ASC')
+            ->orderBy('lecon.id', 'ASC')
+            ->findAll();
+    } catch (DatabaseException $e) {
+        log_message('error', 'Erreur getAllLecons : ' . $e->getMessage());
+        return [];
     }
+
+    $utilisateurModel = new UtilisateurModel();
+
+    foreach ($lecons as $lecon) {
+        // Auteur et dernier modificateur (null si absent ou introuvable)
+        $lecon->user_auteur = $lecon->id_auteur !== null
+            ? $utilisateurModel->getUtilisateurById((int) $lecon->id_auteur)
+            : null;
+
+        $lecon->user_modificateur = $lecon->id_auteur_modif !== null
+            ? $utilisateurModel->getUtilisateurById((int) $lecon->id_auteur_modif)
+            : null;
+    }
+
+    return $lecons;
+}
 
     /**
      * Crée une nouvelle leçon.

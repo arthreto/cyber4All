@@ -526,28 +526,24 @@ class AdminThemeController extends BaseController
 
     public function leconsSection()
     {
-
-
-        $data = ['onglet' => 'lecons',
-            'themeList' => $this->theme_model->getAllThemes(),
-            'leconList' => $this->lecon_model->getAllLecons(),
-            'themeSelect' => -1];
+        $themeSelect = -1;
 
         if ($this->request->is('post')) {
-            $data['themeSelect'] = $this->request->getPost('id_theme');
+            $themeSelect = (int) $this->request->getPost('id_theme');
         }
 
-        if($data['themeSelect'] == -1){
-            $data['leconList'] = $this->lecon_model->getAllLecons();
-        } else {
-            $data['leconList'] = $this->lecon_model->getLeconsByTheme($data['themeSelect']);
-        }
+        $data = [
+            'onglet'      => 'lecons',
+            'themeList'   => $this->theme_model->getAllThemes(),
+            'themeSelect' => $themeSelect,
+            // Toutes les leçons (-1), ou uniquement celles du thème choisi
+            'leconList'   => $this->lecon_model->getAllLecons($themeSelect > 0 ? $themeSelect : null),
+        ];
 
-
-        return view('header', $data)
+        return view('header')
             . view('notice')
             . view('admin/tracabilite/onglets', $data)
-            . view('admin/tracabilite/adminLecons')
+            . view('admin/tracabilite/adminLecons', $data)
             . view('footer');
     }
 }

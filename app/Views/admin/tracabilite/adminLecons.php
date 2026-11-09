@@ -11,19 +11,19 @@
     <div class="sio-admin__actions">
         <?= form_open(base_url('floribondant/theme/lecons'), ['method' => 'post', 'class' => 'sio-admin__filtre']) ?>
         <div class="sio-admin__champ">
-            <label for="champ-theme" class="glossary-form__label">Quiz</label>
+            <label for="champ-theme" class="glossary-form__label">Thème</label>
             <select id="champ-theme" name="id_theme" class="sio-admin__select">
 
-                <option value="-1" <?= $themeSelect == -1 ? 'selected' : '' ?>>Tous les quiz</option>
+                <option value="-1" <?= $themeSelect == -1 ? 'selected' : '' ?>>Tous les thèmes</option>
                 <?php foreach ($themeList as $theme): ?>
-                    <option value="<?= esc($theme->id) ?>" <?= $themeSelect == $theme->id ? 'selected' : '' ?>>
+                    <option value="<?= esc($theme->id, 'attr') ?>" <?= $themeSelect == $theme->id ? 'selected' : '' ?>>
                         <?= esc($theme->nom) ?>
                     </option>
                 <?php endforeach; ?>
             </select>
         </div>
         <noscript>
-            <button type="submit" name="action" value="choisir_theme" class="sio-admin__btn-secondaire">Afficher les quiz</button>
+            <button type="submit" name="action" value="choisir_theme" class="sio-admin__btn-secondaire">Afficher les leçons</button>
         </noscript>
         <?= form_close() ?>
 
@@ -77,14 +77,10 @@
                         </div>
                     </td>
                 </tr>
-                        </div>
-                    </td>
-                </tr>
                 <?php endforeach; ?>
                 </tbody>
             </table>
         </div>
     </div>
-</div>
 
 <?= script_tag(['src' => 'js/sio-admin-theme.js', 'defer' => null]) ?>
