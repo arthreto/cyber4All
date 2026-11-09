@@ -129,4 +129,92 @@ class LeconModel extends Model
 
         return $lecons;
     }
+
+    /**
+     * Crée une nouvelle leçon.
+     *
+     * Cette méthode insère une ligne dans la table `lecon` et retourne
+     * l'identifiant de la leçon créée. Les dates d'ajout et de modification
+     * sont remplies automatiquement. En cas d'erreur (ex. problème de connexion
+     * ou de requête), un message d'erreur est logué et false est retourné.
+     *
+     * @param array $data Données de la leçon (id_theme, titre, contenu, id_auteur).
+     *
+     * @return int|false Identifiant de la leçon créée, ou false en cas d'erreur.
+     *
+     * @since 1.0.0
+     * @author Raphael BIERLAIRE
+     */
+    public function creerLecon(array $data): int|false
+    {
+        try {
+            $idLecon = $this->insert($data);
+
+            return $idLecon === false ? false : (int) $idLecon;
+        } catch (DatabaseException $e) {
+            log_message('error', 'Erreur creerLecon : ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Modifie une leçon existante.
+     *
+     * Cette méthode met à jour la ligne de la table `lecon` correspondant
+     * à l'identifiant donné. La date de modification est remplie automatiquement.
+     * En cas d'erreur (ex. problème de connexion ou de requête), un message
+     * d'erreur est logué et false est retourné.
+     *
+     * @param array $data    Données à modifier (id_theme, titre, contenu, id_auteur_modif).
+     * @param int   $idLecon Identifiant de la leçon à modifier.
+     *
+     * @return bool Vrai si la modification a réussi, faux sinon.
+     *
+     * @since 1.0.0
+     * @author Raphael BIERLAIRE
+     */
+    public function updateLecon(array $data, int $idLecon): bool
+    {
+        try {
+            return $this->update($idLecon, $data);
+        } catch (DatabaseException $e) {
+            log_message('error', 'Erreur updateLecon (leçon {id}) : {message}', [
+                'id'      => $idLecon,
+                'message' => $e->getMessage(),
+            ]);
+
+            return false;
+        }
+    }
+
+    /**
+     * Supprime une leçon.
+     *
+     * Cette méthode supprime la ligne de la table `lecon` correspondant
+     * à l'identifiant donné. En cas d'erreur (ex. problème de connexion ou de
+     * requête), ou si aucune ligne n'a été supprimée, false est retourné.
+     *
+     * @param int $idLecon Identifiant de la leçon à supprimer.
+     *
+     * @return bool Vrai si la leçon a été supprimée, faux sinon.
+     *
+     * @since 1.0.0
+     * @author Raphael BIERLAIRE
+     */
+    public function supprimerLecon(int $idLecon): bool
+    {
+        try {
+            $this->delete($idLecon);
+
+            // Vérifie qu'une ligne a réellement été supprimée
+            return $this->db->affectedRows() > 0;
+        } catch (DatabaseException $e) {
+            log_message('error', 'Erreur supprimerLecon (leçon {id}) : {message}', [
+                'id'      => $idLecon,
+                'message' => $e->getMessage(),
+            ]);
+
+            return false;
+        }
+    }
 }

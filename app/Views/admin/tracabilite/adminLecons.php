@@ -50,23 +50,33 @@
                 <tr class="mots-table__body-row">
                     <td class="mots-table__cell">
                         <?= anchor(
-                                'floribondant/theme/lecons/update/' . $lecon->id,
+                                'floribondant/theme/lecons/modifier/' . $lecon->id,
                                 esc($lecon->titre),
                                 ['class' => 'mots-table__link']
                         ) ?>
                     </td>
                     <td class="mots-table__cell"><span class="sio-admin__badge"><?= esc($lecon->nom_theme) ?></span></td>
 
-                    <td class="mots-table__cell"><?= isset($lecon->user_modificateur) ? esc($lecon->user_modificateur->pseudo) : esc($lecon->user_auteur->pseudo) ?></td>
+                    <td class="mots-table__cell"><?= esc($lecon->user_modificateur->pseudo ?? $lecon->user_auteur->pseudo ?? 'Inconnu') ?></td>
                     <td class="mots-table__cell mots-table__date"><?= esc($lecon->date_ajout) ?></td>
                     <td class="mots-table__cell mots-table__date"><?= esc($lecon->date_modif) ?></td>
                     <td class="mots-table__cell">
                         <div class="sio-admin__ligne-actions">
-                            <?= anchor(base_url('floribondant/theme/lecons/modifier/1'), 'Modifier', ['class' => 'mots-table__link']) ?>
-                            <?= form_open(base_url('floribondant/theme/lecons/supprimer'), ['class' => 'mots-table__delete-form']) ?>
-                                <?= form_hidden('id_lecon', '1') ?>
-                                <button type="submit" class="sio-admin__btn-supprimer">Supprimer</button>
+                            <?= anchor('floribondant/theme/lecons/modifier/' . $lecon->id, 'Modifier', ['class' => 'mots-table__link']) ?>
+
+                            <?= form_open('floribondant/theme/lecons/supprimer/' . $lecon->id, [
+                                    'class'    => 'mots-table__delete-form',
+                                    'onsubmit' => "return confirm('Supprimer cette leçon ?');",
+                            ]) ?>
+                            <?= form_button([
+                                    'type'    => 'submit',
+                                    'content' => 'Supprimer',
+                                    'class'   => 'sio-admin__btn-supprimer',
+                            ]) ?>
                             <?= form_close() ?>
+                        </div>
+                    </td>
+                </tr>
                         </div>
                     </td>
                 </tr>
