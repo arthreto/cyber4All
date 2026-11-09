@@ -9,19 +9,16 @@
             </div>
 
             <ol class="api-risk-list">
-                <?php if (!empty($apiVulnerabilities)):
-                    $compteur_temp = 0;
-                    foreach ($apiVulnerabilities as $nom => $description):
-                        $compteur_temp++;
+                <?php if (!empty($Vulnerabilities)):
+                    foreach ($Vulnerabilities as $x => $y):
                         $contenu = '
-                            <span class="risk-rank">' . $compteur_temp . '</span>
+                            <span class="risk-rank">' . $y . '</span>
                             <div class="api-risk-content">
-                                <strong>' . esc($nom) . '</strong>
-                                <span>' . esc($description) . '</span>
+                                <strong>' . esc($x) . '</strong>
                             </div>
                             <span class="risk-list-arrow" aria-hidden="true">⟶</span>'; ?>
                         <li>
-                            <?= anchor(base_url() . 'api/detail/' . $compteur_temp, $contenu, ['class' => 'api-risk-card']) ?>
+                            <?= anchor(base_url() . 'top10/api/detail/' . $y, $contenu, ['class' => 'api-risk-card']) ?>
                         </li>
                     <?php endforeach;
                 endif; ?>
