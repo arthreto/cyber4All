@@ -51,10 +51,30 @@ class QuizController extends BaseController
             'themeList'  => $themeList,
             'themeId'    => $themeId,
             'themeNom' => $themeNom,
+            'quizNum'    => $quizNum,
             'quizData'  => $quizInfo,
             'questionQuizList' => $questionQuizList,
             'nbQuestions' => count($questionQuizList),
         ];
+
+        if ($this->request->is('post')) {
+            $data['corrige'] = 1;
+            $data['resultatParQuestion'] = [];
+            $num = 1;
+            $bonneReponse = 0;
+            foreach ($questionQuizList as $question) {
+                $reponseUtilisateur = $this->request->getPost('reponses['.$num.']');
+                $resultatQuestion = ($reponseUtilisateur == $question['bonne_reponse']) ? 'Vrai' : 'Faux';
+                $data['resultatParQuestion'][$num] = $resultatQuestion;
+
+                if ($resultatQuestion == 'Vrai') {
+                    $bonneReponse++;
+                }
+
+                $num++;
+            }
+            $data['bonneReponseResultat'] = $bonneReponse;
+        }
 
         return view('header', $data)
             . view('notice')
