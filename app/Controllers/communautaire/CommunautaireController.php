@@ -96,6 +96,7 @@ class CommunautaireController extends BaseController
         $hasImage = $file && $file->isValid();
 
         $data['categoriesOptions'] = $this->getCategoriesOptions();
+        $data['themeList'] = $this->theme_model->getAllThemes();
 
         // Validation des champs
         $this->validation->setRules([
