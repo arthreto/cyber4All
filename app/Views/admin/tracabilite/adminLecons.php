@@ -3,9 +3,6 @@
  * ADMINISTRATION - Espace compréhension SIO
  * Section Leçons (les onglets sont affichés par onglets.php, appelé dans le contrôleur)
  *
- * Vue en dur. Zones à brancher signalées par « À brancher ».
- * Données prévues : $lecons (liste), $themes (filtre), $idThemeFiltre.
- * Penser à esc() sur toutes les données venant de la base.
  */
 ?>
 
@@ -45,6 +42,8 @@
                 </thead>
                 <tbody class="mots-table__body">
                 <!-- À brancher : foreach ($lecons as $lecon) -->
+
+
                 <tr class="mots-table__body-row">
                     <td class="mots-table__cell">
                         <?= anchor(base_url('floribondant/theme/lecons/update/1'), 'Les tokens', ['class' => 'mots-table__link']) ?>

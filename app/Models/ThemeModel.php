@@ -9,7 +9,7 @@ use App\Entities\Categorie;
 
 /**
  * Ce model représente la gestion des Themes de la table theme
- * @author Benjamin Lorieul
+ * @author Arthur
  * @since 1.0.0
  * @package Cyber4all
  */
@@ -31,7 +31,7 @@ class ThemeModel extends Model
      * connexion ou de requête), un message d'erreur est logué et un tableau vide
      * est retourné.
      *
-     * @return Categorie[] Tableau d'objets `Theme` représentant toutes les catégories.
+     * @return Theme[] Tableau d'objets `Theme` représentant tous les thèmes.
      *
      * @since 1.0.0
      * @author Arthur
@@ -39,7 +39,7 @@ class ThemeModel extends Model
     public function getAllThemes(): array
     {
         log_message('error','contact');
-        // Requête ordonnée par le champ mot en ASC
+        // Requête ordonnée par le champ mot en DESC
         try {
             log_message('error',count($this->findAll()));
             return $this->orderBy('nom', 'DESC')->findAll();
