@@ -17,10 +17,20 @@
                 <h4>Exemple de code</h4>
                 <pre><code><?= esc($prog ?? '') ?></code></pre>
             </div>
-</div>
+        </div>
+        <?php if (!empty($description_cm)): ?>
+        <div class="countermeasures">
+            <h4 class="counter-title">Contre-mesures associées</h4>
+            <?php foreach ($description_cm as $element): ?>
+                <div class="counter-card">
+                    <pre><code><?= esc($element) ?></code></pre>
+                </div>
+            <?php endforeach; ?>
+        </div>
+        <?php endif; ?>
         <?php if (!empty($prog_cm)): ?>
             <div class="countermeasures">
-                <h4 class="counter-title">Contre-mesures associées</h4>
+                <h4 class="counter-title">Code de contre-mesures</h4>
                 <?php foreach ($prog_cm as $element): ?>
                     <div class="counter-card">
                         <pre><code><?= esc($element) ?></code></pre>

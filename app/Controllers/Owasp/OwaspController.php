@@ -51,7 +51,11 @@ class OwaspController extends BaseController
 
     public function getMenace($top,$num):string
     {
-        $num+=10;
+        $num = match (strtolower($top)) {
+            'web' => $num+=0,
+            'api' => $num+=10,
+            default => $num=1,
+        };
         $menace = $this->Menace->getMenace($top, $num);
         $data['nom'] = $menace->nom_menace;
         $data['description'] = $menace->desc_menace;
