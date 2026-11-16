@@ -4,6 +4,7 @@ namespace App\Controllers\admin;
 
 use App\Controllers\BaseController;
 use App\Entities\Utilisateur;
+use App\Models\ExtraitModel;
 use App\Models\ThemeModel;
 use CodeIgniter\Exceptions\PageNotFoundException;
 use CodeIgniter\Session\Session;
@@ -122,6 +123,39 @@ abstract class AdminController extends BaseController
                 'nom'   => $theme->nom,
                 'url'   => $this->adresseListe($base, $parametres),
                 'actif' => (int) $theme->id === $themeSelect,
+            ];
+        }
+
+        return $liens;
+    }
+
+    /**
+     * Liens du filtre par type d'extrait
+     *
+     * @param string      $base          Adresse de la liste
+     * @param string|null $typeSelect    Type affiché, null pour tous
+     * @param array       $parametresTri Tri en cours, conservé quand on change de type
+     * @return array Liste de liens
+     * @author Arthur
+     */
+    protected function filtreTypes(string $base, ?string $typeSelect, array $parametresTri): array
+    {
+        $liens = [];
+
+        $liens[] = [
+            'nom'   => 'Tous les types',
+            'url'   => $this->adresseListe($base, $parametresTri),
+            'actif' => $typeSelect === null,
+        ];
+
+        foreach (ExtraitModel::TYPES as $type => $libelle) {
+            $parametres = $parametresTri;
+            $parametres['type'] = $type;
+
+            $liens[] = [
+                'nom'   => $libelle,
+                'url'   => $this->adresseListe($base, $parametres),
+                'actif' => $type === $typeSelect,
             ];
         }
 

@@ -110,7 +110,7 @@ $nbQuestions = count($questions);
                     'maxlength'   => '5000',
                     'spellcheck'  => 'false',
                     'placeholder' => 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-                    'class'       => $classeChamp('glossary-form__input sio-admin__code', 'contenu'),
+                    'class'       => $classeChamp('glossary-form__input sio-admin__textarea--fixe sio-admin__code', 'contenu'),
                     'required'    => true,
                 ]) ?>
                 <?= $erreurChamp('contenu') ?>

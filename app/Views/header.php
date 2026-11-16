@@ -35,8 +35,18 @@ endif;
         <div class="header__wrapper">
             <?php if((isset($utilisateur) && $utilisateur->role === "admin" && (strpos($_SERVER['REQUEST_URI'], 'floribondant') || strpos($_SERVER['REQUEST_URI'], 'compte')))):?>
             <div class="header__marque">
+
+
+
                <?= img($logo_cyber4all) ?>
-                <h1 class="header__titre">ADMINISTRATION</h1>
+                <?= anchor(
+                        base_url(),
+                        '<h1 class="header__titre">ADMINISTRATION</h1>',
+                        [
+                                'title'=>"Retour à l'accueil du site cyber4all",
+                                'class'=>"header__lien-marque"
+                        ]
+                ) ?>
 
             </div>
             <?php else:?>
