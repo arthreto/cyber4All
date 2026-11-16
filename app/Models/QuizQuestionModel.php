@@ -167,4 +167,40 @@ class QuizQuestionModel extends Model
             return false;
         }
     }
+
+    /**
+     * Quiz déjà complets parmi ceux où l'on veut rattacher une question.
+     * Un quiz est complet quand il a autant de questions que son nombre prévu (quiz.nb_questions).
+     * Les quiz où la question est déjà rattachée sont ignorés : elle y est déjà, rien n'est ajouté.
+     *
+     * @param int|null $idQuestion Question modifiée, null pour une nouvelle question.
+     * @param array    $quiz       Identifiants des quiz cochés.
+     * @return array|null Quiz complets (titre, nb_questions, nb_actuel), [] si aucun, null en cas d'erreur.
+     */
+    public function getQuizComplets(?int $idQuestion, array $quiz): ?array
+    {
+        $dejaRattaches = $idQuestion === null ? [] : array_map('intval', $this->getIdsQuizByQuestion($idQuestion));
+        $nouveaux = array_values(array_diff(array_unique(array_map('intval', $quiz)), $dejaRattaches));
+
+        if ($nouveaux === []) {
+            return [];
+        }
+
+        try {
+            $lignes = $this->db->table('quiz')
+                ->select('quiz.titre, quiz.nb_questions, COUNT(quiz_question.id_question) AS nb_actuel')
+                ->join('quiz_question', 'quiz_question.id_quiz = quiz.id', 'left')
+                ->whereIn('quiz.id', $nouveaux)
+                ->groupBy('quiz.id')
+                ->get()
+                ->getResultArray();
+
+            return array_values(array_filter($lignes, fn (array $l): bool
+                => (int) $l['nb_questions'] > 0 && (int) $l['nb_actuel'] >= (int) $l['nb_questions']));
+
+        } catch (DatabaseException $e) {
+            log_message('error', "Erreur de vérification des quiz complets : " . $e->getMessage());
+            return null;
+        }
+    }
 }

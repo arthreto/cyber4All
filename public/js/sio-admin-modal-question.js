@@ -77,6 +77,19 @@
     var cadre = dialog.querySelector('iframe');
     var formulaireQuiz = document.querySelector('.sio-admin .glossary-form__form');
 
+    // Message affiché sous le lien quand le quiz a atteint son nombre de questions
+    var messageLimite = document.createElement('p');
+    messageLimite.className = 'sio-admin__erreur';
+    messageLimite.setAttribute('role', 'alert');
+    messageLimite.hidden = true;
+    lien.after(messageLimite);
+
+    document.addEventListener('change', function (evenement) {
+        if (evenement.target.matches('input[name="questions[]"]')) {
+            messageLimite.hidden = true;
+        }
+    });
+
     // ---------- Ouverture ----------
     lien.addEventListener('click', function (evenement) {
         evenement.preventDefault();
@@ -91,6 +104,17 @@
             }
             return;
         }
+
+        // Quiz complet : la question créée arriverait cochée et dépasserait la limite
+        var champNombre = document.getElementById('champ-nb-question');
+        var max = champNombre ? parseInt(champNombre.value, 10) || 0 : 0;
+        var cochees = document.querySelectorAll('input[name="questions[]"]:checked:not(:disabled)').length;
+        if (max > 0 && cochees >= max) {
+            messageLimite.textContent = 'Ce quiz a déjà ses ' + max + ' questions : décochez-en une pour en créer une nouvelle.';
+            messageLimite.hidden = false;
+            return;
+        }
+        messageLimite.hidden = true;
 
         var adresse = new URL(lien.href);
         adresse.searchParams.set('modal', '1');

@@ -206,10 +206,8 @@ class AdminQuestionController extends AdminController
                     $form->id_theme = $idThemeQuiz;
                 }
 
-                $idQuiz = (int) ($this->request->getGet('quiz') ?? 0);
-                if ($idQuiz > 0) {
-                    $form->quiz = [(string) $idQuiz];
-                }
+                // Le quiz n'est pas pré-coché : la question revient cochée dans le formulaire du quiz,
+                // et c'est l'enregistrement du quiz qui la rattache (il vérifie le nombre exact de questions)
             }
 
             if ($idQuestionModif !== null) {
@@ -393,6 +391,23 @@ class AdminQuestionController extends AdminController
                         if (! in_array((string) $idQuiz, $idsQuizTheme, true)) {
                             $errors['quiz'] = 'Un des quiz cochés n’appartient pas au thème de la question.';
                         }
+                    }
+                }
+
+                // Quiz complet : on refuse d'y ajouter la question (un quiz a exactement nb_questions questions)
+                if (! isset($errors['quiz'])) {
+                    $quizComplets = $this->quiz_question_model->getQuizComplets(
+                        empty($form->modifier) ? null : (int) $form->modifier,
+                        $form->quiz
+                    );
+
+                    if ($quizComplets === null) {
+                        $errors['quiz'] = 'Impossible de vérifier le nombre de questions des quiz. Veuillez réessayer.';
+                    } elseif ($quizComplets !== []) {
+                        $noms = array_map(fn (array $q): string
+                            => '« ' . $q['titre'] . ' » (' . $q['nb_actuel'] . ' / ' . $q['nb_questions'] . ')', $quizComplets);
+                        $errors['quiz'] = (count($noms) > 1 ? 'Ces quiz sont complets' : 'Ce quiz est complet')
+                            . ' : ' . implode(', ', $noms) . '. Retirez d’abord une question depuis le formulaire du quiz.';
                     }
                 }
 
