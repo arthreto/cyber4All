@@ -35,7 +35,6 @@ class DICT_Question_Admin_GroupeC extends DICT_Admin_Base_GroupeC
         $data['mots'] = $db->table('mot_cle')
             ->select('mot_cle.id, mot_cle.mot')
             ->join('conceptcyber', 'conceptcyber.id_mot_cle = mot_cle.id') // seulement les termes classés
-            ->where('mot_cle.id NOT IN (SELECT id_mot_cle FROM question_quiz WHERE id_mot_cle IS NOT NULL AND id <> ' . (int) $idModif . ')', null, false)
             ->orderBy('mot_cle.mot', 'ASC')                                // ordre alphabétique
             ->get()->getResultArray();
 
