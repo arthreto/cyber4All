@@ -66,4 +66,9 @@ class OwaspController extends BaseController
             view('owasp/MenaceView', $data) .
             view('owasp/footerView');
     }
+
+    public function getQuiz($top)
+    {
+
+    }
 }
