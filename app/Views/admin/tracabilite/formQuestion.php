@@ -83,7 +83,8 @@ $erreurChamp = fn (string $champ): string
             </div>
         <?php endif; ?>
 
-        <?= form_open($actionFormulaire, ['class' => 'glossary-form__form']) ?>
+        <!-- form_open_multipart : enctype="multipart/form-data", nécessaire pour envoyer le fichier de l'image -->
+        <?= form_open_multipart($actionFormulaire, ['class' => 'glossary-form__form']) ?>
 
         <div class="sio-admin__colonnes">
 
@@ -338,7 +339,7 @@ $erreurChamp = fn (string $champ): string
 
                 <!-- Quiz : un bloc par thème, seul celui du thème coché est affiché -->
                 <?= form_fieldset('<span class="glossary-form__label">Quiz de la question</span>', ['class' => 'sio-admin__bloc-quiz']) ?>
-                    <p class="glossary-form__help">Cochez les quiz où la question apparaît. Sans quiz, elle n'est proposée nulle part.</p>
+                    <p class="glossary-form__help">Cochez les quiz où la question apparaît.</p>
                     <?= $erreurChamp('quiz') ?>
 
                     <!-- Affiché par le script tant qu'aucun thème n'est coché -->
@@ -390,19 +391,27 @@ $erreurChamp = fn (string $champ): string
                             'alt'   => 'Image actuelle de la question',
                             'class' => 'sio-admin__apercu-image',
                         ]) ?>
+
+                        <!-- Retire l'image de la question à l'enregistrement -->
+                        <?= form_label(
+                            form_checkbox(['name' => 'retirer_image', 'id' => 'champ-retirer-image'], '1', false)
+                            . 'Retirer l\'image',
+                            'champ-retirer-image',
+                            ['class' => 'sio-admin__choix sio-admin__choix--carte sio-admin__choix--petit']
+                        ) ?>
                     <?php endif; ?>
 
+                    <!-- Fichier envoyé au serveur (AdminQuestionController::gererImage), rangé dans images/questions/ -->
                     <div class="glossary-form__field">
-                        <?= form_label('Nom du fichier', 'champ-image', $label) ?>
-                        <?= form_input([
-                            'name'             => 'image',
+                        <?= form_label(empty($form->image) ? 'Fichier' : 'Remplacer par', 'champ-image', $label) ?>
+                        <?= form_upload([
+                            'name'             => 'fichier_image',
                             'id'               => 'champ-image',
-                            'value'            => $form->image ?? '',
-                            'placeholder'      => 'jwt-expire.png',
+                            'accept'           => 'image/png,image/jpeg,image/webp',
                             'class'            => $classeChamp('glossary-form__input', 'image'),
                             'aria-describedby' => 'aide-image',
                         ]) ?>
-                        <p id="aide-image" class="glossary-form__help">Fichier placé dans images/questions/ (PNG, JPG, WEBP ou AVIF).</p>
+                        <p id="aide-image" class="glossary-form__help">PNG, JPG ou WEBP, 2 Mo au maximum.</p>
                         <?= $erreurChamp('image') ?>
                     </div>
                 <?= form_fieldset_close() ?>

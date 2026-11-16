@@ -207,7 +207,6 @@ $caseQuestion = function (array $question, bool $cochee): string {
 
                 <?= form_fieldset('<span class="glossary-form__label">Questions</span>', ['class' => 'sio-admin__bloc-quiz']) ?>
 
-
                     <!-- Recherche : masquée sans JavaScript, affichée par sio-admin-theme.js.
                          Pas d'attribut name : le texte recherché n'est pas envoyé avec le formulaire -->
                     <div class="glossary-form__field sio-admin__recherche" hidden>

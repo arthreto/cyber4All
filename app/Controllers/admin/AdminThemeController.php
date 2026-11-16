@@ -147,11 +147,11 @@ class AdminThemeController extends AdminController
             'themeSelect' => $themeSelect,
             'questionList' => array_slice($questions, ($page - 1) * $parPage, $parPage),
             'totalQuestions' => $totalQuestions,
-            'filtreThemes' => $this->filtreThemes($base, $this->theme_model->getAllThemes(), $themeSelect, $parametresTri),
-            'colonnes' => $this->colonnesTri($base, $colonnes, $tri, $ordre, $parametresTheme),
-            'messageTri' => $this->messageTri('Questions triées', $colonnes, $tri, $ordre),
-            'urlSansTri' => $this->adresseListe($base, $parametresTheme),
-            'pages' => $this->pagesListe($base, $nbPages, $page, $parametresTheme + $parametresTri),
+            'filtreThemes'   => parent::filtreThemes($base, $this->theme_model->getAllThemes(), $themeSelect, $parametresTri),
+            'colonnes'       => parent::colonnesTri($base, $colonnes, $tri, $ordre, $parametresTheme),
+            'messageTri'     => $this->messageTri('Questions triées', $colonnes, $tri, $ordre),
+            'urlSansTri'     => parent::adresseListe($base, $parametresTheme),
+            'pages'          => parent::pagesListe($base, $nbPages, $page, $parametresTheme + $parametresTri),
         ];
 
         return view('header')
@@ -678,15 +678,15 @@ class AdminThemeController extends AdminController
         }
 
         $data = [
-            'onglet' => 'quiz',
-            'themeSelect' => $themeSelect,
-            'quizList' => array_slice($quizList, ($page - 1) * $parPage, $parPage),
-            'totalQuiz' => $totalQuiz,
-            'filtreThemes' => $this->filtreThemes($base, $this->theme_model->getAllThemes(), $themeSelect, $parametresTri),
-            'colonnes' => $this->colonnesTri($base, $colonnes, $tri, $ordre, $parametresTheme),
-            'messageTri' => $this->messageTri('Quiz triés', $colonnes, $tri, $ordre),
-            'urlSansTri' => $this->adresseListe($base, $parametresTheme),
-            'pages' => $this->pagesListe($base, $nbPages, $page, $parametresTheme + $parametresTri),
+            'onglet'       => 'quiz',
+            'themeSelect'  => $themeSelect,
+            'quizList'     => array_slice($quizList, ($page - 1) * $parPage, $parPage),
+            'totalQuiz'    => $totalQuiz,
+            'filtreThemes' => parent::filtreThemes($base, $this->theme_model->getAllThemes(), $themeSelect, $parametresTri),
+            'colonnes'     => parent::colonnesTri($base, $colonnes, $tri, $ordre, $parametresTheme),
+            'messageTri'   => parent::messageTri('Quiz triés', $colonnes, $tri, $ordre),
+            'urlSansTri'   => parent::adresseListe($base, $parametresTheme),
+            'pages'        => $this->pagesListe($base, $nbPages, $page, $parametresTheme + $parametresTri),
         ];
 
         return view('header')
@@ -757,15 +757,15 @@ class AdminThemeController extends AdminController
         session()->remove('leconForm');
 
         $data = [
-            'onglet' => 'lecons',
-            'themeSelect' => $themeSelect,
-            'leconList' => array_slice($lecons, ($page - 1) * $parPage, $parPage),
-            'totalLecons' => $totalLecons,
-            'filtreThemes' => $this->filtreThemes($base, $this->theme_model->getAllThemes(), $themeSelect, $parametresTri),
-            'colonnes' => $this->colonnesTri($base, $colonnes, $tri, $ordre, $parametresTheme),
-            'messageTri' => $this->messageTri('Leçons triées', $colonnes, $tri, $ordre),
-            'urlSansTri' => $this->adresseListe($base, $parametresTheme),
-            'pages' => $this->pagesListe($base, $nbPages, $page, $parametresTheme + $parametresTri),
+            'onglet'       => 'lecons',
+            'themeSelect'  => $themeSelect,
+            'leconList'    => array_slice($lecons, ($page - 1) * $parPage, $parPage),
+            'totalLecons'  => $totalLecons,
+            'filtreThemes' => parent::filtreThemes($base, $this->theme_model->getAllThemes(), $themeSelect, $parametresTri),
+            'colonnes'     => parent::colonnesTri($base, $colonnes, $tri, $ordre, $parametresTheme),
+            'messageTri'   => parent::messageTri('Leçons triées', $colonnes, $tri, $ordre),
+            'urlSansTri'   => parent::adresseListe($base, $parametresTheme),
+            'pages'        => $this->pagesListe($base, $nbPages, $page, $parametresTheme + $parametresTri),
         ];
 
         return view('header')
