@@ -1,17 +1,19 @@
 <?php
 
-namespace App\Controllers;
+namespace App\Controllers\Owasp;
 
-use App\Models\OwaspModel;
+use App\Controllers\BaseController;
+use App\Models\Owasp\OwaspMenaceModel;
+use App\Models\Owasp\OwaspTopModel;
 
 class OwaspController extends BaseController
 {
-    protected OwaspModel $Menace;
-    protected OwaspModel $Top;
+    protected OwaspMenaceModel $Menace;
+    protected OwaspTopModel $Top;
     public function __construct()
     {
-        $this->Menace = new OwaspModel();
-        $this->Top = new OwaspModel();
+        $this->Menace = new OwaspMenaceModel();
+        $this->Top = new OwaspTopModel();
     }
 
     public function getMenaces($top): string
@@ -37,7 +39,7 @@ class OwaspController extends BaseController
                 $data['Vulnerabilities'][$nom] = ($menaces->id_menace)-10;
             }
             $data['Top'] = $this->Top->getTopById($top);
-            $data['nom_top'] = 'api';
+            $data['nom_top'] = 'API';
         }
         if (!$data['Top']) { throw new \CodeIgniter\Exceptions\PageNotFoundException(); }
             return view('owasp/headerView', $data) .
@@ -59,7 +61,7 @@ class OwaspController extends BaseController
         }
         $data['Top'] = $this->Top->getTopById($top);
         return view('owasp/headerView', $data) .
-            view('owasp/apiMenaceView', $data) .
+            view('owasp/MenaceView', $data) .
             view('owasp/footerView');
     }
 }
