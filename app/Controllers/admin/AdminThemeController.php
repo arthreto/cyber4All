@@ -70,17 +70,17 @@ class AdminThemeController extends AdminController
         $base = 'floribondant/theme';
 
         $colonnes = [
-            'libelle'       => ['entete' => 'Énoncé', 'phrase' => 'par énoncé', 'asc' => 'de A à Z', 'desc' => 'de Z à A'],
-            'quiz'          => ['entete' => 'Quiz'],
+            'libelle' => ['entete' => 'Énoncé', 'phrase' => 'par énoncé', 'asc' => 'de A à Z', 'desc' => 'de Z à A'],
+            'quiz' => ['entete' => 'Quiz'],
             'bonne_reponse' => ['entete' => 'Réponse', 'phrase' => 'par bonne réponse', 'asc' => 'Faux d\'abord', 'desc' => 'Vrai d\'abord'],
-            'actif'         => ['entete' => 'Active', 'phrase' => 'par visibilité', 'asc' => 'inactives d\'abord', 'desc' => 'actives d\'abord'],
-            'date_modif'    => ['entete' => 'Dernière modification', 'phrase' => 'par date de modification', 'asc' => 'de la plus ancienne à la plus récente', 'desc' => 'de la plus récente à la plus ancienne'],
+            'actif' => ['entete' => 'Active', 'phrase' => 'par visibilité', 'asc' => 'inactives d\'abord', 'desc' => 'actives d\'abord'],
+            'date_modif' => ['entete' => 'Dernière modification', 'phrase' => 'par date de modification', 'asc' => 'de la plus ancienne à la plus récente', 'desc' => 'de la plus récente à la plus ancienne'],
         ];
 
-        $themeSelect = (int) ($this->request->getGet('id_theme') ?? -1);
+        $themeSelect = (int)($this->request->getGet('id_theme') ?? -1);
 
         $tri = $this->request->getGet('tri');
-        if (! in_array($tri, ['libelle', 'bonne_reponse', 'actif', 'date_modif'], true)) {
+        if (!in_array($tri, ['libelle', 'bonne_reponse', 'actif', 'date_modif'], true)) {
             $tri = null;
         }
 
@@ -100,12 +100,12 @@ class AdminThemeController extends AdminController
             $collator = new \Collator('fr_FR');
 
             usort($questions, function (array $a, array $b) use ($tri, $ordre, $collator): int {
-                $valeurA = (string) $a[$tri];
-                $valeurB = (string) $b[$tri];
+                $valeurA = (string)$a[$tri];
+                $valeurB = (string)$b[$tri];
 
                 if ($tri === 'date_modif') {
-                    $valeurA = (string) ($a['date_modif'] ?? $a['date_ajout']);
-                    $valeurB = (string) ($b['date_modif'] ?? $b['date_ajout']);
+                    $valeurA = (string)($a['date_modif'] ?? $a['date_ajout']);
+                    $valeurB = (string)($b['date_modif'] ?? $b['date_ajout']);
                 }
 
                 $resultat = $collator->compare($valeurA, $valeurB);
@@ -120,9 +120,9 @@ class AdminThemeController extends AdminController
 
         $parPage = 20;
         $totalQuestions = count($questions);
-        $nbPages = max(1, (int) ceil($totalQuestions / $parPage));
+        $nbPages = max(1, (int)ceil($totalQuestions / $parPage));
 
-        $page = (int) ($this->request->getGet('page') ?? 1);
+        $page = (int)($this->request->getGet('page') ?? 1);
         if ($page < 1) {
             $page = 1;
         }
@@ -143,15 +143,15 @@ class AdminThemeController extends AdminController
         session()->remove('questionForm');
 
         $data = [
-            'onglet'         => 'questions',
-            'themeSelect'    => $themeSelect,
-            'questionList'   => array_slice($questions, ($page - 1) * $parPage, $parPage),
+            'onglet' => 'questions',
+            'themeSelect' => $themeSelect,
+            'questionList' => array_slice($questions, ($page - 1) * $parPage, $parPage),
             'totalQuestions' => $totalQuestions,
-            'filtreThemes'   => $this->filtreThemes($base, $this->theme_model->getAllThemes(), $themeSelect, $parametresTri),
-            'colonnes'       => $this->colonnesTri($base, $colonnes, $tri, $ordre, $parametresTheme),
-            'messageTri'     => $this->messageTri('Questions triées', $colonnes, $tri, $ordre),
-            'urlSansTri'     => $this->adresseListe($base, $parametresTheme),
-            'pages'          => $this->pagesListe($base, $nbPages, $page, $parametresTheme + $parametresTri),
+            'filtreThemes' => $this->filtreThemes($base, $this->theme_model->getAllThemes(), $themeSelect, $parametresTri),
+            'colonnes' => $this->colonnesTri($base, $colonnes, $tri, $ordre, $parametresTheme),
+            'messageTri' => $this->messageTri('Questions triées', $colonnes, $tri, $ordre),
+            'urlSansTri' => $this->adresseListe($base, $parametresTheme),
+            'pages' => $this->pagesListe($base, $nbPages, $page, $parametresTheme + $parametresTri),
         ];
 
         return view('header')
@@ -196,7 +196,7 @@ class AdminThemeController extends AdminController
     {
         $form = $this->session->get('questionForm');
 
-        if ($form !== null && (int) ($form->modifier ?? 0) !== (int) ($idQuestionModif ?? 0)) {
+        if ($form !== null && (int)($form->modifier ?? 0) !== (int)($idQuestionModif ?? 0)) {
             $form = null;
         }
 
@@ -210,7 +210,7 @@ class AdminThemeController extends AdminController
                     $form->fill($question);
                     $form->modifier = $idQuestionModif;
 
-                    if (! empty($question['id_extrait'])) {
+                    if (!empty($question['id_extrait'])) {
                         $form->extrait_mode = 'existant';
                     } else {
                         $form->extrait_mode = 'aucun';
@@ -231,9 +231,9 @@ class AdminThemeController extends AdminController
 
             $form->fill($post);
 
-            $form->quiz = array_values((array) ($this->request->getPost('quiz') ?? []));
+            $form->quiz = array_values((array)($this->request->getPost('quiz') ?? []));
 
-            $action = (string) $this->request->getPost('action');
+            $action = (string)$this->request->getPost('action');
             $actionsExtrait = ['modifier_extrait', 'enregistrer_extrait', 'supprimer_extrait', 'annuler_extrait'];
 
             if (!in_array($action, $actionsExtrait, true)) {
@@ -245,17 +245,17 @@ class AdminThemeController extends AdminController
                 $extraitList = $this->extrait_model->getAllExtraits();
             } else {
                 $formData = [
-                    'libelle'        => $this->request->getPost('libelle') ?? '',
-                    'image'         => $this->request->getPost('image') ?? '',
-                    'extrait_mode'    => $form->extrait_mode ?? 'aucun',
-                    'id_extrait'      => $form->id_extrait ?? '',
-                    'extrait_titre'   => $form->extrait_titre ?? '',
-                    'extrait_type'    => $form->extrait_type ?? '',
+                    'libelle' => $this->request->getPost('libelle') ?? '',
+                    'image' => $this->request->getPost('image') ?? '',
+                    'extrait_mode' => $form->extrait_mode ?? 'aucun',
+                    'id_extrait' => $form->id_extrait ?? '',
+                    'extrait_titre' => $form->extrait_titre ?? '',
+                    'extrait_type' => $form->extrait_type ?? '',
                     'extrait_contenu' => $form->extrait_contenu ?? '',
                     'bonne_reponse' => $this->request->getPost('bonne_reponse'),
-                    'explication'   => $this->request->getPost('explication') ?? '',
-                    'actif'         => $this->request->getPost('actif') ?? '0',
-                    'modifier'      => $this->request->getPost('modifier') ?? '0',
+                    'explication' => $this->request->getPost('explication') ?? '',
+                    'actif' => $this->request->getPost('actif') ?? '0',
+                    'modifier' => $this->request->getPost('modifier') ?? '0',
                 ];
 
 
@@ -368,11 +368,11 @@ class AdminThemeController extends AdminController
                         $idExtrait = null;
 
                         if ($formData['extrait_mode'] === 'existant') {
-                            $idExtrait = (int) $formData['id_extrait'];
+                            $idExtrait = (int)$formData['id_extrait'];
                         } elseif ($formData['extrait_mode'] === 'nouveau') {
                             $idExtrait = $this->extrait_model->creerExtrait([
-                                'titre'   => $formData['extrait_titre'],
-                                'type'    => $formData['extrait_type'],
+                                'titre' => $formData['extrait_titre'],
+                                'type' => $formData['extrait_type'],
                                 'contenu' => $formData['extrait_contenu'],
                             ]);
                         }
@@ -383,8 +383,8 @@ class AdminThemeController extends AdminController
                             $formData['id_extrait'] = $idExtrait;
 
                             if ($estModification) {
-                                $idQuestion = $this->question_model->updateQuestion($formData, (int) $form->modifier)
-                                    ? (int) $form->modifier
+                                $idQuestion = $this->question_model->updateQuestion($formData, (int)$form->modifier)
+                                    ? (int)$form->modifier
                                     : false;
                             } else {
                                 $idQuestion = $this->question_model->creerQuestion($formData);
@@ -414,12 +414,12 @@ class AdminThemeController extends AdminController
         $typesExtrait = ExtraitModel::TYPES;
         $quizParTheme = [];
         foreach ($this->theme_model->getAllThemes() as $theme) {
-            $quizParTheme[$theme->nom] = $this->quiz_model->getAllQuizCategoryById((int) $theme->id);
+            $quizParTheme[$theme->nom] = $this->quiz_model->getAllQuizCategoryById((int)$theme->id);
         }
 
         $quizCoches = [];
-        foreach ((array) ($form->quiz ?? []) as $idQuiz) {
-            $quizCoches[] = (string) $idQuiz;
+        foreach ((array)($form->quiz ?? []) as $idQuiz) {
+            $quizCoches[] = (string)$idQuiz;
         }
 
         $groupesQuiz = [];
@@ -432,9 +432,9 @@ class AdminThemeController extends AdminController
 
 
             foreach (array_column($quizDuTheme, 'titre', 'id') as $idQuiz => $titre) {
-                $coche = in_array((string) $idQuiz, $quizCoches, true);
+                $coche = in_array((string)$idQuiz, $quizCoches, true);
 
-                $groupe['quiz'][] = ['id' => (int) $idQuiz, 'titre' => $titre, 'coche' => $coche];
+                $groupe['quiz'][] = ['id' => (int)$idQuiz, 'titre' => $titre, 'coche' => $coche];
 
                 if ($coche) {
                     $groupe['ouvert'] = true;
@@ -449,28 +449,28 @@ class AdminThemeController extends AdminController
         });
 
 
-        $idExtraitChoisi = (string) ($form->id_extrait ?? '');
+        $idExtraitChoisi = (string)($form->id_extrait ?? '');
         $groupesExtraits = [];
 
         foreach ($extraitList as $extrait) {
 
             $type = $typesExtrait[$extrait['type']] ?? $extrait['type'];
 
-            if (! isset($groupesExtraits[$type])) {
+            if (!isset($groupesExtraits[$type])) {
                 $groupesExtraits[$type] = ['type' => $type, 'ouvert' => false, 'extraits' => []];
             }
 
-            $choisi = (string) $extrait['id'] === $idExtraitChoisi;
+            $choisi = (string)$extrait['id'] === $idExtraitChoisi;
 
-            $debut = preg_replace('/\s+/u', ' ', (string) $extrait['contenu']);
+            $debut = preg_replace('/\s+/u', ' ', (string)$extrait['contenu']);
             $debut = mb_strimwidth(trim($debut), 0, 160, '…');
 
             $groupesExtraits[$type]['extraits'][] = [
-                'id'      => (int) $extrait['id'],
-                'titre'   => $extrait['titre'],
+                'id' => (int)$extrait['id'],
+                'titre' => $extrait['titre'],
                 'contenu' => $extrait['contenu'],
-                'debut'   => $debut,
-                'choisi'  => $choisi,
+                'debut' => $debut,
+                'choisi' => $choisi,
             ];
 
             if ($choisi) {
@@ -482,12 +482,12 @@ class AdminThemeController extends AdminController
         ksort($groupesExtraits);
 
         $data = [
-            'form'            => $form,
-            'groupesQuiz'     => $groupesQuiz,
+            'form' => $form,
+            'groupesQuiz' => $groupesQuiz,
             'groupesExtraits' => $groupesExtraits,
-            'typesExtrait'    => $typesExtrait,
-            'infoExtrait'     => $infoExtrait,
-            'errors'          => $errors,
+            'typesExtrait' => $typesExtrait,
+            'infoExtrait' => $infoExtrait,
+            'errors' => $errors,
         ];
 
         return view('header')
@@ -513,7 +513,7 @@ class AdminThemeController extends AdminController
             return null;
         }
 
-        $idExtrait = (int) ($form->id_extrait ?? 0);
+        $idExtrait = (int)($form->id_extrait ?? 0);
         $extrait = $idExtrait > 0 ? $this->extrait_model->find($idExtrait) : null;
 
         if ($extrait === null) {
@@ -522,7 +522,7 @@ class AdminThemeController extends AdminController
             return null;
         }
 
-        $autresQuestions = $this->extrait_model->compterQuestions($idExtrait, (int) ($form->modifier ?? 0));
+        $autresQuestions = $this->extrait_model->compterQuestions($idExtrait, (int)($form->modifier ?? 0));
 
         switch ($action) {
             case 'modifier_extrait':
@@ -534,8 +534,8 @@ class AdminThemeController extends AdminController
 
             case 'enregistrer_extrait':
                 $donnees = [
-                    'edit_titre'   => $form->edit_titre ?? '',
-                    'edit_type'    => $form->edit_type ?? '',
+                    'edit_titre' => $form->edit_titre ?? '',
+                    'edit_type' => $form->edit_type ?? '',
                     'edit_contenu' => $form->edit_contenu ?? '',
                 ];
 
@@ -572,8 +572,8 @@ class AdminThemeController extends AdminController
                 }
 
                 $ok = $this->extrait_model->modifierExtrait($idExtrait, [
-                    'titre'   => $donnees['edit_titre'],
-                    'type'    => $donnees['edit_type'],
+                    'titre' => $donnees['edit_titre'],
+                    'type' => $donnees['edit_type'],
                     'contenu' => $donnees['edit_contenu'],
                 ]);
 
@@ -617,16 +617,16 @@ class AdminThemeController extends AdminController
         $base = 'floribondant/theme/quiz';
 
         $colonnes = [
-            'titre'        => ['entete' => 'Titre', 'phrase' => 'par titre', 'asc' => 'de A à Z', 'desc' => 'de Z à A'],
-            'theme_nom'    => ['entete' => 'Thème', 'phrase' => 'par thème', 'asc' => 'de A à Z', 'desc' => 'de Z à A'],
+            'titre' => ['entete' => 'Titre', 'phrase' => 'par titre', 'asc' => 'de A à Z', 'desc' => 'de Z à A'],
+            'theme_nom' => ['entete' => 'Thème', 'phrase' => 'par thème', 'asc' => 'de A à Z', 'desc' => 'de Z à A'],
             'nb_questions' => ['entete' => 'Questions', 'phrase' => 'par nombre de questions', 'asc' => 'du plus petit au plus grand', 'desc' => 'du plus grand au plus petit'],
-            'actif'        => ['entete' => 'Actif', 'phrase' => 'par visibilité', 'asc' => 'inactifs d\'abord', 'desc' => 'actifs d\'abord'],
+            'actif' => ['entete' => 'Actif', 'phrase' => 'par visibilité', 'asc' => 'inactifs d\'abord', 'desc' => 'actifs d\'abord'],
         ];
 
-        $themeSelect = (int) ($this->request->getGet('id_theme') ?? -1);
+        $themeSelect = (int)($this->request->getGet('id_theme') ?? -1);
 
         $tri = $this->request->getGet('tri');
-        if (! in_array($tri, array_keys($colonnes), true)) {
+        if (!in_array($tri, array_keys($colonnes), true)) {
             $tri = null;
         }
 
@@ -643,9 +643,9 @@ class AdminThemeController extends AdminController
 
             usort($quizList, function (array $a, array $b) use ($tri, $ordre, $collator): int {
                 if ($tri === 'nb_questions' || $tri === 'actif') {
-                    $resultat = (int) ($a[$tri] ?? 1) <=> (int) ($b[$tri] ?? 1);
+                    $resultat = (int)($a[$tri] ?? 1) <=> (int)($b[$tri] ?? 1);
                 } else {
-                    $resultat = $collator->compare((string) $a[$tri], (string) $b[$tri]);
+                    $resultat = $collator->compare((string)$a[$tri], (string)$b[$tri]);
                 }
 
                 if ($ordre === 'desc') {
@@ -658,9 +658,9 @@ class AdminThemeController extends AdminController
 
         $parPage = 20;
         $totalQuiz = count($quizList);
-        $nbPages = max(1, (int) ceil($totalQuiz / $parPage));
+        $nbPages = max(1, (int)ceil($totalQuiz / $parPage));
 
-        $page = (int) ($this->request->getGet('page') ?? 1);
+        $page = (int)($this->request->getGet('page') ?? 1);
         if ($page < 1) {
             $page = 1;
         }
@@ -678,15 +678,15 @@ class AdminThemeController extends AdminController
         }
 
         $data = [
-            'onglet'       => 'quiz',
-            'themeSelect'  => $themeSelect,
-            'quizList'     => array_slice($quizList, ($page - 1) * $parPage, $parPage),
-            'totalQuiz'    => $totalQuiz,
+            'onglet' => 'quiz',
+            'themeSelect' => $themeSelect,
+            'quizList' => array_slice($quizList, ($page - 1) * $parPage, $parPage),
+            'totalQuiz' => $totalQuiz,
             'filtreThemes' => $this->filtreThemes($base, $this->theme_model->getAllThemes(), $themeSelect, $parametresTri),
-            'colonnes'     => $this->colonnesTri($base, $colonnes, $tri, $ordre, $parametresTheme),
-            'messageTri'   => $this->messageTri('Quiz triés', $colonnes, $tri, $ordre),
-            'urlSansTri'   => $this->adresseListe($base, $parametresTheme),
-            'pages'        => $this->pagesListe($base, $nbPages, $page, $parametresTheme + $parametresTri),
+            'colonnes' => $this->colonnesTri($base, $colonnes, $tri, $ordre, $parametresTheme),
+            'messageTri' => $this->messageTri('Quiz triés', $colonnes, $tri, $ordre),
+            'urlSansTri' => $this->adresseListe($base, $parametresTheme),
+            'pages' => $this->pagesListe($base, $nbPages, $page, $parametresTheme + $parametresTri),
         ];
 
         return view('header')
@@ -708,17 +708,17 @@ class AdminThemeController extends AdminController
 
 
         $colonnes = [
-            'titre'      => ['entete' => 'Titre', 'phrase' => 'par titre', 'asc' => 'de A à Z', 'desc' => 'de Z à A'],
-            'theme'      => ['entete' => 'Thème', 'phrase' => 'par thème', 'asc' => 'de A à Z', 'desc' => 'de Z à A'],
-            'auteur'     => ['entete' => 'Auteur', 'phrase' => 'par auteur', 'asc' => 'de A à Z', 'desc' => 'de Z à A'],
+            'titre' => ['entete' => 'Titre', 'phrase' => 'par titre', 'asc' => 'de A à Z', 'desc' => 'de Z à A'],
+            'theme' => ['entete' => 'Thème', 'phrase' => 'par thème', 'asc' => 'de A à Z', 'desc' => 'de Z à A'],
+            'auteur' => ['entete' => 'Auteur', 'phrase' => 'par auteur', 'asc' => 'de A à Z', 'desc' => 'de Z à A'],
             'date_ajout' => ['entete' => 'Ajoutée le', 'phrase' => 'par date d\'ajout', 'asc' => 'de la plus ancienne à la plus récente', 'desc' => 'de la plus récente à la plus ancienne'],
             'date_modif' => ['entete' => 'Dernière modification', 'phrase' => 'par date de modification', 'asc' => 'de la plus ancienne à la plus récente', 'desc' => 'de la plus récente à la plus ancienne'],
         ];
 
-        $themeSelect = (int) ($this->request->getGet('id_theme') ?? -1);
+        $themeSelect = (int)($this->request->getGet('id_theme') ?? -1);
 
         $tri = $this->request->getGet('tri');
-        if (! in_array($tri, array_keys($colonnes), true)) {
+        if (!in_array($tri, array_keys($colonnes), true)) {
             $tri = null;
         }
 
@@ -735,9 +735,9 @@ class AdminThemeController extends AdminController
 
         $parPage = 20;
         $totalLecons = count($lecons);
-        $nbPages = max(1, (int) ceil($totalLecons / $parPage));
+        $nbPages = max(1, (int)ceil($totalLecons / $parPage));
 
-        $page = (int) ($this->request->getGet('page') ?? 1);
+        $page = (int)($this->request->getGet('page') ?? 1);
         if ($page < 1) {
             $page = 1;
         }
@@ -757,15 +757,15 @@ class AdminThemeController extends AdminController
         session()->remove('leconForm');
 
         $data = [
-            'onglet'       => 'lecons',
-            'themeSelect'  => $themeSelect,
-            'leconList'    => array_slice($lecons, ($page - 1) * $parPage, $parPage),
-            'totalLecons'  => $totalLecons,
+            'onglet' => 'lecons',
+            'themeSelect' => $themeSelect,
+            'leconList' => array_slice($lecons, ($page - 1) * $parPage, $parPage),
+            'totalLecons' => $totalLecons,
             'filtreThemes' => $this->filtreThemes($base, $this->theme_model->getAllThemes(), $themeSelect, $parametresTri),
-            'colonnes'     => $this->colonnesTri($base, $colonnes, $tri, $ordre, $parametresTheme),
-            'messageTri'   => $this->messageTri('Leçons triées', $colonnes, $tri, $ordre),
-            'urlSansTri'   => $this->adresseListe($base, $parametresTheme),
-            'pages'        => $this->pagesListe($base, $nbPages, $page, $parametresTheme + $parametresTri),
+            'colonnes' => $this->colonnesTri($base, $colonnes, $tri, $ordre, $parametresTheme),
+            'messageTri' => $this->messageTri('Leçons triées', $colonnes, $tri, $ordre),
+            'urlSansTri' => $this->adresseListe($base, $parametresTheme),
+            'pages' => $this->pagesListe($base, $nbPages, $page, $parametresTheme + $parametresTri),
         ];
 
         return view('header')
@@ -773,178 +773,5 @@ class AdminThemeController extends AdminController
             . view('admin/tracabilite/onglets', $data)
             . view('admin/tracabilite/adminLecons', $data)
             . view('footer');
-    }
-
-    /* =====================================================================
-     * Méthodes privées utilisées par les trois listes (leçons, questions, quiz).
-     *
-     * Elles préparent ce que les vues affichent : liens du filtre par thème,
-     * en-têtes de colonnes triables, phrase du tri et numéros de page.
-     * ===================================================================== */
-
-    /**
-     * Adresse d'une liste avec ses paramètres d'URL.
-     * Exemple : $this->adresseListe('floribondant/theme/lecons', ['tri' => 'titre', 'ordre' => 'asc'])
-     * donne http://.../floribondant/theme/lecons?tri=titre&amp;ordre=asc
-     *
-     * Le & est écrit &amp; car l'adresse est placée dans un attribut HTML (href).
-     *
-     * @param string $base       Adresse de la liste, sans paramètres
-     * @param array  $parametres Paramètres d'URL [nom => valeur]
-     * @return string
-     * @author Arthur
-     * @author Raphael Bierlaire
-     */
-    private function adresseListe(string $base, array $parametres = []): string
-    {
-        if ($parametres === []) {
-            return site_url($base);
-        }
-
-        return site_url($base) . '?' . http_build_query($parametres, '', '&amp;');
-    }
-
-    /**
-     * Liens du filtre par thème : "Tous les thèmes", puis un lien par thème.
-     *
-     * @param string $base          Adresse de la liste
-     * @param array  $themeList     Thèmes (objets avec id et nom)
-     * @param int    $themeSelect   Thème affiché, -1 pour tous
-     * @param array  $parametresTri Tri en cours, conservé quand on change de thème
-     * @return array Liste de liens ['nom' => ..., 'url' => ..., 'actif' => true si c'est le thème affiché]
-     * @author Arthur
-     * @author Raphael Bierlaire
-     */
-    private function filtreThemes(string $base, array $themeList, int $themeSelect, array $parametresTri): array
-    {
-        $liens = [];
-
-        $liens[] = [
-            'nom'   => 'Tous les thèmes',
-            'url'   => $this->adresseListe($base, $parametresTri),
-            'actif' => $themeSelect <= 0,
-        ];
-
-        foreach ($themeList as $theme) {
-            $parametres = $parametresTri;
-            $parametres['id_theme'] = (int) $theme->id;
-
-            $liens[] = [
-                'nom'   => $theme->nom,
-                'url'   => $this->adresseListe($base, $parametres),
-                'actif' => (int) $theme->id === $themeSelect,
-            ];
-        }
-
-        return $liens;
-    }
-
-    /**
-     * En-têtes du tableau. Un clic sur une colonne triable donne :
-     * ordre croissant, puis décroissant, puis retour à l'ordre par défaut.
-     *
-     * Chaque colonne est décrite par : entete (texte affiché), et si elle est triable :
-     * phrase (« par titre »), asc (« de A à Z ») et desc (« de Z à A »).
-     *
-     * @param string      $base            Adresse de la liste
-     * @param array       $colonnes        Colonnes [clé => description]
-     * @param string|null $tri             Colonne triée, null pour l'ordre par défaut
-     * @param string      $ordre           Sens du tri : asc ou desc
-     * @param array       $parametresTheme Thème filtré, conservé quand on change de tri
-     * @return array Liste d'en-têtes ['texte', 'url' (null si non triable), 'infobulle', 'aria_sort']
-     * @author Arthur
-     * @author Raphael Bierlaire
-     */
-    private function colonnesTri(string $base, array $colonnes, ?string $tri, string $ordre, array $parametresTheme): array
-    {
-        $entetes = [];
-
-        foreach ($colonnes as $cle => $colonne) {
-            // Colonne non triable : texte seul
-            if (! isset($colonne['phrase'])) {
-                $entetes[] = ['texte' => $colonne['entete'], 'url' => null, 'infobulle' => '', 'aria_sort' => 'none'];
-                continue;
-            }
-
-            if ($tri !== $cle) {
-                // Colonne pas encore triée : le clic trie dans l'ordre croissant
-                $parametres = ['tri' => $cle, 'ordre' => 'asc'];
-                $infobulle  = 'Trier ' . $colonne['phrase'] . ', ' . $colonne['asc'];
-                $ariaSort   = 'none';
-            } elseif ($ordre === 'asc') {
-                // Colonne triée dans l'ordre croissant : le clic passe en décroissant
-                $parametres = ['tri' => $cle, 'ordre' => 'desc'];
-                $infobulle  = 'Trier ' . $colonne['phrase'] . ', ' . $colonne['desc'];
-                $ariaSort   = 'ascending';
-            } else {
-                // Colonne triée dans l'ordre décroissant : le clic revient à l'ordre par défaut
-                $parametres = [];
-                $infobulle  = 'Revenir à l\'ordre par défaut';
-                $ariaSort   = 'descending';
-            }
-
-            // + ajoute les paramètres du thème à ceux du tri
-            $entetes[] = [
-                'texte'     => $colonne['entete'],
-                'url'       => $this->adresseListe($base, $parametres + $parametresTheme),
-                'infobulle' => $infobulle,
-                'aria_sort' => $ariaSort, // flèche affichée par le CSS selon cette valeur
-            ];
-        }
-
-        return $entetes;
-    }
-
-    /**
-     * Phrase qui rappelle le tri en cours, par exemple « Leçons triées par titre, de A à Z. »
-     *
-     * @param string      $debut    Début de la phrase, par exemple « Leçons triées »
-     * @param array       $colonnes Colonnes (même tableau que pour colonnesTri)
-     * @param string|null $tri      Colonne triée, null pour l'ordre par défaut
-     * @param string      $ordre    Sens du tri : asc ou desc
-     * @return string|null La phrase, ou null s'il n'y a pas de tri
-     * @author Arthur
-     * @author Raphael Bierlaire
-     */
-    private function messageTri(string $debut, array $colonnes, ?string $tri, string $ordre): ?string
-    {
-        if ($tri === null) {
-            return null;
-        }
-
-        return $debut . ' ' . $colonnes[$tri]['phrase'] . ', ' . $colonnes[$tri][$ordre] . '.';
-    }
-
-    /**
-     * Numéros de page. La page affichée n'a pas de lien.
-     *
-     * @param string $base       Adresse de la liste
-     * @param int    $nbPages    Nombre de pages
-     * @param int    $page       Page affichée
-     * @param array  $parametres Thème et tri en cours, conservés d'une page à l'autre
-     * @return array Liste de pages ['numero', 'url', 'actuelle' => true pour la page affichée]
-     * @author Arthur
-     * @author Raphael Bierlaire
-     */
-    private function pagesListe(string $base, int $nbPages, int $page, array $parametres): array
-    {
-        $pages = [];
-
-        for ($numero = 1; $numero <= $nbPages; $numero++) {
-            $parametresPage = $parametres;
-
-            // La page 1 n'a pas besoin de ?page=1 dans l'adresse
-            if ($numero > 1) {
-                $parametresPage['page'] = $numero;
-            }
-
-            $pages[] = [
-                'numero'   => $numero,
-                'url'      => $this->adresseListe($base, $parametresPage),
-                'actuelle' => $numero === $page,
-            ];
-        }
-
-        return $pages;
     }
 }

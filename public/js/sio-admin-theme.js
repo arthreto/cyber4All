@@ -19,6 +19,8 @@
  *
  * 3. Formulaire d'un quiz : recherche dans les questions, limite du nombre de questions
  *    (champ « Nombre de questions ») et récapitulatif dans la barre du bas.
+ *    Une question cochée dans « Ajouter des questions » passe aussitôt dans « Dans ce quiz »,
+ *    et le nombre « Dans ce quiz : X » est mis à jour.
  *    Sans JavaScript, la recherche est masquée et le contrôleur vérifie la limite.
  *
  * @author Arthur
@@ -128,6 +130,15 @@
         var radioCoche = document.querySelector('input[name="id_theme"]:checked');
         var idTheme = radioCoche ? radioCoche.value : null;
 
+        // Formulaire d'un quiz : les questions ajoutées d'un autre thème sont décochées et remises à leur place
+        document.querySelectorAll('.sio-admin__choix--ajoutee').forEach(function (etiquette) {
+            if (etiquette.blocOrigine.closest('[data-theme]').dataset.theme !== idTheme) {
+                var caseQuestion = etiquette.querySelector('input');
+                caseQuestion.checked = false;
+                deplacerQuestion(caseQuestion);
+            }
+        });
+
         blocsTheme.forEach(function (bloc) {
             var visible = bloc.dataset.theme === idTheme;
             bloc.hidden = !visible;
@@ -153,6 +164,30 @@
     var resultat = document.querySelector('.sio-admin__recherche-resultat');
     var recap = document.querySelector('.sio-admin__recap');
     var champNombre = document.getElementById('champ-nb-question');
+    var boiteQuiz = document.querySelector('.sio-admin__questions--quiz');
+    var nbQuiz = document.querySelector('.sio-admin__nb-quiz');
+
+    // Case cochée dans « Ajouter des questions » : la question passe dans « Dans ce quiz ».
+    // Décochée alors qu'elle venait d'y être ajoutée : elle retourne dans son thème.
+    // appendChild() déplace l'élément (il n'est pas copié). blocOrigine retient d'où il vient.
+    function deplacerQuestion(caseQuestion) {
+        var etiquette = caseQuestion.closest('.sio-admin__choix--question');
+
+        // Case hors d'une carte de question, ou page sans zone « Dans ce quiz » : rien à déplacer
+        if (!etiquette || !boiteQuiz) {
+            return;
+        }
+
+        if (caseQuestion.checked && etiquette.parentNode !== boiteQuiz) {
+            etiquette.blocOrigine = etiquette.parentNode;
+            etiquette.classList.add('sio-admin__choix--ajoutee');
+            boiteQuiz.appendChild(etiquette);
+        } else if (!caseQuestion.checked && etiquette.blocOrigine) {
+            etiquette.classList.remove('sio-admin__choix--ajoutee');
+            etiquette.blocOrigine.appendChild(etiquette);
+            etiquette.blocOrigine = null;
+        }
+    }
 
     // Cases des questions, relues à chaque fois : une question créée dans le modal
     // (sio-admin-modal-question.js) ajoute une case après le chargement de la page
@@ -271,15 +306,26 @@
 
             recap.textContent = texte;
             recap.hidden = false;
+
+            // 5. Nombre affiché à côté de « Dans ce quiz : »
+            nbQuiz.textContent = cochees.length === 0 ? 'aucune question' : pluriel(cochees.length, 'question');
         };
 
         // Un seul écouteur sur la page : il voit aussi les cases ajoutées plus tard
         document.addEventListener('change', function (evenement) {
             if (evenement.target.matches('input[name="questions[]"]')) {
+                deplacerQuestion(evenement.target); // la question passe dans « Dans ce quiz » (ou en ressort)
                 mettreAJourQuiz();
             }
         });
         champNombre.addEventListener('input', mettreAJourQuiz);
+
+        // Nombre tapé au clavier hors limites : ramené entre 5 et 20 quand on quitte le champ
+        champNombre.addEventListener('change', function () {
+            var valeur = parseInt(champNombre.value, 10) || 5;          // vide ou pas un nombre : 5
+            champNombre.value = Math.min(Math.max(valeur, 5), 20);      // au moins 5, au plus 20
+            mettreAJourQuiz();
+        });
 
         // Changement de thème : les cases actives ont changé, on recalcule
         apresChangementTheme = mettreAJourQuiz;

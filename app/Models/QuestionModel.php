@@ -238,6 +238,7 @@ class QuestionModel extends Model
             return $this->select('id, libelle, bonne_reponse, id_theme')
                 ->where('id_theme', $idTheme)
                 ->orderBy('libelle', 'ASC')
+                ->where('actif', 1)
                 ->asArray()
                 ->findAll();
 

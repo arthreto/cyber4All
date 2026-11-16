@@ -266,11 +266,7 @@ class AdminQuizController extends AdminController
             $nbPrevu = (int) $formData['nb_questions'];
             $nbCochees = count($form->questions);
             if (! isset($errors['nb_questions']) && $nbCochees !== $nbPrevu) {
-                $errors['questions'] = 'Ce quiz doit contenir exactement ' . $nbPrevu . ' questions : '
-                    . ($nbCochees < $nbPrevu
-                        ? 'il en manque ' . ($nbPrevu - $nbCochees) . '.'
-                        : 'il y en a ' . ($nbCochees - $nbPrevu) . ' de trop.')
-                    . ' Vous en avez coché ' . $nbCochees . '.';
+                $errors['questions'] = 'Ce quiz doit contenir exactement ' . $nbPrevu . ' questions : ';
             }
 
             // Toutes les questions cochées doivent être du thème du quiz

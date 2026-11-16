@@ -206,12 +206,7 @@ $caseQuestion = function (array $question, bool $cochee): string {
             <div class="sio-admin__colonne">
 
                 <?= form_fieldset('<span class="glossary-form__label">Questions</span>', ['class' => 'sio-admin__bloc-quiz']) ?>
-                    <p class="glossary-form__help">
-                        Cochez une question pour l'ajouter au quiz, décochez-la pour la retirer.
-                        Seules les questions du thème du quiz sont proposées.
-                    </p>
-                    <?= $erreurChamp('questions') ?>
-                    <?= $erreurChamp('questions_theme') ?>
+
 
                     <!-- Recherche : masquée sans JavaScript, affichée par sio-admin-theme.js.
                          Pas d'attribut name : le texte recherché n'est pas envoyé avec le formulaire -->
@@ -227,26 +222,28 @@ $caseQuestion = function (array $question, bool $cochee): string {
                         <p class="glossary-form__help sio-admin__recherche-resultat" aria-live="polite"></p>
                     </div>
 
-                    <!-- Questions déjà dans le quiz : toutes cochées, dans une zone qui défile.
-                         Une question créée dans le modal y est ajoutée par js/sio-admin-modal-question.js -->
-                    <p class="sio-admin__sous-titre">
-                        Dans ce quiz :
-                        <span class="sio-admin__nb-questions-quiz">
+                <!-- Questions du quiz : toutes cochées, dans une zone qui défile.
+                 Le nombre et la liste sont mis à jour en direct par sio-admin-theme.js :
+                 une question cochée plus bas vient s'ajouter ici. -->
+                <p class="sio-admin__sous-titre">
+                    Dans ce quiz :
+                    <span class="sio-admin__nb-quiz">
                             <?php if ($nbQuestions === 0): ?>
                                 aucune question
                             <?php else: ?>
                                 <?= $nbQuestions ?> question<?= $nbQuestions > 1 ? 's' : '' ?>
                             <?php endif; ?>
                         </span>
-                    </p>
+                </p>
 
-                    <p class="glossary-form__help sio-admin__aucune-question-quiz"<?= $questionsQuiz === [] ? '' : ' hidden' ?>>Aucune question pour l'instant : cochez-en ci-dessous.</p>
-
-                    <div class="sio-admin__questions sio-admin__questions--quiz"<?= $questionsQuiz === [] ? ' hidden' : '' ?>>
-                        <?php foreach ($questionsQuiz as $question): ?>
-                            <?= $caseQuestion($question, true) ?>
-                        <?php endforeach; ?>
-                    </div>
+                <!-- Message et zone toujours présents : le CSS affiche l'un ou l'autre selon que la zone contient
+                     des questions ou non (sio-admin__quiz-vide) -->
+                <p class="glossary-form__help sio-admin__quiz-vide">Aucune question pour l'instant : cochez-en ci-dessous.</p>
+                <div class="sio-admin__questions sio-admin__questions--quiz">
+                    <?php foreach ($questionsQuiz as $question): ?>
+                        <?= $caseQuestion($question, true) ?>
+                    <?php endforeach; ?>
+                </div>
 
                     <!-- Questions à ajouter : un bloc par thème, seul celui du thème coché est affiché -->
                     <p class="sio-admin__sous-titre">Ajouter des questions</p>

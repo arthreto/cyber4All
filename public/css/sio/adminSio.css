@@ -1198,6 +1198,7 @@
 /* Étiquette d'une question : case, énoncé (sur plusieurs lignes si besoin), bonne réponse à droite */
 .sio-admin__choix--question {
     display: flex;
+    flex-shrink: 0; /* dans une zone à hauteur limitée, la carte garde sa hauteur au lieu d'être écrasée */
     align-items: flex-start;
     gap: 0.6rem;
     padding: 0.5rem 0.75rem;
@@ -1240,14 +1241,6 @@
     text-decoration: line-through;
 }
 
-.sio-admin__questions--quiz .sio-admin__choix--question:not(:has(input:checked)) .sio-admin__question-libelle::after {
-    content: " (retirée à l'enregistrement)";
-    display: inline-block;
-    margin-left: 0.25rem;
-    color: var(--state-error);
-    font-size: 12px;
-    text-decoration: none;
-}
 
 /* Éléments masqués par l'attribut hidden (recherche, récapitulatif) :
    sans cette règle, un display: flex de leur classe les laisserait visibles */
@@ -1385,4 +1378,22 @@
 /* Page affichée dans le modal : pas d'en-tête de site à compenser (style.css) */
 body.sio-admin-modal {
     padding-top: 0;
+}
+/* ==========================================
+   Formulaire d'un quiz : « Dans ce quiz » mis à jour en direct
+   Auteur : Arthur
+   ========================================== */
+
+/* Zone vide : masquée, et le message « Aucune question pour l'instant » est affiché à la place */
+.sio-admin__questions--quiz:not(:has(.sio-admin__choix--question)) {
+    display: none;
+}
+
+.sio-admin__bloc-quiz:has(.sio-admin__questions--quiz .sio-admin__choix--question) .sio-admin__quiz-vide {
+    display: none;
+}
+
+/* Question qui vient d'être cochée plus bas : elle sera ajoutée à l'enregistrement */
+.sio-admin__questions--quiz .sio-admin__choix--ajoutee:has(input:checked) {
+    border-color: var(--state-success);
 }
