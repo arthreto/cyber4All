@@ -144,8 +144,7 @@ $actionFormulaire = $estModification
             ]) ?>
         </div>
 
-        <!-- Visibilité : le champ caché envoie 0 quand la case est décochée.
-             Une leçon supprimée depuis la liste est décochée : on la réactive ici. -->
+        <!-- Visibilité : le champ caché envoie 0 quand la case est décochée -->
         <div class="glossary-form__field">
             <?= form_label(
                 form_hidden('actif', '0')

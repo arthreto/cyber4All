@@ -11,7 +11,6 @@
  * - $colonnes     : en-têtes du tableau ['texte', 'url', 'infobulle', 'aria_sort']
  * - $messageTri   : phrase qui rappelle le tri en cours, ou null
  * - $urlSansTri   : adresse pour revenir à l'ordre par défaut
- * - $idNouveau   : id de la leçon qui vient d'être ajoutée ou modifiée (0 si aucune), mise en évidence
  * - $pages        : numéros de page ['numero', 'url', 'actuelle']
  *
  * Styles : sio/adminSio.css (section « Leçons »), tableMots.css, notifications.css
@@ -164,8 +163,7 @@ foreach ($pages as $p) {
                                 <div class="sio-admin__ligne-actions">
                                     <?= anchor('floribondant/theme/lecons/modifier/' . $lecon->id, 'Modifier', ['class' => 'sio-admin__btn-secondaire sio-admin__btn--petit']) ?>
 
-                                    <!-- Supprimer = désactiver : la leçon reste en base, rangée à la fin de la liste.
-                                         Une leçon déjà inactive n'a plus de bouton Supprimer. -->
+                                    <!-- Supprimer = désactiver la leçon -->
                                     <?php if ($estActive): ?>
                                     <?= form_open('floribondant/theme/lecons/supprimer/' . $lecon->id, [
                                         'class'    => 'mots-table__delete-form',

@@ -12,7 +12,6 @@
  * - $colonnes       : en-têtes du tableau ['texte', 'url' (null si non triable), 'infobulle', 'aria_sort']
  * - $messageTri     : phrase qui rappelle le tri en cours, ou null
  * - $urlSansTri     : adresse pour revenir à l'ordre par défaut
- * - $idNouveau   : id de l'élément qui vient d'être ajouté ou modifié (0 si aucun), mis en évidence
  * - $pages          : numéros de page ['numero', 'url', 'actuelle']
  *
  * Styles : sio/adminSio.css (sections « Leçons » et « Questions »), tableMots.css, notifications.css
@@ -186,8 +185,7 @@ foreach ($pages as $p) {
                                 <div class="sio-admin__ligne-actions">
                                     <?= anchor('floribondant/theme/questions/modifier/' . $question['id'], 'Modifier', ['class' => 'sio-admin__btn-secondaire sio-admin__btn--petit']) ?>
 
-                                    <!-- Supprimer = désactiver : la question reste en base, rangée à la fin de la liste.
-                                         Une question déjà inactive n'a plus de bouton Supprimer. -->
+                                    <!-- Supprimer = désactiver la question -->
                                     <?php if ($estActive): ?>
                                         <?= form_open('floribondant/theme/questions/supprimer/' . $question['id'], [
                                             'class'    => 'mots-table__delete-form',

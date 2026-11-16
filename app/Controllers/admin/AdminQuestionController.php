@@ -10,10 +10,7 @@ use App\Models\QuizQuestionModel;
 use CodeIgniter\HTTP\RedirectResponse;
 
 /**
- * Ce controller gère les questions de l'Espace compréhension SIO (administration) :
- * liste, ajout / modification (avec l'extrait facultatif et les quiz) et suppression.
- *
- * Le contrôle de l'administrateur et les méthodes des listes sont dans AdminController.
+ * Ce controller gère les questions de l'Espace compréhension SIO (administration)
  *
  * @since 2.0.0
  * @package Cyber4all
@@ -28,7 +25,6 @@ class AdminQuestionController extends AdminController
 
     public function __construct()
     {
-        // Constructeur du parent : session, ThemeModel et vérification de l'administrateur
         parent::__construct();
 
         $this->quiz_model = new QuizModel();
@@ -48,7 +44,6 @@ class AdminQuestionController extends AdminController
     {
         $base = 'floribondant/theme';
 
-        // Colonnes du tableau. La colonne Quiz n'a pas de phrase : elle n'est pas triable.
         $colonnes = [
             'libelle'       => ['entete' => 'Énoncé', 'phrase' => 'par énoncé', 'asc' => 'de A à Z', 'desc' => 'de Z à A'],
             'quiz'          => ['entete' => 'Quiz'],
@@ -57,7 +52,6 @@ class AdminQuestionController extends AdminController
             'date_modif'    => ['entete' => 'Dernière modification', 'phrase' => 'par date de modification', 'asc' => 'de la plus ancienne à la plus récente', 'desc' => 'de la plus récente à la plus ancienne'],
         ];
 
-        // 1. Paramètres de l'URL
         $themeSelect = (int) ($this->request->getGet('id_theme') ?? -1);
 
         $tri = $this->request->getGet('tri');
@@ -70,17 +64,13 @@ class AdminQuestionController extends AdminController
             $ordre = 'desc';
         }
 
-        // 2. Questions du thème choisi (colonne id_theme de la question), ou toutes les questions
         if ($themeSelect > 0) {
             $questions = $this->question_model->getQuestionsDuTheme($themeSelect);
         } else {
             $questions = $this->question_model->getAllQuestions();
         }
 
-        // Tri en PHP. usort() compare les questions deux par deux avec la fonction donnée :
-        // c'est une fonction anonyme (sans nom), écrite directement à l'endroit où elle sert.
-        // use (...) lui donne accès aux variables $tri, $ordre et $collator de la méthode.
-        // Le Collator compare les textes dans l'ordre alphabétique français (É rangé avec E).
+
         if ($tri !== null) {
             $collator = new \Collator('fr_FR');
 
@@ -88,7 +78,7 @@ class AdminQuestionController extends AdminController
                 $valeurA = (string) $a[$tri];
                 $valeurB = (string) $b[$tri];
 
-                // Pour la date, une question jamais modifiée est rangée selon sa date d'ajout
+
                 if ($tri === 'date_modif') {
                     $valeurA = (string) ($a['date_modif'] ?? $a['date_ajout']);
                     $valeurB = (string) ($b['date_modif'] ?? $b['date_ajout']);
@@ -96,7 +86,7 @@ class AdminQuestionController extends AdminController
 
                 $resultat = $collator->compare($valeurA, $valeurB);
 
-                // Ordre décroissant : on inverse le résultat
+                // Ordre décroissant donc on inverse le résultat
                 if ($ordre === 'desc') {
                     $resultat = -$resultat;
                 }
@@ -105,12 +95,9 @@ class AdminQuestionController extends AdminController
             });
         }
 
-        // Question qui vient d'être ajoutée ou modifiée (envoyée par questionAjouter), en premier ;
-        // les questions inactives (supprimées) à la fin
+        // Question qui vient d'être ajoutée ou modifiée, en premier ; les questions inactives à la fin
         $idNouveau = (int) ($this->session->getFlashdata('id_nouveau') ?? 0);
         $questions = $this->ordonnerListe($questions, $idNouveau);
-
-        // 3. Pagination : 20 questions par page
         $parPage = 20;
         $totalQuestions = count($questions);
         $nbPages = max(1, (int) ceil($totalQuestions / $parPage));
@@ -123,7 +110,7 @@ class AdminQuestionController extends AdminController
             $page = $nbPages;
         }
 
-        // 4. Liens pour la vue (méthodes d'AdminController)
+        // Liens pour la vue
         $parametresTri = [];
         if ($tri !== null) {
             $parametresTri = ['tri' => $tri, 'ordre' => $ordre];
@@ -133,7 +120,6 @@ class AdminQuestionController extends AdminController
             $parametresTheme = ['id_theme' => $themeSelect];
         }
 
-        // Un formulaire de question resté en session ne sert plus quand on revient à la liste
         $this->session->remove('questionForm');
 
         $data = [
@@ -157,11 +143,9 @@ class AdminQuestionController extends AdminController
     }
 
     /**
-     * « Suppression » d'une question : elle n'est pas effacée de la base, elle passe inactive (actif = 0).
-     * Elle n'est plus proposée dans les quiz et s'affiche à la fin de la liste.
-     * Pour la réactiver : la modifier et cocher « Question active ».
+     * Suppression d'une question et de ses liaisons avec les quiz.
      *
-     * @param int $idQuestion Identifiant de la question à désactiver
+     * @param int $idQuestion Identifiant de la question à supprimer
      * @return RedirectResponse Retour à la liste des questions, avec un message
      *
      * @author Arthur
@@ -175,26 +159,21 @@ class AdminQuestionController extends AdminController
                 ->with('error', 'Cette question n\'existe pas.');
         }
 
-        // Les liaisons avec les quiz sont gardées : elles servent si la question est réactivée
+        // Les liaisons avec les quiz sont gardées pour une réactivation
         if (! $this->question_model->updateQuestion(['actif' => 0], $idQuestion)) {
             return redirect()->to(base_url('floribondant/theme'))
                 ->with('error', "La question n'a pas pu être supprimée. Veuillez réessayer.");
         }
-        
+
         helper('text');
         $debutLibelle = character_limiter($question['libelle'], 30, '…');
 
         return redirect()->to(base_url('floribondant/theme'))
             ->with('success', 'Question « ' . $debutLibelle . ' » supprimée : elle est désactivée et rangée à la fin de la liste.');
     }
+
     /**
      * Ajout ou modification d'une question, avec son thème, son extrait facultatif et ses quiz.
-     * Le formulaire est gardé en session entre deux envois (actions sur un extrait).
-     *
-     * Règles liées au thème :
-     * - les quiz cochés doivent être du thème de la question ;
-     * - l'extrait doit être du thème de la question (son type est le nom du thème au singulier).
-     *
      * @param int|null $idQuestionModif Identifiant de la question à modifier, null pour un ajout.
      * @return mixed
      *
@@ -202,33 +181,50 @@ class AdminQuestionController extends AdminController
      */
     public function questionAjouter(?int $idQuestionModif = null)
     {
+        // Par modal ?
+        $modal = $this->request->getGet('modal') === '1';
+
         $form = $this->session->get('questionForm');
 
-        // Le mode (ajout ou modification) vient de l'URL : un formulaire en session
-        // qui ne correspond pas à cette URL (autre question, ou ajout) est abandonné.
+        // Verifié ajout ou modification
         if ($form !== null && (int) ($form->modifier ?? 0) !== (int) ($idQuestionModif ?? 0)) {
+            $form = null;
+        }
+
+        // Ouvrir le modal
+        if ($modal && ! $this->request->is('post')) {
             $form = null;
         }
 
         if ($form === null) {
             $form = new QuestionForm();
 
+            // Modal
+            if ($modal && $idQuestionModif === null) {
+                $idThemeQuiz = (int) ($this->request->getGet('id_theme') ?? 0);
+                if ($idThemeQuiz > 0) {
+                    $form->id_theme = $idThemeQuiz;
+                }
+
+                $idQuiz = (int) ($this->request->getGet('quiz') ?? 0);
+                if ($idQuiz > 0) {
+                    $form->quiz = [(string) $idQuiz];
+                }
+            }
+
             if ($idQuestionModif !== null) {
                 $question = $this->question_model->find($idQuestionModif);
 
                 if ($question !== null) {
-                    // fill() remplit aussi id_theme, enregistré dans la question
                     $form->fill($question);
                     $form->modifier = $idQuestionModif;
 
-                    // Extrait : la question en a-t-elle déjà un ?
                     if (! empty($question['id_extrait'])) {
                         $form->extrait_mode = 'existant';
                     } else {
                         $form->extrait_mode = 'aucun';
                     }
 
-                    // Quiz de la question (cases cochées dans le formulaire)
                     $form->quiz = $this->quiz_question_model->getIdsQuizByQuestion($idQuestionModif);
                 }
             }
@@ -245,13 +241,11 @@ class AdminQuestionController extends AdminController
 
             $form->fill($post);
 
-            // Quiz cochés : aucune case cochée = rien n'est envoyé, d'où le ?? []
             $form->quiz = array_values((array) ($this->request->getPost('quiz') ?? []));
 
             $action = (string) $this->request->getPost('action');
             $actionsExtrait = ['modifier_extrait', 'enregistrer_extrait', 'supprimer_extrait', 'annuler_extrait'];
 
-            // Toute autre action ferme la modification d'extrait en cours
             if (! in_array($action, $actionsExtrait, true)) {
                 $form->extrait_action = null;
             }
@@ -260,7 +254,6 @@ class AdminQuestionController extends AdminController
                 $infoExtrait = $this->gererActionExtrait($action, $form, $errors);
                 $extraitList = $this->extrait_model->getAllExtraits();
             } elseif ($action === 'enregistrer') {
-                // Thème choisi, et type des extraits de ce thème (« Logs » donne « log »)
                 $idTheme = (int) ($this->request->getPost('id_theme') ?? 0);
                 $typeTheme = '';
                 foreach ($themeList as $theme) {
@@ -268,8 +261,6 @@ class AdminQuestionController extends AdminController
                         $typeTheme = $this->typeExtraitDuTheme($theme->nom);
                     }
                 }
-
-                // Identifiants des extraits du thème, pour vérifier l'extrait choisi
                 $idsExtraitsTheme = [];
                 foreach ($extraitList as $extrait) {
                     if ($extrait['type'] === $typeTheme) {
@@ -356,7 +347,6 @@ class AdminQuestionController extends AdminController
                     ],
                 ];
 
-                // Règles de l'extrait selon l'option choisie
                 if ($formData['extrait_mode'] === 'existant') {
                     $rules['id_extrait'] = [
                         'label' => 'Extrait',
@@ -411,16 +401,13 @@ class AdminQuestionController extends AdminController
                     }
                 }
 
-                // En cas d'erreur, on ne redirige pas : le formulaire est réaffiché
-                // plus bas avec $errors et la saisie conservée en session.
                 if (empty($errors)) {
                     $estModification = ! empty($form->modifier);
 
-                    // Extrait, question et liaisons sont enregistrés ensemble ou pas du tout
+
                     $db = \Config\Database::connect('tracabilite');
                     $db->transBegin();
 
-                    // Extrait : aucun, extrait existant, ou nouvel extrait créé maintenant
                     $idExtrait = null;
 
                     if ($formData['extrait_mode'] === 'existant') {
@@ -452,6 +439,21 @@ class AdminQuestionController extends AdminController
                         $db->transCommit();
                         $this->session->remove('questionForm');
 
+
+                        if ($modal) {
+                            return view('admin/tracabilite/modalDebut')
+                                . view('admin/tracabilite/questionEnregistree', [
+                                    'question' => [
+                                        'id'            => $idQuestion,
+                                        'libelle'       => $formData['libelle'],
+                                        'bonne_reponse' => (string) $formData['bonne_reponse'],
+                                        'id_theme'      => (int) $formData['id_theme'],
+                                        'quiz'          => array_map('intval', $form->quiz),
+                                    ],
+                                ])
+                                . view('admin/tracabilite/modalFin');
+                        }
+
                         return redirect()->to(base_url('floribondant/theme'))
                             ->with('id_nouveau', $idQuestion) // affichée en premier dans la liste
                             ->with('success', $estModification
@@ -467,20 +469,16 @@ class AdminQuestionController extends AdminController
             $this->session->set('questionForm', $form);
         }
 
-        // ---------- Préparation de l'affichage : un bloc par thème, avec ses quiz et ses extraits ----------
-        // La vue affiche seulement le bloc du thème coché (petit script sio-admin-theme-filtre.js).
 
         $themeChoisi = (int) ($form->id_theme ?? 0);
         $idExtraitChoisi = (string) ($form->id_extrait ?? '');
 
-        // Quiz cochés, en texte pour les comparer strictement aux identifiants
         $quizCoches = [];
         foreach ((array) ($form->quiz ?? []) as $idQuiz) {
             $quizCoches[] = (string) $idQuiz;
         }
 
-        // Extraits triés par titre. usort() compare les extraits deux par deux
-        // avec une fonction anonyme (fonction sans nom, écrite à l'endroit où elle sert).
+        // Extraits triés par titre
         usort($extraitList, function (array $a, array $b): int {
             return strcasecmp($a['titre'], $b['titre']);
         });
@@ -496,7 +494,7 @@ class AdminQuestionController extends AdminController
                 'extraits' => [],
             ];
 
-            // Quiz du thème. array_column() donne [id => titre], que les quiz soient des tableaux ou des objets.
+
             foreach (array_column($this->quiz_model->getAllQuizCategoryById((int) $theme->id), 'titre', 'id') as $idQuiz => $titre) {
                 $bloc['quiz'][] = [
                     'id'    => (int) $idQuiz,
@@ -505,7 +503,6 @@ class AdminQuestionController extends AdminController
                 ];
             }
 
-            // Extraits du thème : ceux dont le type est le nom du thème au singulier
             $typeTheme = $this->typeExtraitDuTheme($theme->nom);
 
             foreach ($extraitList as $extrait) {
@@ -513,8 +510,6 @@ class AdminQuestionController extends AdminController
                     continue;
                 }
 
-                // Début du contenu, affiché sous le titre : retours à la ligne remplacés par des espaces,
-                // puis coupé à 160 caractères
                 $debut = preg_replace('/\s+/u', ' ', (string) $extrait['contenu']);
                 $debut = mb_strimwidth(trim($debut), 0, 160, '…');
 
@@ -536,7 +531,14 @@ class AdminQuestionController extends AdminController
             'typesExtrait' => ExtraitModel::TYPES,
             'infoExtrait'  => $infoExtrait,
             'errors'       => $errors,
+            'modal'        => $modal,
         ];
+
+        if ($modal) {
+            return view('admin/tracabilite/modalDebut')
+                . view('admin/tracabilite/formQuestion', $data)
+                . view('admin/tracabilite/modalFin');
+        }
 
         return view('header')
             . view('notice')
@@ -546,7 +548,6 @@ class AdminQuestionController extends AdminController
 
     /**
      * Type des extraits d'un thème : le nom du thème en minuscules et au singulier.
-     * Exemple : « Logs » donne « log », « Sessions » donne « session ».
      *
      * @param string $nomTheme Nom du thème
      * @return string
@@ -557,7 +558,6 @@ class AdminQuestionController extends AdminController
     {
         $type = mb_strtolower(trim($nomTheme));
 
-        // On retire le « s » final du pluriel
         if (str_ends_with($type, 's')) {
             $type = mb_substr($type, 0, -1);
         }
@@ -566,12 +566,11 @@ class AdminQuestionController extends AdminController
     }
 
     /**
-     * Modification / suppression de l'extrait existant choisi dans le formulaire de question.
+     * Modification / suppression de l'extrait existant choisi dans le formulaire
      *
-     * @param string $action Action demandée (modifier_extrait, enregistrer_extrait, supprimer_extrait,
-     *                       annuler_extrait). La suppression est immédiate, sans confirmation.
-     * @param QuestionForm $form Formulaire en cours (mis à jour).
-     * @param array $errors Erreurs à afficher (complété).
+     * @param string $action Action demandée
+     * @param QuestionForm $form Formulaire en cours
+     * @param array $errors Erreurs à afficher
      * @return string|null Message de réussite à afficher, ou null.
      *
      * @author Arthur
@@ -592,7 +591,6 @@ class AdminQuestionController extends AdminController
             return null;
         }
 
-        // Autres questions que celle en cours qui utilisent cet extrait
         $autresQuestions = $this->extrait_model->compterQuestions($idExtrait, (int) ($form->modifier ?? 0));
 
         switch ($action) {

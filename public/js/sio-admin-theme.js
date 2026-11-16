@@ -18,8 +18,7 @@
  *    Sans JavaScript, tous les blocs restent affichés (le contrôleur vérifie le thème).
  *
  * 3. Formulaire d'un quiz : recherche dans les questions, limite du nombre de questions
- *    (champ « Nombre de questions ») et récapitulatif dans la barre du bas, qui indique
- *    combien de questions il reste à cocher (le quiz doit en avoir exactement ce nombre).
+ *    (champ « Nombre de questions ») et récapitulatif dans la barre du bas.
  *    Sans JavaScript, la recherche est masquée et le contrôleur vérifie la limite.
  *
  * @author Arthur
@@ -154,7 +153,12 @@
     var resultat = document.querySelector('.sio-admin__recherche-resultat');
     var recap = document.querySelector('.sio-admin__recap');
     var champNombre = document.getElementById('champ-nb-question');
-    var cases = document.querySelectorAll('input[name="questions[]"]');
+
+    // Cases des questions, relues à chaque fois : une question créée dans le modal
+    // (sio-admin-modal-question.js) ajoute une case après le chargement de la page
+    function casesQuestions() {
+        return document.querySelectorAll('input[name="questions[]"]');
+    }
 
     // Vrai si la case est dans le bloc d'un thème masqué (désactivée par la partie 2)
     function dansThemeMasque(element) {
@@ -214,6 +218,7 @@
         // ---------- Limite et récapitulatif ----------
         var mettreAJourQuiz = function () {
             var max = parseInt(champNombre.value, 10) || 0;
+            var cases = casesQuestions();
 
             // 1. On réactive les cases bloquées par la limite (sauf celles d'un thème masqué)
             cases.forEach(function (caseQuestion) {
@@ -268,8 +273,11 @@
             recap.hidden = false;
         };
 
-        cases.forEach(function (caseQuestion) {
-            caseQuestion.addEventListener('change', mettreAJourQuiz);
+        // Un seul écouteur sur la page : il voit aussi les cases ajoutées plus tard
+        document.addEventListener('change', function (evenement) {
+            if (evenement.target.matches('input[name="questions[]"]')) {
+                mettreAJourQuiz();
+            }
         });
         champNombre.addEventListener('input', mettreAJourQuiz);
 

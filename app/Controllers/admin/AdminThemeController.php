@@ -17,15 +17,14 @@ use CodeIgniter\HTTP\RedirectResponse;
 use CodeIgniter\Session\Session;
 
 /**
- * Ce controller gère l'administration de l'Espace compréhension SIO :
- * listes des questions, des quiz et des leçons, et formulaire des questions.
+ * Ce controller gère l'administration de l'Espace compréhension SIO
  *
  * @since 1.0.0
  * @package Cyber4all
  * @author Arthur
  * @author Raphael Bierlaire (leçons)
  */
-class AdminThemeController extends BaseController
+class AdminThemeController extends AdminController
 {
 
     protected UtilisateurModel $utilisateur_model;
@@ -70,7 +69,6 @@ class AdminThemeController extends BaseController
     {
         $base = 'floribondant/theme';
 
-        // Colonnes du tableau. La colonne Quiz n'a pas de phrase : elle n'est pas triable.
         $colonnes = [
             'libelle'       => ['entete' => 'Énoncé', 'phrase' => 'par énoncé', 'asc' => 'de A à Z', 'desc' => 'de Z à A'],
             'quiz'          => ['entete' => 'Quiz'],
@@ -79,7 +77,6 @@ class AdminThemeController extends BaseController
             'date_modif'    => ['entete' => 'Dernière modification', 'phrase' => 'par date de modification', 'asc' => 'de la plus ancienne à la plus récente', 'desc' => 'de la plus récente à la plus ancienne'],
         ];
 
-        // 1. Paramètres de l'URL
         $themeSelect = (int) ($this->request->getGet('id_theme') ?? -1);
 
         $tri = $this->request->getGet('tri');
@@ -92,17 +89,13 @@ class AdminThemeController extends BaseController
             $ordre = 'desc';
         }
 
-        // 2. Questions du thème choisi, ou toutes les questions
         if ($themeSelect > 0) {
             $questions = $this->question_model->getQuestionsFromTheme($themeSelect);
         } else {
             $questions = $this->question_model->getAllQuestions();
         }
 
-        // Tri en PHP. usort() compare les questions deux par deux avec la fonction donnée :
-        // c'est une fonction anonyme (sans nom), écrite directement à l'endroit où elle sert.
-        // use (...) lui donne accès aux variables $tri, $ordre et $collator de la méthode.
-        // Le Collator compare les textes dans l'ordre alphabétique français (É rangé avec E).
+
         if ($tri !== null) {
             $collator = new \Collator('fr_FR');
 
@@ -110,7 +103,6 @@ class AdminThemeController extends BaseController
                 $valeurA = (string) $a[$tri];
                 $valeurB = (string) $b[$tri];
 
-                // Pour la date, une question jamais modifiée est rangée selon sa date d'ajout
                 if ($tri === 'date_modif') {
                     $valeurA = (string) ($a['date_modif'] ?? $a['date_ajout']);
                     $valeurB = (string) ($b['date_modif'] ?? $b['date_ajout']);
@@ -118,7 +110,6 @@ class AdminThemeController extends BaseController
 
                 $resultat = $collator->compare($valeurA, $valeurB);
 
-                // Ordre décroissant : on inverse le résultat
                 if ($ordre === 'desc') {
                     $resultat = -$resultat;
                 }
@@ -127,7 +118,6 @@ class AdminThemeController extends BaseController
             });
         }
 
-        // 3. Pagination : 20 questions par page
         $parPage = 20;
         $totalQuestions = count($questions);
         $nbPages = max(1, (int) ceil($totalQuestions / $parPage));
@@ -140,7 +130,6 @@ class AdminThemeController extends BaseController
             $page = $nbPages;
         }
 
-        // 4. Liens pour la vue
         $parametresTri = [];
         if ($tri !== null) {
             $parametresTri = ['tri' => $tri, 'ordre' => $ordre];
@@ -150,7 +139,7 @@ class AdminThemeController extends BaseController
             $parametresTheme = ['id_theme' => $themeSelect];
         }
 
-        // Un formulaire de question resté en session ne sert plus quand on revient à la liste
+
         session()->remove('questionForm');
 
         $data = [
@@ -173,7 +162,7 @@ class AdminThemeController extends BaseController
     }
 
     /**
-     * Suppression d'une question et de ses liaisons avec les quiz.
+     * Suppression d'une question et de ses liaisons avec les quiz
      *
      * @param int $idQuestion Identifiant de la question à supprimer
      * @return RedirectResponse Retour à la liste des questions, avec un message
@@ -187,8 +176,6 @@ class AdminThemeController extends BaseController
                 ->with('error', 'Cette question n\'existe pas ou a déjà été supprimée.');
         }
 
-        // delete($idQuestion) supprimerait la liaison dont l'id vaut $idQuestion :
-        // on supprime toutes les liaisons de la question avec where(), puis la question
         $this->quiz_question_model->where('id_question', $idQuestion)->delete();
         $this->question_model->delete($idQuestion);
 
@@ -199,7 +186,6 @@ class AdminThemeController extends BaseController
 
     /**
      * Ajout ou modification d'une question, avec son extrait facultatif et ses quiz.
-     * Le formulaire est gardé en session entre deux envois (actions sur un extrait).
      *
      * @param int|null $idQuestionModif Identifiant de la question à modifier, null pour un ajout.
      * @return mixed
@@ -210,8 +196,6 @@ class AdminThemeController extends BaseController
     {
         $form = $this->session->get('questionForm');
 
-        // Le mode (ajout ou modification) vient de l'URL : un formulaire en session
-        // qui ne correspond pas à cette URL (autre question, ou ajout) est abandonné.
         if ($form !== null && (int) ($form->modifier ?? 0) !== (int) ($idQuestionModif ?? 0)) {
             $form = null;
         }
@@ -226,14 +210,12 @@ class AdminThemeController extends BaseController
                     $form->fill($question);
                     $form->modifier = $idQuestionModif;
 
-                    // Extrait : la question en a-t-elle déjà un ?
                     if (! empty($question['id_extrait'])) {
                         $form->extrait_mode = 'existant';
                     } else {
                         $form->extrait_mode = 'aucun';
                     }
 
-                    // Quiz de la question (cases cochées dans le formulaire)
                     $form->quiz = $this->quiz_question_model->getIdsQuizByQuestion($idQuestionModif);
                 }
             }
@@ -249,14 +231,11 @@ class AdminThemeController extends BaseController
 
             $form->fill($post);
 
-            // Quiz cochés : aucune case cochée = rien n'est envoyé, d'où le ?? []
             $form->quiz = array_values((array) ($this->request->getPost('quiz') ?? []));
 
             $action = (string) $this->request->getPost('action');
             $actionsExtrait = ['modifier_extrait', 'enregistrer_extrait', 'supprimer_extrait', 'annuler_extrait'];
 
-            // Toute autre action (changement d'option, d'extrait, de thème…) ferme
-            // la modification / suppression d'extrait en cours
             if (!in_array($action, $actionsExtrait, true)) {
                 $form->extrait_action = null;
             }
@@ -337,7 +316,6 @@ class AdminThemeController extends BaseController
                     ],
                 ];
 
-                // Règles de l'extrait selon l'option choisie
                 if ($formData['extrait_mode'] === 'existant') {
                     $rules['id_extrait'] = [
                         'label' => 'Extrait',
@@ -380,16 +358,13 @@ class AdminThemeController extends BaseController
                         $errors = $this->validator->getErrors();
                     }
 
-                    // En cas d'erreur, on ne redirige pas : le formulaire est réaffiché
-                    // plus bas avec $errors et la saisie conservée en session.
                     if (empty($errors)) {
                         $estModification = !empty($form->modifier);
 
-                        // Extrait, question et liaisons sont enregistrés ensemble ou pas du tout
+
                         $db = \Config\Database::connect('tracabilite');
                         $db->transBegin();
 
-                        // Extrait : aucun, extrait existant, ou nouvel extrait créé maintenant
                         $idExtrait = null;
 
                         if ($formData['extrait_mode'] === 'existant') {
@@ -436,31 +411,26 @@ class AdminThemeController extends BaseController
             $this->session->set('questionForm', $form);
         }
 
-        // Tous les quiz, rangés par nom de thème : [nom du thème => quiz du thème]
         $typesExtrait = ExtraitModel::TYPES;
         $quizParTheme = [];
         foreach ($this->theme_model->getAllThemes() as $theme) {
             $quizParTheme[$theme->nom] = $this->quiz_model->getAllQuizCategoryById((int) $theme->id);
         }
 
-        // ---------- Préparation de l'affichage : la vue n'a plus qu'à faire des foreach ----------
-
-        // Quiz cochés, en texte pour les comparer strictement aux identifiants
         $quizCoches = [];
         foreach ((array) ($form->quiz ?? []) as $idQuiz) {
             $quizCoches[] = (string) $idQuiz;
         }
 
-        // Quiz regroupés par thème. Un groupe est ouvert s'il contient un quiz coché.
         $groupesQuiz = [];
         foreach ($quizParTheme as $nomTheme => $quizDuTheme) {
             if (empty($quizDuTheme)) {
-                continue; // thème sans quiz : pas de groupe
+                continue;
             }
 
             $groupe = ['theme' => $nomTheme, 'ouvert' => false, 'quiz' => []];
 
-            // array_column() donne [id => titre], que les quiz soient des tableaux ou des objets
+
             foreach (array_column($quizDuTheme, 'titre', 'id') as $idQuiz => $titre) {
                 $coche = in_array((string) $idQuiz, $quizCoches, true);
 
@@ -474,18 +444,16 @@ class AdminThemeController extends BaseController
             $groupesQuiz[] = $groupe;
         }
 
-        // Extraits triés par titre. usort() compare les extraits deux par deux
-        // avec une fonction anonyme (fonction sans nom, écrite à l'endroit où elle sert).
         usort($extraitList, function (array $a, array $b): int {
             return strcasecmp($a['titre'], $b['titre']);
         });
 
-        // Extraits regroupés par type. Un groupe est ouvert s'il contient l'extrait choisi.
+
         $idExtraitChoisi = (string) ($form->id_extrait ?? '');
         $groupesExtraits = [];
 
         foreach ($extraitList as $extrait) {
-            // Libellé du type (« Requête HTTP » pour http), ou la valeur brute si le type est inconnu
+
             $type = $typesExtrait[$extrait['type']] ?? $extrait['type'];
 
             if (! isset($groupesExtraits[$type])) {
@@ -494,8 +462,6 @@ class AdminThemeController extends BaseController
 
             $choisi = (string) $extrait['id'] === $idExtraitChoisi;
 
-            // Début du contenu, affiché sous le titre : retours à la ligne remplacés par des espaces,
-            // puis coupé à 160 caractères
             $debut = preg_replace('/\s+/u', ' ', (string) $extrait['contenu']);
             $debut = mb_strimwidth(trim($debut), 0, 160, '…');
 
@@ -512,7 +478,7 @@ class AdminThemeController extends BaseController
             }
         }
 
-        // Groupes dans l'ordre alphabétique des types (ksort trie selon les clés du tableau)
+        // Trie selon les clés du tableau dans l'ordre alphabetique
         ksort($groupesExtraits);
 
         $data = [
@@ -533,10 +499,9 @@ class AdminThemeController extends BaseController
     /**
      * Modification / suppression de l'extrait existant choisi dans le formulaire de question.
      *
-     * @param string $action Action demandée (modifier_extrait, enregistrer_extrait, supprimer_extrait,
-     *                       annuler_extrait). La suppression est immédiate, sans confirmation.
-     * @param QuestionForm $form Formulaire en cours (mis à jour).
-     * @param array $errors Erreurs à afficher (complété).
+     * @param string $action Action demandée
+     * @param QuestionForm $form Formulaire en cours
+     * @param array $errors Erreurs à afficher
      * @return string|null Message de réussite à afficher, ou null.
      *
      * @author Arthur
@@ -557,7 +522,6 @@ class AdminThemeController extends BaseController
             return null;
         }
 
-        // Autres questions que celle en cours qui utilisent cet extrait
         $autresQuestions = $this->extrait_model->compterQuestions($idExtrait, (int) ($form->modifier ?? 0));
 
         switch ($action) {
@@ -652,7 +616,6 @@ class AdminThemeController extends BaseController
     {
         $base = 'floribondant/theme/quiz';
 
-        // Colonnes du tableau
         $colonnes = [
             'titre'        => ['entete' => 'Titre', 'phrase' => 'par titre', 'asc' => 'de A à Z', 'desc' => 'de Z à A'],
             'theme_nom'    => ['entete' => 'Thème', 'phrase' => 'par thème', 'asc' => 'de A à Z', 'desc' => 'de Z à A'],
@@ -660,7 +623,6 @@ class AdminThemeController extends BaseController
             'actif'        => ['entete' => 'Actif', 'phrase' => 'par visibilité', 'asc' => 'inactifs d\'abord', 'desc' => 'actifs d\'abord'],
         ];
 
-        // 1. Paramètres de l'URL
         $themeSelect = (int) ($this->request->getGet('id_theme') ?? -1);
 
         $tri = $this->request->getGet('tri');
@@ -673,20 +635,16 @@ class AdminThemeController extends BaseController
             $ordre = 'desc';
         }
 
-        // 2. Quiz du thème choisi (-1 = tous les thèmes)
+        // 2. Quiz du thème choisi, -1 = tous les thèmes
         $quizList = $this->quiz_model->getQuizAdmin($themeSelect);
 
-        // Tri en PHP avec une fonction anonyme (voir l'explication dans index())
         if ($tri !== null) {
             $collator = new \Collator('fr_FR');
 
             usort($quizList, function (array $a, array $b) use ($tri, $ordre, $collator): int {
                 if ($tri === 'nb_questions' || $tri === 'actif') {
-                    // Nombres : comparés comme des nombres (en texte, "10" serait avant "9").
-                    // <=> renvoie -1 si a < b, 0 si a = b, 1 si a > b
                     $resultat = (int) ($a[$tri] ?? 1) <=> (int) ($b[$tri] ?? 1);
                 } else {
-                    // Textes : ordre alphabétique français
                     $resultat = $collator->compare((string) $a[$tri], (string) $b[$tri]);
                 }
 
@@ -698,7 +656,6 @@ class AdminThemeController extends BaseController
             });
         }
 
-        // 3. Pagination : 20 quiz par page
         $parPage = 20;
         $totalQuiz = count($quizList);
         $nbPages = max(1, (int) ceil($totalQuiz / $parPage));
@@ -711,7 +668,6 @@ class AdminThemeController extends BaseController
             $page = $nbPages;
         }
 
-        // 4. Liens pour la vue
         $parametresTri = [];
         if ($tri !== null) {
             $parametresTri = ['tri' => $tri, 'ordre' => $ordre];
@@ -750,7 +706,7 @@ class AdminThemeController extends BaseController
     {
         $base = 'floribondant/theme/lecons';
 
-        // Colonnes du tableau : texte de l'en-tête, puis les phrases qui décrivent le tri
+
         $colonnes = [
             'titre'      => ['entete' => 'Titre', 'phrase' => 'par titre', 'asc' => 'de A à Z', 'desc' => 'de Z à A'],
             'theme'      => ['entete' => 'Thème', 'phrase' => 'par thème', 'asc' => 'de A à Z', 'desc' => 'de Z à A'],
@@ -759,12 +715,11 @@ class AdminThemeController extends BaseController
             'date_modif' => ['entete' => 'Dernière modification', 'phrase' => 'par date de modification', 'asc' => 'de la plus ancienne à la plus récente', 'desc' => 'de la plus récente à la plus ancienne'],
         ];
 
-        // 1. Paramètres de l'URL (exemple : ?id_theme=2&tri=titre&ordre=asc&page=2)
         $themeSelect = (int) ($this->request->getGet('id_theme') ?? -1);
 
         $tri = $this->request->getGet('tri');
         if (! in_array($tri, array_keys($colonnes), true)) {
-            $tri = null; // colonne inconnue ou absente : ordre par défaut
+            $tri = null;
         }
 
         $ordre = 'asc';
@@ -772,14 +727,12 @@ class AdminThemeController extends BaseController
             $ordre = 'desc';
         }
 
-        // 2. Leçons du thème choisi (null = tous les thèmes), triées par le modèle
         $idTheme = null;
         if ($themeSelect > 0) {
             $idTheme = $themeSelect;
         }
         $lecons = $this->lecon_model->getAllLecons($idTheme, $tri, $ordre);
 
-        // 3. Pagination : 20 leçons par page
         $parPage = 20;
         $totalLecons = count($lecons);
         $nbPages = max(1, (int) ceil($totalLecons / $parPage));
@@ -792,7 +745,6 @@ class AdminThemeController extends BaseController
             $page = $nbPages;
         }
 
-        // 4. Liens pour la vue (méthodes privées en bas du contrôleur) : on garde le tri quand on change de thème, et le thème quand on change de tri
         $parametresTri = [];
         if ($tri !== null) {
             $parametresTri = ['tri' => $tri, 'ordre' => $ordre];
@@ -802,7 +754,6 @@ class AdminThemeController extends BaseController
             $parametresTheme = ['id_theme' => $themeSelect];
         }
 
-        // Un formulaire de leçon resté en session ne sert plus quand on revient à la liste
         session()->remove('leconForm');
 
         $data = [

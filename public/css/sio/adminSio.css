@@ -1319,3 +1319,70 @@
     background: var(--bg-hover-primary);
     box-shadow: inset 4px 0 0 var(--color-primary-blue);
 }
+
+/* ==========================================
+   Quiz : modal « Nouvelle question »
+   Le formulaire de question est chargé dans un iframe (?modal=1)
+   Script : js/sio-admin-modal-question.js
+   Auteur : Arthur
+   ========================================== */
+.sio-admin__dialog {
+    width: min(1200px, calc(100% - 32px));
+    height: min(90vh, 1000px);
+    max-width: none;
+    max-height: none;
+    margin: auto;
+    padding: 0;
+    border: none;
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--white);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.sio-admin__dialog[open] {
+    display: flex;
+    flex-direction: column;
+}
+
+.sio-admin__dialog::backdrop {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+}
+
+.sio-admin__dialog-entete {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-divider-medium);
+}
+
+.sio-admin__dialog-fermer {
+    width: 44px;
+    height: 44px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--text-primary);
+    font-size: 1.75rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.sio-admin__dialog-fermer:hover,
+.sio-admin__dialog-fermer:focus-visible {
+    background: var(--bg-hover-primary);
+}
+
+.sio-admin__dialog-cadre {
+    flex: 1 1 auto;
+    width: 100%;
+    border: none;
+}
+
+/* Page affichée dans le modal : pas d'en-tête de site à compenser (style.css) */
+body.sio-admin-modal {
+    padding-top: 0;
+}

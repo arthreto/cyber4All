@@ -13,6 +13,8 @@
  * - $typesExtrait : types d'extrait [valeur => libellé] (modification d'un extrait)
  * - $infoExtrait     : message après une action sur un extrait (modifié, supprimé), ou null
  * - $errors          : erreurs de validation [champ => message]
+ * - $modal           : true si le formulaire est affiché dans le modal du formulaire d'un quiz
+ *                      (iframe, adresse avec ?modal=1) : pas de lien de retour, « Annuler » ferme le modal
  *
  * Mise en page sur deux colonnes :
  * - à gauche, la question (thème, énoncé, bonne réponse, explication) et l'extrait facultatif ;
@@ -32,12 +34,16 @@
 
 $errors = $errors ?? [];
 
-// Mode du formulaire : en modification, l'id de la question est dans l'URL
 $estModification = ! empty($form->modifier);
 if ($estModification) {
     $actionFormulaire = 'floribondant/theme/questions/modifier/' . (int) $form->modifier;
 } else {
     $actionFormulaire = 'floribondant/theme/questions/ajouter';
+}
+
+$modal = $modal ?? false;
+if ($modal) {
+    $actionFormulaire = site_url($actionFormulaire) . '?modal=1';
 }
 
 // Option choisie pour l'extrait (aucun, existant, nouveau), et extrait en cours de modification
@@ -51,16 +57,9 @@ $labelRequis = ['class' => 'glossary-form__label glossary-form__label--required'
 // Types d'extrait pour les listes déroulantes (libellés échappés)
 $optionsTypes = esc($typesExtrait);
 
-// Deux petites fonctions anonymes (des fonctions sans nom, rangées dans une variable).
-// On les appelle comme une fonction normale : $erreurChamp('libelle').
-// fn (...) => ... est l'écriture courte : la fonction renvoie directement le résultat après =>.
-// use ($errors) n'est pas nécessaire avec fn : elle voit automatiquement les variables du fichier.
-
-// Classe d'un champ, avec en plus la classe d'erreur si le champ est en erreur
 $classeChamp = fn (string $classe, string $champ): string
     => $classe . (isset($errors[$champ]) ? ' sio-admin__input--erreur' : '');
 
-// Message d'erreur à afficher sous un champ (texte vide s'il n'y a pas d'erreur)
 $erreurChamp = fn (string $champ): string
     => isset($errors[$champ]) ? '<p class="sio-admin__erreur">' . esc($errors[$champ]) . '</p>' : '';
 ?>
@@ -68,11 +67,13 @@ $erreurChamp = fn (string $champ): string
 
     <div class="glossary-form">
 
-        <!-- Titre de la page et lien de retour sur la même ligne -->
-        <div class="sio-admin__entete-form">
-            <h2 class="glossary-form__dialog-title"><?= $estModification ? 'Modifier la question' : 'Nouvelle question' ?></h2>
-            <?= anchor('floribondant/theme', '← Retour aux questions', ['class' => 'sio-admin__retour']) ?>
-        </div>
+        <!-- Titre de la page et lien de retour sur la même ligne (dans le modal, le titre est dans l'en-tête du modal) -->
+        <?php if (! $modal): ?>
+            <div class="sio-admin__entete-form">
+                <h2 class="glossary-form__dialog-title"><?= $estModification ? 'Modifier la question' : 'Nouvelle question' ?></h2>
+                <?= anchor('floribondant/theme', '← Retour aux questions', ['class' => 'sio-admin__retour']) ?>
+            </div>
+        <?php endif; ?>
 
         <?php if (! empty($errors)): ?>
             <!-- Récapitulatif des erreurs (ul() n'échappe pas les éléments : esc() sur tout le tableau) -->
@@ -404,7 +405,17 @@ $erreurChamp = fn (string $champ): string
 
         <!-- Barre d'enregistrement : toujours visible en bas de l'écran -->
         <div class="sio-admin__barre">
-            <?= anchor('floribondant/theme', 'Annuler', ['class' => 'sio-admin__btn-secondaire']) ?>
+            <?php if ($modal): ?>
+                <!-- Ferme le modal sans enregistrer (js/sio-admin-modal-question.js) -->
+                <?= form_button([
+                    'type'              => 'button',
+                    'content'           => 'Annuler',
+                    'class'             => 'sio-admin__btn-secondaire',
+                    'data-modal-fermer' => '',
+                ]) ?>
+            <?php else: ?>
+                <?= anchor('floribondant/theme', 'Annuler', ['class' => 'sio-admin__btn-secondaire']) ?>
+            <?php endif; ?>
             <!-- form_button() et non form_submit() : le contrôleur attend action = "enregistrer" -->
             <?= form_button([
                 'type'    => 'submit',

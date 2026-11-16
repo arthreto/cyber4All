@@ -9,10 +9,8 @@ use CodeIgniter\Exceptions\PageNotFoundException;
 use CodeIgniter\I18n\Time;
 
 /**
- * Ce controller gère les leçons de l'Espace compréhension SIO (administration) :
- * liste, ajout / modification et suppression.
+ * Ce controller gère les leçons de l'Espace compréhension SIO (administration)
  *
- * Le contrôle de l'administrateur et les méthodes des listes sont dans AdminController.
  *
  * @since 2.0.0
  * @package Cyber4all
@@ -25,7 +23,6 @@ class AdminLeconController extends AdminController
 
     public function __construct()
     {
-        // Constructeur du parent : session, ThemeModel et vérification de l'administrateur
         parent::__construct();
 
         $this->lecon_model = new LeconModel();
@@ -33,7 +30,7 @@ class AdminLeconController extends AdminController
     }
 
     /**
-     * Liste des leçons : filtre par thème, tri et pagination.
+     * Liste des leçons
      *
      * @return string
      * @author Raphael BIERLAIRE
@@ -42,7 +39,6 @@ class AdminLeconController extends AdminController
     {
         $base = 'floribondant/theme/lecons';
 
-        // Colonnes du tableau : texte de l'en-tête, puis les phrases qui décrivent le tri
         $colonnes = [
             'titre'      => ['entete' => 'Titre', 'phrase' => 'par titre', 'asc' => 'de A à Z', 'desc' => 'de Z à A'],
             'theme'      => ['entete' => 'Thème', 'phrase' => 'par thème', 'asc' => 'de A à Z', 'desc' => 'de Z à A'],
@@ -51,12 +47,11 @@ class AdminLeconController extends AdminController
             'date_modif' => ['entete' => 'Dernière modification', 'phrase' => 'par date de modification', 'asc' => 'de la plus ancienne à la plus récente', 'desc' => 'de la plus récente à la plus ancienne'],
         ];
 
-        // 1. Paramètres de l'URL (exemple : ?id_theme=2&tri=titre&ordre=asc&page=2)
         $themeSelect = (int) ($this->request->getGet('id_theme') ?? -1);
 
         $tri = $this->request->getGet('tri');
         if (! in_array($tri, array_keys($colonnes), true)) {
-            $tri = null; // colonne inconnue ou absente : ordre par défaut
+            $tri = null; // colonne inconnue ou absente
         }
 
         $ordre = 'asc';
@@ -64,7 +59,7 @@ class AdminLeconController extends AdminController
             $ordre = 'desc';
         }
 
-        // 2. Leçons du thème choisi (null = tous les thèmes), triées par le modèle
+        // Leçons du thème choisi (null pour tous les thèmes)
         $idTheme = null;
         if ($themeSelect > 0) {
             $idTheme = $themeSelect;
@@ -76,7 +71,7 @@ class AdminLeconController extends AdminController
         $idNouveau = (int) ($this->session->getFlashdata('id_nouveau') ?? 0);
         $lecons = $this->ordonnerListe($lecons, $idNouveau);
 
-        // 3. Pagination : 20 leçons par page
+        // Pagination
         $parPage = 20;
         $totalLecons = count($lecons);
         $nbPages = max(1, (int) ceil($totalLecons / $parPage));
@@ -89,7 +84,7 @@ class AdminLeconController extends AdminController
             $page = $nbPages;
         }
 
-        // 4. Liens pour la vue (méthodes privées en bas du contrôleur) : on garde le tri quand on change de thème, et le thème quand on change de tri
+        // Liens pour la vue
         $parametresTri = [];
         if ($tri !== null) {
             $parametresTri = ['tri' => $tri, 'ordre' => $ordre];
@@ -99,7 +94,7 @@ class AdminLeconController extends AdminController
             $parametresTheme = ['id_theme' => $themeSelect];
         }
 
-        // Un formulaire de leçon resté en session ne sert plus quand on revient à la liste
+        // formulaire de leçon ne sert plus quand on revient à la liste
         $this->session->remove('leconForm');
 
         $data = [
@@ -150,8 +145,8 @@ class AdminLeconController extends AdminController
     /**
      * Ajout ou modification d'une leçon.
      *
-     * L'auteur est enregistré à la création (id_auteur),
-     * le dernier modificateur à chaque modification (id_auteur_modif).
+     * L'auteur est enregistré à la création,
+     * le dernier modificateur à chaque modification.
      *
      * @param int|null $idLeconModif Identifiant de la leçon à modifier, null pour un ajout.
      * @return mixed
@@ -162,7 +157,6 @@ class AdminLeconController extends AdminController
     {
         $form = $this->session->get('leconForm');
 
-        // Le formulaire en session concerne une autre leçon : on repart de zéro
         if ($form !== null && (int) ($form->modifier ?? 0) !== (int) ($idLeconModif ?? 0)) {
             $form = null;
         }
@@ -180,9 +174,8 @@ class AdminLeconController extends AdminController
                 $form->fill($lecon->toArray());
                 $form->modifier = $idLeconModif;
 
-                // Informations en lecture seule affichées par la vue
-                $form->auteur       = $this->getPseudo($lecon->id_auteur);
-                $form->auteur_modif = $this->getPseudo($lecon->id_auteur_modif);
+                $form->auteur       = $this->utilisateur_model->getUtilisateurById($lecon->id_auteur)?->pseudo;
+                $form->auteur_modif = $this->utilisateur_model->getUtilisateurById($lecon->id_auteur_modif)?->pseudo;
                 $form->date_ajout   = $this->formaterDate($lecon->date_ajout);
                 $form->date_modif   = $this->formaterDate($lecon->date_modif);
             }
@@ -191,7 +184,7 @@ class AdminLeconController extends AdminController
         $errors = [];
 
         if ($this->request->is('post')) {
-            // Uniquement les champs du formulaire (ni jeton CSRF, ni action, ni champ ajouté à la main)
+
             $form->fill($this->request->getPost(['id_theme', 'titre', 'contenu', 'actif']));
 
             $action = $this->request->getPost('action');
@@ -200,7 +193,6 @@ class AdminLeconController extends AdminController
                 $formData = [
                     'id_theme' => $this->request->getPost('id_theme') ?? '',
                     'titre'    => trim($this->request->getPost('titre') ?? ''),
-                    // Pas de trim sur le contenu : les espaces font partie de la mise en forme Markdown
                     'contenu'  => $this->request->getPost('contenu') ?? '',
                     'actif'    => $this->request->getPost('actif') ?? '0',
                 ];
@@ -243,7 +235,7 @@ class AdminLeconController extends AdminController
                 if (!$this->validateData($formData, $rules)) {
                     $errors = $this->validator->getErrors();
                 } elseif ($this->theme_model->find((int) $formData['id_theme']) === null) {
-                    // Le numéro est valide, mais aucun thème ne porte cet id
+                    // Le numéro est valide  mais aucun thème n'a cet id
                     $errors['id_theme'] = "Le thème choisi n'existe pas.";
                 }
 
@@ -293,26 +285,9 @@ class AdminLeconController extends AdminController
     }
 
     /**
-     * Retourne le pseudo d'un utilisateur à partir de son identifiant.
+     * Formate une date de la base
      *
-     * @param int|null $idUtilisateur Identifiant de l'utilisateur, ou null.
-     * @return string|null Pseudo de l'utilisateur, ou null si aucun id ou utilisateur introuvable.
-     *
-     * @author Raphael BIERLAIRE
-     */
-    private function getPseudo(int|null $idUtilisateur): ?string
-    {
-        if ($idUtilisateur === null) {
-            return null;
-        }
-
-        return $this->utilisateur_model->getUtilisateurById((int) $idUtilisateur)?->pseudo;
-    }
-
-    /**
-     * Formate une date de la base (texte ou objet Time) au format jj/mm/aaaa hh:mm.
-     *
-     * @param mixed $date Date à formater (chaîne, objet Time ou null).
+     * @param mixed $date Date à formater
      * @return string|null Date formatée, ou null si aucune date.
      *
      * @author Raphael BIERLAIRE
