@@ -30,20 +30,13 @@ class OwaspModel extends Model
     {
         $numero = $num + 10;
         $db = db_connect('owasp');
-        $query = $db->table('menace')->select('id_menace, nom_menace')->where('id_menace >', $num)->groupStart()->where('id_menace <', $numero)->get()->getResult();
+        $query = $db->table('menace')->select('id_menace, nom_menace')->where('id_menace >', $num)->groupStart()->where('id_menace <=', $numero)->groupEnd()->get()->getResult();
         return $query;
     }
     public function test1 (int $num)
     {
         $db = db_connect('owasp');
         $query = $db->table('menace')->select('desc_menace, nom_menace, prog_menace, desc_cm, prog_cm')->join('contre_mesure', 'menace.id_menace = contre_mesure.menace_id')->where('id_menace =', $num)->get()->getResult();
-        return $query;
-    }
-
-    public function getMenacesWeb()
-    {
-        $db = db_connect('owasp');
-        $query = $db->table('menace')->where('id_menace')->get()->getResult();
         return $query;
     }
 
