@@ -45,9 +45,9 @@ class OwaspController extends BaseController
                 view('owasp/footerView');
     }
 
-    public function getMenace($id)
+    public function getMenace($top)
     {
-        $menace = $this->Menace->getMenace($id);
+        $menace = $this->Menace->getMenace($top);
         $data['nom'] = $menace[0]->nom_menace;
         $data['description'] = $menace[0]->desc_menace;
         $data['prog'] = $menace[0]->prog_menace;
