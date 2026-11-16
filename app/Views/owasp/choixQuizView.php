@@ -6,7 +6,7 @@
 
         <div class="quiz-choice">
             <?= anchor('quiz/api', 'API', ['class' => 'back-button-api']) ?>
-            <?= anchor('quiz/web', 'WEB', ['class' => 'back-button-web']) ?>
+            <?= anchor('quiz/web', 'WEB', ['class' => 'back-button']) ?>
         </div>
     </article>
 </main>
