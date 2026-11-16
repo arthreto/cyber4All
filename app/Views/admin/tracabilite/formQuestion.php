@@ -92,8 +92,14 @@ $erreurChamp = fn (string $champ): string
 
                 <?= form_fieldset('<span class="glossary-form__label">Question</span>', ['class' => 'sio-admin__bloc-quiz']) ?>
 
-                    <!-- Thème : il choisit les quiz et les extraits proposés -->
-                    <?= form_fieldset('<span class="glossary-form__label glossary-form__label--required">Thème</span>', ['class' => 'sio-admin__fieldset']) ?>
+                    <!-- Thème : il choisit les quiz et les extraits proposés. -->
+                    <?php
+                    $attributsTheme = ['class' => 'sio-admin__fieldset'];
+                    if ($modal) {
+                        $attributsTheme['hidden'] = 'hidden';
+                    }
+                    ?>
+                    <?= form_fieldset('<span class="glossary-form__label glossary-form__label--required">Thème</span>', $attributsTheme) ?>
                         <div class="sio-admin__radios sio-admin__radios--cartes<?= isset($errors['id_theme']) ? ' sio-admin__radios--erreur' : '' ?>">
                             <?php foreach ($blocsThemes as $theme): ?>
                                 <?= form_label(
