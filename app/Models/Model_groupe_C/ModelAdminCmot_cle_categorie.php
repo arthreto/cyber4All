@@ -10,5 +10,5 @@ class ModelAdminCmot_cle_categorie extends Model
     protected $primaryKey = 'id_mot_cle';
 
     protected $useAutoIncrement = false;
-    protected $allowedFields = ['id_mot_cle', 'DISPONIBILITE','INTEGRITE','CONFIDENTIALITE','TRACABILITE'];
+    protected $allowedFields = ['id_mot_cle', 'disponibilite','integrite','confidentialite','tracabilite'];
 }
