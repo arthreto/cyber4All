@@ -104,6 +104,16 @@ endif;
                                 ]
                         ) ?>
                     </li>
+                        <li class="menu-nav__item">
+                            <?= anchor(
+                                    base_url('glossaire/mot/21'),
+                                    'OWASP',
+                                    [
+                                            'title'=>"L'espace OWASP",
+                                            'class'=>"menu-nav__lien"
+                                    ]
+                            ) ?>
+                        </li>
                     <?php endif; ?>
                 </ul>
             </nav>

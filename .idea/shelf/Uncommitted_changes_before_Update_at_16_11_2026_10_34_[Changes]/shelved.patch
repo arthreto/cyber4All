@@ -1,0 +1,85 @@
+Index: app/Models/OwaspModel.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?php\r\n\r\nnamespace App\\Models;\r\n\r\nuse CodeIgniter\\Database\\Exceptions\\DatabaseException;\r\nuse CodeIgniter\\Model;\r\n\r\nclass OwaspModel extends Model\r\n{\r\n\r\n    protected $DBGroup = 'owasp';\r\n    protected $table = [\r\n        'menace',\r\n        'tops'\r\n    ];\r\n    protected $primaryKey = [\r\n        'id_menace',\r\n        'id_top'\r\n    ];\r\n    protected $allowedFields = [\r\n        'id_menace',\r\n        'desc_menace',\r\n        'nom_menace',\r\n        'prog_menace',\r\n        'id_top',\r\n        'nom_top',\r\n        'edition_top',\r\n        'libelle_top'\r\n    ];\r\n    public function getMenaces(string $id): ?array\r\n    {\r\n        $db = db_connect('owasp');\r\n        $query = $db->table('menace')->\r\n        select('id_menace, nom_menace')->\r\n        where('tops_id', $id)->\r\n        get()->\r\n        getResult();\r\n        return $query;\r\n    }\r\n    public function getMenace(int $num)\r\n    {\r\n        $db = db_connect('owasp');\r\n        $query = $db->table('menace')->\r\n        select('desc_menace, nom_menace, prog_menace, desc_cm, prog_cm')->\r\n        join('contre_mesure', 'menace.id_menace = contre_mesure.menace_id')->\r\n        where('id_menace =', $num)->\r\n        get()->\r\n        getResult();\r\n        return $query;\r\n    }\r\n\r\n    public function getTopById(string $top): ?object\r\n    {\r\n        try {\r\n            return $this->select('nom_top, edition_top, libelle_top')\r\n                ->where('id_top', $top)\r\n                ->get()\r\n                ->getRow();\r\n        } catch (DatabaseException $e) {\r\n            log_message('error', \"Erreur getTopById (Top numéro {id}): {message}\", [\r\n                'id' => $top,\r\n                'message' => $e->getMessage(),\r\n            ]);\r\n\r\n            return null;\r\n        }\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/Models/OwaspModel.php b/app/Models/OwaspModel.php
+--- a/app/Models/OwaspModel.php	(revision a47f58e3f8d6c5144b9ab3ce370e55bc2822697f)
++++ b/app/Models/OwaspModel.php	(date 1794821387908)
+@@ -37,13 +37,13 @@
+         getResult();
+         return $query;
+     }
+-    public function getMenace(int $num)
++    public function getMenace(string $top)
+     {
+         $db = db_connect('owasp');
+         $query = $db->table('menace')->
+         select('desc_menace, nom_menace, prog_menace, desc_cm, prog_cm')->
+         join('contre_mesure', 'menace.id_menace = contre_mesure.menace_id')->
+-        where('id_menace =', $num)->
++        where('tops_id', $top)->
+         get()->
+         getResult();
+         return $query;
+Index: app/Controllers/OwaspController.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?php\r\n\r\nnamespace App\\Controllers;\r\n\r\nuse App\\Models\\OwaspModel;\r\n\r\nclass OwaspController extends BaseController\r\n{\r\n    protected OwaspModel $Menace;\r\n    protected OwaspModel $Top;\r\n    public function __construct()\r\n    {\r\n        $this->Menace = new OwaspModel();\r\n        $this->Top = new OwaspModel();\r\n    }\r\n\r\n    public function getMenaces($top): string\r\n    {\r\n        if ($top=='WEB')\r\n        {\r\n            $data['Vulnerabilities'] = [];\r\n            $tableau_temp = $this->Menace->getMenaces('WEB');\r\n            foreach ($tableau_temp as $menaces)\r\n            {\r\n                $nom = $menaces->nom_menace;\r\n                $data['Vulnerabilities'][$nom] = $menaces->id_menace;\r\n            }\r\n            $data['Top'] = $this->Top->getTopById($top);\r\n            $data['nom_top'] = 'web';\r\n        }\r\n        else if ($top=='API'){\r\n            $data['Vulnerabilities'] = [];\r\n            $tableau_temp = $this->Menace->getMenaces('API');\r\n            foreach ($tableau_temp as $menaces)\r\n            {\r\n                $nom = $menaces->nom_menace;\r\n                $data['Vulnerabilities'][$nom] = ($menaces->id_menace)-10;\r\n            }\r\n            $data['Top'] = $this->Top->getTopById($top);\r\n            $data['nom_top'] = 'api';\r\n        }\r\n        if (!$data['Top']) { throw new \\CodeIgniter\\Exceptions\\PageNotFoundException(); }\r\n            return view('owasp/headerView', $data) .\r\n                view('owasp/listeRisqueView', $data) .\r\n                view('owasp/footerView');\r\n    }\r\n\r\n    public function getMenace($id)\r\n    {\r\n        $menace = $this->Menace->getMenace($id);\r\n        $data['nom'] = $menace[0]->nom_menace;\r\n        $data['description'] = $menace[0]->desc_menace;\r\n        $data['prog'] = $menace[0]->prog_menace;\r\n        foreach ($menace as $element)\r\n        {\r\n            $i =+ 1;\r\n            $data['prog_cm'][$i] = $element->prog_cm;\r\n            $data['description_cm'][$i] = $element->desc_cm;\r\n        }\r\n        $data['Top'] = $this->Top->getTopById($top);\r\n        return view('owasp/headerView', $data) .\r\n            view('owasp/apiMenaceView', $data) .\r\n            view('owasp/footerView');\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/Controllers/OwaspController.php b/app/Controllers/OwaspController.php
+--- a/app/Controllers/OwaspController.php	(revision a47f58e3f8d6c5144b9ab3ce370e55bc2822697f)
++++ b/app/Controllers/OwaspController.php	(date 1794820017402)
+@@ -26,7 +26,7 @@
+                 $data['Vulnerabilities'][$nom] = $menaces->id_menace;
+             }
+             $data['Top'] = $this->Top->getTopById($top);
+-            $data['nom_top'] = 'web';
++            $data['nom_top'] = 'WEB';
+         }
+         else if ($top=='API'){
+             $data['Vulnerabilities'] = [];
+@@ -37,7 +37,7 @@
+                 $data['Vulnerabilities'][$nom] = ($menaces->id_menace)-10;
+             }
+             $data['Top'] = $this->Top->getTopById($top);
+-            $data['nom_top'] = 'api';
++            $data['nom_top'] = 'API';
+         }
+         if (!$data['Top']) { throw new \CodeIgniter\Exceptions\PageNotFoundException(); }
+             return view('owasp/headerView', $data) .
+@@ -45,9 +45,9 @@
+                 view('owasp/footerView');
+     }
+ 
+-    public function getMenace($id)
++    public function getMenace($top)
+     {
+-        $menace = $this->Menace->getMenace($id);
++        $menace = $this->Menace->getMenace($top);
+         $data['nom'] = $menace[0]->nom_menace;
+         $data['description'] = $menace[0]->desc_menace;
+         $data['prog'] = $menace[0]->prog_menace;
+Index: app/Views/owasp/listeRisqueView.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+> <main class=\"detail-preview\">\r\n    <article class=\"detail-page\">\r\n        <p class=\"eyebrow\">Classement officiel</p>\r\n        <section class=\"top-ten\">\r\n            <div class=\"section-heading\">\r\n\r\n                <h2>Top 10 des risques de sécurité</h2>\r\n                <p>Chaque élément présente la traduction française de la description officielle.</p>\r\n            </div>\r\n\r\n            <ol class=\"risk-list\">\r\n                <?php if (!empty($Vulnerabilities)):\r\n                    foreach ($Vulnerabilities as $nom => $id):\r\n                        $contenu = '\r\n                            <span class=\"risk-rank\">' . $id . '</span>\r\n                            <div class=\"risk-content\">\r\n                                <strong>' . esc($nom) . '</strong>\r\n                            </div>\r\n                            <span class=\"risk-list-arrow\" aria-hidden=\"true\">⟶</span>'; ?>\r\n                        <li>\r\n                            <?= anchor(base_url() . 'top10/api/detail/' . $nom_top .'/' . $id, $contenu, ['class' => 'risk-card']) ?>\r\n                        </li>\r\n                    <?php endforeach;\r\n                endif; ?>\r\n            </ol>\r\n        </section>\r\n\r\n    </article>\r\n</main>\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/Views/owasp/listeRisqueView.php b/app/Views/owasp/listeRisqueView.php
+--- a/app/Views/owasp/listeRisqueView.php	(revision a47f58e3f8d6c5144b9ab3ce370e55bc2822697f)
++++ b/app/Views/owasp/listeRisqueView.php	(date 1794819361313)
+@@ -18,7 +18,7 @@
+                             </div>
+                             <span class="risk-list-arrow" aria-hidden="true">⟶</span>'; ?>
+                         <li>
+-                            <?= anchor(base_url() . 'top10/api/detail/' . $nom_top .'/' . $id, $contenu, ['class' => 'risk-card']) ?>
++                            <?= anchor(base_url() . 'top10/api/detail/' . $nom_top, $contenu, ['class' => 'risk-card']) ?>
+                         </li>
+                     <?php endforeach;
+                 endif; ?>
