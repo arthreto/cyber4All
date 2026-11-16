@@ -45,6 +45,7 @@ class OwaspController extends BaseController
             return view('header', $data) .
                 view('owasp/headerView', $data) .
                 view('owasp/listeRisqueView', $data) .
+                view('owasp/choixQuizView') .
                 view('owasp/footerView');
     }
 
