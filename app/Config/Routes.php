@@ -71,7 +71,10 @@ $routes->group('floribondant', static function ($routes) {
     $routes->match(['GET', 'POST'], 'theme/lecons/modifier/(:num)', 'admin\AdminLeconController::leconAjouter/$1');
     $routes->match(['GET', 'POST'], 'theme/lecons/supprimer/(:num)', 'admin\AdminLeconController::leconSupprimer/$1');
 
-
+    $routes->match(['GET', 'POST'], 'theme/extrait', 'admin\AdminExtraitController::index');
+    $routes->match(['GET', 'POST'], 'theme/extrait/ajouter', 'admin\AdminExtraitController::extraitAjouter');
+    $routes->match(['GET', 'POST'], 'theme/extrait/modifier/(:num)', 'admin\AdminExtraitController::extraitAjouter/$1');
+    $routes->match(['GET', 'POST'], 'theme/extrait/supprimer/(:num)', 'admin\AdminExtraitController::extraitSupprimer/$1');
 
 
     $routes->post('signalement/supprimer', 'SignalementController::supprimerSignalement');

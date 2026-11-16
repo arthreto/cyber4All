@@ -229,7 +229,6 @@ class AdminQuestionController extends AdminController
         }
 
         $errors = [];
-        $infoExtrait = null;
         $themeList = $this->theme_model->getAllThemes();
         $extraitList = $this->extrait_model->getAllExtraits();
 
@@ -248,16 +247,9 @@ class AdminQuestionController extends AdminController
             }
 
             $action = (string) $this->request->getPost('action');
-            $actionsExtrait = ['modifier_extrait', 'enregistrer_extrait', 'supprimer_extrait', 'annuler_extrait'];
 
-            if (! in_array($action, $actionsExtrait, true)) {
-                $form->extrait_action = null;
-            }
-
-            if (in_array($action, $actionsExtrait, true)) {
-                $infoExtrait = $this->gererActionExtrait($action, $form, $errors);
-                $extraitList = $this->extrait_model->getAllExtraits();
-            } elseif ($action === 'enregistrer') {
+            // Les extraits se modifient et se suppriment dans l'onglet « Extrait » (AdminExtraitController)
+            if ($action === 'enregistrer') {
                 $idTheme = (int) ($this->request->getPost('id_theme') ?? 0);
                 $typeTheme = '';
                 foreach ($themeList as $theme) {
@@ -538,8 +530,6 @@ class AdminQuestionController extends AdminController
         $data = [
             'form'         => $form,
             'blocsThemes'  => $blocsThemes,
-            'typesExtrait' => ExtraitModel::TYPES,
-            'infoExtrait'  => $infoExtrait,
             'errors'       => $errors,
             'modal'        => $modal,
         ];
@@ -651,115 +641,5 @@ class AdminQuestionController extends AdminController
         }
 
         return $type;
-    }
-
-    /**
-     * Modification / suppression de l'extrait existant choisi dans le formulaire
-     *
-     * @param string $action Action demandée
-     * @param QuestionForm $form Formulaire en cours
-     * @param array $errors Erreurs à afficher
-     * @return string|null Message de réussite à afficher, ou null.
-     *
-     * @author Arthur
-     */
-    private function gererActionExtrait(string $action, QuestionForm $form, array &$errors): ?string
-    {
-        if ($action === 'annuler_extrait') {
-            $form->extrait_action = null;
-            return null;
-        }
-
-        $idExtrait = (int) ($form->id_extrait ?? 0);
-        $extrait = $idExtrait > 0 ? $this->extrait_model->find($idExtrait) : null;
-
-        if ($extrait === null) {
-            $form->extrait_action = null;
-            $errors['id_extrait'] = 'Veuillez choisir un extrait existant.';
-            return null;
-        }
-
-        $autresQuestions = $this->extrait_model->compterQuestions($idExtrait, (int) ($form->modifier ?? 0));
-
-        switch ($action) {
-            case 'modifier_extrait':
-                $form->extrait_action = 'modifier';
-                $form->edit_titre = $extrait['titre'];
-                $form->edit_type = $extrait['type'];
-                $form->edit_contenu = $extrait['contenu'];
-                return null;
-
-            case 'enregistrer_extrait':
-                $donnees = [
-                    'edit_titre'   => $form->edit_titre ?? '',
-                    'edit_type'    => $form->edit_type ?? '',
-                    'edit_contenu' => $form->edit_contenu ?? '',
-                ];
-
-                $rules = [
-                    'edit_titre' => [
-                        'label' => 'Titre de l’extrait',
-                        'rules' => 'required|max_length[100]',
-                        'errors' => [
-                            'required' => 'Veuillez renseigner le titre de l’extrait.',
-                            'max_length' => 'Le titre de l’extrait ne peut pas dépasser 100 caractères.',
-                        ],
-                    ],
-                    'edit_type' => [
-                        'label' => 'Type de l’extrait',
-                        'rules' => 'required|in_list[' . implode(',', array_keys(ExtraitModel::TYPES)) . ']',
-                        'errors' => [
-                            'required' => 'Veuillez choisir le type de l’extrait.',
-                            'in_list' => 'Le type de l’extrait est invalide.',
-                        ],
-                    ],
-                    'edit_contenu' => [
-                        'label' => 'Contenu de l’extrait',
-                        'rules' => 'required|max_length[5000]',
-                        'errors' => [
-                            'required' => 'Veuillez renseigner le contenu de l’extrait.',
-                            'max_length' => 'Le contenu de l’extrait ne peut pas dépasser 5000 caractères.',
-                        ],
-                    ],
-                ];
-
-                if (!$this->validateData($donnees, $rules)) {
-                    $errors = array_merge($errors, $this->validator->getErrors());
-                    return null;
-                }
-
-                $ok = $this->extrait_model->modifierExtrait($idExtrait, [
-                    'titre'   => $donnees['edit_titre'],
-                    'type'    => $donnees['edit_type'],
-                    'contenu' => $donnees['edit_contenu'],
-                ]);
-
-                if (!$ok) {
-                    $errors['extrait'] = "L'extrait n'a pas pu être modifié. Veuillez réessayer.";
-                    return null;
-                }
-
-                $form->extrait_action = null;
-                return 'Extrait modifié.';
-
-            case 'supprimer_extrait':
-                if ($autresQuestions > 0) {
-                    $form->extrait_action = null;
-                    $errors['extrait'] = "Cet extrait est utilisé par {$autresQuestions} autre(s) question(s) : il ne peut pas être supprimé.";
-                    return null;
-                }
-
-                if (!$this->extrait_model->supprimerExtrait($idExtrait)) {
-                    $errors['extrait'] = "L'extrait n'a pas pu être supprimé. Veuillez réessayer.";
-                    return null;
-                }
-
-                $form->extrait_action = null;
-                $form->id_extrait = null;
-                $form->extrait_mode = 'aucun';
-                return 'Extrait supprimé.';
-        }
-
-        return null;
     }
 }

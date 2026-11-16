@@ -1397,3 +1397,16 @@ body.sio-admin-modal {
 .sio-admin__questions--quiz .sio-admin__choix--ajoutee:has(input:checked) {
     border-color: var(--state-success);
 }
+/* ==========================================
+   Extraits : formulaire (formExtrait.php)
+   Auteur : Arthur
+   ========================================== */
+
+/* Questions qui utilisent l'extrait : une par ligne */
+.sio-admin__liste-questions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin: 0;
+    padding-left: 1.25rem;
+}

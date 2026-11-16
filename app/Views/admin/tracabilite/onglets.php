@@ -14,6 +14,7 @@ $onglets = [
     'lecons'    => ['libelle' => 'Leçons',    'url' => 'floribondant/theme/lecons'],
     'quiz'      => ['libelle' => 'Quiz',      'url' => 'floribondant/theme/quiz'],
     'questions' => ['libelle' => 'Questions', 'url' => 'floribondant/theme'],
+    'extrait'   => ['libelle' => 'Extrait', 'url' => 'floribondant/theme/extrait'],
 ];
 
 $ongletActif = $onglet;
