@@ -81,14 +81,22 @@
     lien.addEventListener('click', function (evenement) {
         evenement.preventDefault();
 
+        // La question prend le thème du quiz (pas de choix du thème dans le modal) :
+        // sans thème coché, le navigateur demande d'en choisir un
+        var themeCoche = document.querySelector('input[name="id_theme"]:checked');
+        if (!themeCoche) {
+            var premierTheme = document.querySelector('input[name="id_theme"]');
+            if (premierTheme) {
+                premierTheme.reportValidity();
+            }
+            return;
+        }
+
         var adresse = new URL(lien.href);
         adresse.searchParams.set('modal', '1');
 
         // Thème coché dans le quiz, et quiz lui-même s'il est déjà enregistré
-        var themeCoche = document.querySelector('input[name="id_theme"]:checked');
-        if (themeCoche) {
-            adresse.searchParams.set('id_theme', themeCoche.value);
-        }
+        adresse.searchParams.set('id_theme', themeCoche.value);
         if (lien.dataset.quiz) {
             adresse.searchParams.set('quiz', lien.dataset.quiz);
         }
