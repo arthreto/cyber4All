@@ -42,7 +42,8 @@ class OwaspController extends BaseController
             $data['nom_top'] = 'API';
         }
         if (!$data['Top']) { throw new \CodeIgniter\Exceptions\PageNotFoundException(); }
-            return view('owasp/headerView', $data) .
+            return view('header', $data) .
+                view('owasp/headerView', $data) .
                 view('owasp/listeRisqueView', $data) .
                 view('owasp/footerView');
     }
