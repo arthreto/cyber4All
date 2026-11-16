@@ -44,10 +44,6 @@ class AccueilController extends BaseController
         if ($utilisateur && in_array($utilisateur->role, ['contributeur', 'admin'], true)) {
             $this->utilisateur = $utilisateur;
         }
-
-        if ($utilisateur && $utilisateur->role === 'admin') {
-            throw PageNotFoundException::forPageNotFound('Accès refusé');
-        }
     }
 
     /**
