@@ -40,7 +40,6 @@ class QuizModel extends Model
     {
         // Requête ordonnée par le champ mot en ASC
         try {
-            log_message('error',count($this->findAll()));
             return $this->orderBy('titre', 'ASC')->findAll();
         } catch (DatabaseException $e) {
             log_message('error',"Erreur getAllQuiz : " . $e->getMessage());
@@ -50,13 +49,24 @@ class QuizModel extends Model
 
 
 
-    public function getAllQuizCategoryById(int $id): array
+    /**
+     * Récupère les quiz d'un thème.
+     *
+     * @param int  $id              Identifiant du thème
+     * @param bool $actifsSeulement true pour la page publique (quiz actifs seulement),
+     *                              false pour l'administration (tous les quiz)
+     * @return array Liste des quiz, vide en cas d'erreur
+     */
+    public function getAllQuizCategoryById(int $id, bool $actifsSeulement = false): array
     {
-        // Requête ordonnée par le champ mot en ASC
         try {
-            log_message('error',count($this->findAll()));
+            $this->where('id_theme', $id);
 
-            return $this->where('id_theme', $id)->findAll();
+            if ($actifsSeulement) {
+                $this->where('actif', 1);
+            }
+
+            return $this->orderBy('id', 'ASC')->findAll();
         } catch (DatabaseException $e) {
             log_message('error',"Erreur getAllQuiz : " . $e->getMessage());
             return [];
@@ -85,7 +95,9 @@ class QuizModel extends Model
      */
     public function getQuizByPosition(int $themeId, int $position)
     {
+        // Même liste que la page publique (quiz actifs, par id) : la position correspond au numéro affiché
         return $this->where('id_theme', $themeId)
+            ->where('actif', 1)
             ->orderBy('id', 'ASC')
             ->findAll()[$position - 1] ?? null;
     }

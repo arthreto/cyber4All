@@ -19,6 +19,7 @@ class LeconForm extends Entity
         'id_theme'     => null,
         'titre'        => '',
         'contenu'      => '',
+        'actif'        => '1',  // 1 = leçon affichée sur le site, 0 = leçon supprimée (désactivée)
 
         // Informations en lecture seule, remplies par le contrôleur en modification
         'auteur'       => null, // Pseudo de l'auteur

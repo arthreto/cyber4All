@@ -45,6 +45,12 @@ class QuizController extends BaseController
         }
 
         $quizInfo = $this->quiz_model->getQuizByPosition($themeId, $quizNum);
+
+        // Numéro de quiz inexistant (ou quiz supprimé) : page introuvable
+        if ($quizInfo === null) {
+            throw PageNotFoundException::forPageNotFound();
+        }
+
         $questionQuizList = $this->question_model->getQuestionFromQuiz($quizInfo->id);
 
         $data = [
@@ -117,7 +123,8 @@ class QuizController extends BaseController
         $data = [
             'themeList'  => $themeList,
             'themeActif' => $themeActif,
-            'quizList' => $this->quiz_model->getAllQuizCategoryById($idTheme ?? 1),
+            // Quiz actifs du thème affiché (sans thème dans l'URL : le premier thème)
+            'quizList' => $this->quiz_model->getAllQuizCategoryById((int) $themeActif->id, true),
         ];
 
         return view('header', $data)

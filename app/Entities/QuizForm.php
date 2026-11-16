@@ -15,13 +15,12 @@ use CodeIgniter\Entity\Entity;
 class QuizForm extends Entity
 {
     protected $attributes = [
-        'modifier'          => 0,   // id du quiz en modification, 0 en ajout
-        'id_theme'          => null,
-        'titre'             => '',
-        'description'       => '',
-        'actif'             => '1',
-        'id_theme_questions' => null, // thème utilisé pour filtrer les questions à ajouter
-        'id_question_ajout' => null,
-        'questions'         => [],  // ids des questions rattachées au quiz
+        'modifier'    => 0,    // id du quiz en modification, 0 en ajout
+        'id_theme'    => null,
+        'titre'       => '',
+        'description' => '',
+        'nb_questions' => 10,   // nombre exact de questions du quiz (entre 5 et 20), 10 par défaut
+        'actif'       => '1',
+        'questions'   => [],   // ids des questions rattachées au quiz
     ];
 }

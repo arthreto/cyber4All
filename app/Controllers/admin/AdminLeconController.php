@@ -2,54 +2,135 @@
 
 namespace App\Controllers\admin;
 
-use App\Controllers\BaseController;
 use App\Entities\LeconForm;
-use App\Entities\Utilisateur;
 use App\Models\LeconModel;
-use App\Models\ThemeModel;
 use App\Models\UtilisateurModel;
 use CodeIgniter\Exceptions\PageNotFoundException;
 use CodeIgniter\I18n\Time;
-use CodeIgniter\Session\Session;
 
 /**
- * Ce controller permet l'ajout, la modification et la suppression des leçons
- * de l'Espace compréhension SIO (administration).
+ * Ce controller gère les leçons de l'Espace compréhension SIO (administration) :
+ * liste, ajout / modification et suppression.
+ *
+ * Le contrôle de l'administrateur et les méthodes des listes sont dans AdminController.
  *
  * @since 2.0.0
  * @package Cyber4all
  * @author Raphael BIERLAIRE
  */
-class AdminLeconController extends BaseController
+class AdminLeconController extends AdminController
 {
-    protected ?Utilisateur $utilisateur = null;
-    protected Session $session;
-    protected ThemeModel $theme_model;
     protected LeconModel $lecon_model;
     protected UtilisateurModel $utilisateur_model;
+
     public function __construct()
     {
-        $this->session = session();
+        // Constructeur du parent : session, ThemeModel et vérification de l'administrateur
+        parent::__construct();
 
-        $this->theme_model = new ThemeModel();
         $this->lecon_model = new LeconModel();
         $this->utilisateur_model = new UtilisateurModel();
-
-        // Vérification de la session et du rôle de l'utilisateur
-        $utilisateur = $this->session->get('utilisateur');
-
-        if ($utilisateur && $utilisateur->role === 'admin') {
-            $this->utilisateur = $utilisateur;
-        } else {
-            throw PageNotFoundException::forPageNotFound('Accès refusé');
-        }
     }
 
     /**
-     * Suppression d'une leçon
+     * Liste des leçons : filtre par thème, tri et pagination.
      *
-     * @param int $idLecon Identifiant de la leçon à supprimer
+     * @return string
+     * @author Raphael BIERLAIRE
+     */
+    public function index()
+    {
+        $base = 'floribondant/theme/lecons';
+
+        // Colonnes du tableau : texte de l'en-tête, puis les phrases qui décrivent le tri
+        $colonnes = [
+            'titre'      => ['entete' => 'Titre', 'phrase' => 'par titre', 'asc' => 'de A à Z', 'desc' => 'de Z à A'],
+            'theme'      => ['entete' => 'Thème', 'phrase' => 'par thème', 'asc' => 'de A à Z', 'desc' => 'de Z à A'],
+            'auteur'     => ['entete' => 'Auteur', 'phrase' => 'par auteur', 'asc' => 'de A à Z', 'desc' => 'de Z à A'],
+            'date_ajout' => ['entete' => 'Ajoutée le', 'phrase' => 'par date d\'ajout', 'asc' => 'de la plus ancienne à la plus récente', 'desc' => 'de la plus récente à la plus ancienne'],
+            'date_modif' => ['entete' => 'Dernière modification', 'phrase' => 'par date de modification', 'asc' => 'de la plus ancienne à la plus récente', 'desc' => 'de la plus récente à la plus ancienne'],
+        ];
+
+        // 1. Paramètres de l'URL (exemple : ?id_theme=2&tri=titre&ordre=asc&page=2)
+        $themeSelect = (int) ($this->request->getGet('id_theme') ?? -1);
+
+        $tri = $this->request->getGet('tri');
+        if (! in_array($tri, array_keys($colonnes), true)) {
+            $tri = null; // colonne inconnue ou absente : ordre par défaut
+        }
+
+        $ordre = 'asc';
+        if ($this->request->getGet('ordre') === 'desc') {
+            $ordre = 'desc';
+        }
+
+        // 2. Leçons du thème choisi (null = tous les thèmes), triées par le modèle
+        $idTheme = null;
+        if ($themeSelect > 0) {
+            $idTheme = $themeSelect;
+        }
+        $lecons = $this->lecon_model->getAllLecons($idTheme, $tri, $ordre);
+
+        // Leçon qui vient d'être ajoutée ou modifiée (envoyée par leconAjouter), en premier ;
+        // les leçons inactives (supprimées) à la fin
+        $idNouveau = (int) ($this->session->getFlashdata('id_nouveau') ?? 0);
+        $lecons = $this->ordonnerListe($lecons, $idNouveau);
+
+        // 3. Pagination : 20 leçons par page
+        $parPage = 20;
+        $totalLecons = count($lecons);
+        $nbPages = max(1, (int) ceil($totalLecons / $parPage));
+
+        $page = (int) ($this->request->getGet('page') ?? 1);
+        if ($page < 1) {
+            $page = 1;
+        }
+        if ($page > $nbPages) {
+            $page = $nbPages;
+        }
+
+        // 4. Liens pour la vue (méthodes privées en bas du contrôleur) : on garde le tri quand on change de thème, et le thème quand on change de tri
+        $parametresTri = [];
+        if ($tri !== null) {
+            $parametresTri = ['tri' => $tri, 'ordre' => $ordre];
+        }
+        $parametresTheme = [];
+        if ($themeSelect > 0) {
+            $parametresTheme = ['id_theme' => $themeSelect];
+        }
+
+        // Un formulaire de leçon resté en session ne sert plus quand on revient à la liste
+        $this->session->remove('leconForm');
+
+        $data = [
+            'onglet'       => 'lecons',
+            'themeSelect'  => $themeSelect,
+            'leconList'    => array_slice($lecons, ($page - 1) * $parPage, $parPage),
+            'idNouveau'    => $idNouveau,
+            'totalLecons'  => $totalLecons,
+            'filtreThemes' => $this->filtreThemes($base, $this->theme_model->getAllThemes(), $themeSelect, $parametresTri),
+            'colonnes'     => $this->colonnesTri($base, $colonnes, $tri, $ordre, $parametresTheme),
+            'messageTri'   => $this->messageTri('Leçons triées', $colonnes, $tri, $ordre),
+            'urlSansTri'   => $this->adresseListe($base, $parametresTheme),
+            'pages'        => $this->pagesListe($base, $nbPages, $page, $parametresTheme + $parametresTri),
+        ];
+
+        return view('header')
+            . view('notice')
+            . view('admin/tracabilite/onglets', $data)
+            . view('admin/tracabilite/adminLecons', $data)
+            . view('footer');
+    }
+
+    /**
+     * « Suppression » d'une leçon : elle n'est pas effacée de la base, elle passe inactive (actif = 0).
+     * Elle n'est plus affichée sur le site et s'affiche à la fin de la liste.
+     * Pour la réactiver : la modifier et cocher « Leçon active ».
+     *
+     * @param int $idLecon Identifiant de la leçon à désactiver
      * @return \CodeIgniter\HTTP\RedirectResponse Redirection vers la liste des leçons, avec un message
+     *
+     * @author Raphael BIERLAIRE
      */
     public function leconSupprimer(int $idLecon)
     {
@@ -57,9 +138,9 @@ class AdminLeconController extends BaseController
             throw PageNotFoundException::forPageNotFound('Leçon introuvable');
         }
 
-        if ($this->lecon_model->supprimerLecon($idLecon)) {
+        if ($this->lecon_model->updateLecon(['actif' => 0], $idLecon)) {
             return redirect()->to(site_url('floribondant/theme/lecons'))
-                ->with('success', 'Leçon supprimée avec succès !');
+                ->with('success', 'Leçon supprimée : elle est désactivée et rangée à la fin de la liste.');
         }
 
         return redirect()->to(site_url('floribondant/theme/lecons'))
@@ -74,6 +155,8 @@ class AdminLeconController extends BaseController
      *
      * @param int|null $idLeconModif Identifiant de la leçon à modifier, null pour un ajout.
      * @return mixed
+     *
+     * @author Raphael BIERLAIRE
      */
     public function leconAjouter(?int $idLeconModif = null)
     {
@@ -109,7 +192,7 @@ class AdminLeconController extends BaseController
 
         if ($this->request->is('post')) {
             // Uniquement les champs du formulaire (ni jeton CSRF, ni action, ni champ ajouté à la main)
-            $form->fill($this->request->getPost(['id_theme', 'titre', 'contenu']));
+            $form->fill($this->request->getPost(['id_theme', 'titre', 'contenu', 'actif']));
 
             $action = $this->request->getPost('action');
 
@@ -119,6 +202,7 @@ class AdminLeconController extends BaseController
                     'titre'    => trim($this->request->getPost('titre') ?? ''),
                     // Pas de trim sur le contenu : les espaces font partie de la mise en forme Markdown
                     'contenu'  => $this->request->getPost('contenu') ?? '',
+                    'actif'    => $this->request->getPost('actif') ?? '0',
                 ];
 
                 $rules = [
@@ -146,6 +230,14 @@ class AdminLeconController extends BaseController
                             'required' => 'Veuillez renseigner le contenu de la leçon.',
                         ],
                     ],
+                    'actif' => [
+                        'label' => 'Statut',
+                        'rules' => 'required|in_list[0,1]',
+                        'errors' => [
+                            'required' => 'Veuillez définir le statut de la leçon.',
+                            'in_list' => 'Le statut de la leçon est invalide.',
+                        ],
+                    ],
                 ];
 
                 if (!$this->validateData($formData, $rules)) {
@@ -158,18 +250,24 @@ class AdminLeconController extends BaseController
                 if (empty($errors)) {
                     $estModification = !empty($form->modifier);
 
+                    // Id de la leçon enregistrée (false si l'enregistrement échoue)
+                    $idLecon = false;
+
                     if ($estModification) {
                         $formData['id_auteur_modif'] = $this->utilisateur->id;
-                        $succes = $this->lecon_model->updateLecon($formData, (int) $form->modifier);
+                        if ($this->lecon_model->updateLecon($formData, (int) $form->modifier)) {
+                            $idLecon = (int) $form->modifier;
+                        }
                     } else {
                         $formData['id_auteur'] = $this->utilisateur->id;
-                        $succes = $this->lecon_model->creerLecon($formData) !== false;
+                        $idLecon = $this->lecon_model->creerLecon($formData);
                     }
 
-                    if ($succes) {
+                    if ($idLecon !== false) {
                         $this->session->remove('leconForm');
 
                         return redirect()->to(site_url('floribondant/theme/lecons'))
+                            ->with('id_nouveau', $idLecon) // affichée en premier dans la liste
                             ->with('success', $estModification
                                 ? 'Leçon modifiée avec succès !'
                                 : 'Leçon créée avec succès !');
@@ -199,6 +297,8 @@ class AdminLeconController extends BaseController
      *
      * @param int|null $idUtilisateur Identifiant de l'utilisateur, ou null.
      * @return string|null Pseudo de l'utilisateur, ou null si aucun id ou utilisateur introuvable.
+     *
+     * @author Raphael BIERLAIRE
      */
     private function getPseudo(int|null $idUtilisateur): ?string
     {
@@ -214,6 +314,8 @@ class AdminLeconController extends BaseController
      *
      * @param mixed $date Date à formater (chaîne, objet Time ou null).
      * @return string|null Date formatée, ou null si aucune date.
+     *
+     * @author Raphael BIERLAIRE
      */
     private function formaterDate(mixed $date): ?string
     {
