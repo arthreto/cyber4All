@@ -26,6 +26,7 @@ class OwaspController extends BaseController
                 $data['Vulnerabilities'][$nom] = $menaces->id_menace;
             }
             $data['Top'] = $this->Top->getTopById($top);
+            $data['nom_top'] = 'web';
         }
         else if ($top=='API'){
             $data['Vulnerabilities'] = [];
@@ -36,6 +37,7 @@ class OwaspController extends BaseController
                 $data['Vulnerabilities'][$nom] = ($menaces->id_menace)-10;
             }
             $data['Top'] = $this->Top->getTopById($top);
+            $data['nom_top'] = 'api';
         }
         if (!$data['Top']) { throw new \CodeIgniter\Exceptions\PageNotFoundException(); }
             return view('owasp/headerView', $data) .
@@ -56,9 +58,8 @@ class OwaspController extends BaseController
             $data['description_cm'][$i] = $element->desc_cm;
         }
         $data['Top'] = $this->Top->getTopById($top);
-        return view('owasp/headerView') .
+        return view('owasp/headerView', $data) .
             view('owasp/apiMenaceView', $data) .
             view('owasp/footerView');
     }
-
 }
