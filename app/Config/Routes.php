@@ -49,7 +49,6 @@ $routes->group('floribondant', static function ($routes) {
 });
 
 $routes->group('top10', static function ($routes) {
-    $routes->match(['GET', 'POST'], '(:num)', 'OwaspController::getMenaces/$1');
-    $routes->match(['GET', 'POST'], 'api/(:num)', 'OwaspController::getMenaces/$1');
-    $routes->match(['GET', 'POST'], 'api/detail/(:segment)/(:num)', 'OwaspController::test1bis/$1/$2');
+    $routes->match(['GET', 'POST'], '(:segment)', 'OwaspController::getMenaces/$1');
+    $routes->match(['GET', 'POST'], 'api/detail/(:segment)', 'OwaspController::getMenace/$1');
 });

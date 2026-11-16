@@ -14,13 +14,12 @@ class OwaspController extends BaseController
         $this->Top = new OwaspModel();
     }
 
-    public function getMenaces($top)
+    public function getMenaces($top): string
     {
-        if ($top==1)
+        if ($top=='WEB')
         {
             $data['Vulnerabilities'] = [];
-            // 0 = le top 10 Web
-            $tableau_temp = $this->Menace->getMenaces(0);
+            $tableau_temp = $this->Menace->getMenaces('WEB');
             foreach ($tableau_temp as $menaces)
             {
                 $nom = $menaces->nom_menace;
@@ -29,14 +28,13 @@ class OwaspController extends BaseController
             $data['Top'] = $this->Top->getTopById($top);
             $data['nom_top'] = 'web';
         }
-        else if ($top==2){
+        else if ($top=='API'){
             $data['Vulnerabilities'] = [];
-            // 10 = le top 10 Api
-            $tableau_temp = $this->Menace->getMenaces(10);
+            $tableau_temp = $this->Menace->getMenaces('API');
             foreach ($tableau_temp as $menaces)
             {
                 $nom = $menaces->nom_menace;
-                $data['Vulnerabilities'][$nom] = $menaces->id_menace - 10;
+                $data['Vulnerabilities'][$nom] = ($menaces->id_menace)-10;
             }
             $data['Top'] = $this->Top->getTopById($top);
             $data['nom_top'] = 'api';
@@ -47,38 +45,19 @@ class OwaspController extends BaseController
                 view('owasp/footerView');
     }
 
-    public function test1bis ($top, $num)
+    public function getMenace($id)
     {
-        if ($top === 'web')
+        $menace = $this->Menace->getMenace($id);
+        $data['nom'] = $menace[0]->nom_menace;
+        $data['description'] = $menace[0]->desc_menace;
+        $data['prog'] = $menace[0]->prog_menace;
+        foreach ($menace as $element)
         {
-            $test = $this->Menace->test1($num);
-            $data['nom'] = $test[0]->nom_menace;
-            $data['description'] = $test[0]->desc_menace;
-            $data['prog'] = $test[0]->prog_menace;
-            $Y = 0;
-            foreach ($test as $x)
-            {
-                $Y += 1;
-                $data['prog_cm'][$Y] = $x->prog_cm;
-                $data['description_cm'][$Y] = $x->desc_cm;
-            }
-            $data['Top'] = $this->Top->getTopById(1);
+            $i =+ 1;
+            $data['prog_cm'][$i] = $element->prog_cm;
+            $data['description_cm'][$i] = $element->desc_cm;
         }
-        if ($top==='api')
-        {
-            $test = $this->Menace->test1($num + 10);
-            $data['nom'] = $test[0]->nom_menace;
-            $data['description'] = $test[0]->desc_menace;
-            $data['prog'] = $test[0]->prog_menace;
-            $Y = 0;
-            foreach ($test as $x)
-            {
-                $Y += 1;
-                $data['prog_cm'][$Y] = $x->prog_cm;
-                $data['description_cm'][$Y] = $x->desc_cm;
-            }
-            $data['Top'] = $this->Top->getTopById(2);
-        }
+        $data['Top'] = $this->Top->getTopById($top);
         return view('owasp/headerView', $data) .
             view('owasp/apiMenaceView', $data) .
             view('owasp/footerView');

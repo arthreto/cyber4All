@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use CodeIgniter\Database\Exceptions\DatabaseException;
 use CodeIgniter\Model;
 
 class OwaspModel extends Model
@@ -26,24 +27,31 @@ class OwaspModel extends Model
         'edition_top',
         'libelle_top'
     ];
-    public function getMenaces(int $num)
+    public function getMenaces(string $id): ?array
     {
-        $numero = $num + 10;
         $db = db_connect('owasp');
-        $query = $db->table('menace')->select('id_menace, nom_menace')->where('id_menace >', $num)->groupStart()->where('id_menace <=', $numero)->groupEnd()->get()->getResult();
+        $query = $db->table('menace')->
+        select('id_menace, nom_menace')->
+        where('tops_id', $id)->
+        get()->
+        getResult();
         return $query;
     }
-    public function test1 (int $num)
+    public function getMenace(int $num)
     {
         $db = db_connect('owasp');
-        $query = $db->table('menace')->select('desc_menace, nom_menace, prog_menace, desc_cm, prog_cm')->join('contre_mesure', 'menace.id_menace = contre_mesure.menace_id')->where('id_menace =', $num)->get()->getResult();
+        $query = $db->table('menace')->
+        select('desc_menace, nom_menace, prog_menace, desc_cm, prog_cm')->
+        join('contre_mesure', 'menace.id_menace = contre_mesure.menace_id')->
+        where('id_menace =', $num)->
+        get()->
+        getResult();
         return $query;
     }
 
-    public function getTopById(int $top): ?object
+    public function getTopById(string $top): ?object
     {
         try {
-            // Requête limitée à id et titre, ordonnée par le champ id en ASC
             return $this->select('nom_top, edition_top, libelle_top')
                 ->where('id_top', $top)
                 ->get()
@@ -54,7 +62,7 @@ class OwaspModel extends Model
                 'message' => $e->getMessage(),
             ]);
 
-            return [];
+            return null;
         }
     }
 }
