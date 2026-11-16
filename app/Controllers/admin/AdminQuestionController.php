@@ -237,11 +237,17 @@ class AdminQuestionController extends AdminController
 
         if ($this->request->is('post')) {
             $post = $this->request->getPost();
-            unset($post['quiz']);
+
+            unset($post['quiz'], $post['image'], $post['image_envoyee']);
 
             $form->fill($post);
 
             $form->quiz = array_values((array) ($this->request->getPost('quiz') ?? []));
+
+            $erreurImage = $this->gererImage($form);
+            if ($erreurImage !== null) {
+                $errors['image'] = $erreurImage;
+            }
 
             $action = (string) $this->request->getPost('action');
             $actionsExtrait = ['modifier_extrait', 'enregistrer_extrait', 'supprimer_extrait', 'annuler_extrait'];
@@ -271,7 +277,7 @@ class AdminQuestionController extends AdminController
                 $formData = [
                     'id_theme'        => $this->request->getPost('id_theme') ?? '',
                     'libelle'         => $this->request->getPost('libelle') ?? '',
-                    'image'           => $this->request->getPost('image') ?? '',
+                    'image'           => (string) ($form->image ?? ''),
                     'extrait_mode'    => $form->extrait_mode ?? 'aucun',
                     'id_extrait'      => $form->id_extrait ?? '',
                     'extrait_titre'   => $form->extrait_titre ?? '',
@@ -298,18 +304,6 @@ class AdminQuestionController extends AdminController
                             'required' => 'Veuillez renseigner un énoncé.',
                             'min_length' => 'L’énoncé doit contenir au moins 3 caractères.',
                             'max_length' => 'L’énoncé ne peut pas dépasser 1000 caractères.',
-                        ],
-                    ],
-                    'image' => [
-                        'label' => 'Image',
-                        'rules' => [
-                            'permit_empty',
-                            'max_length[255]',
-                            'regex_match[/\.(png|jpg|jpeg|webp|avif)$/i]',
-                        ],
-                        'errors' => [
-                            'max_length' => 'Le chemin de l’image ne peut pas dépasser 255 caractères.',
-                            'regex_match' => 'L’image doit être au format PNG, AVIF, JPG, JPEG ou WEBP.',
                         ],
                     ],
                     'extrait_mode' => [
@@ -383,8 +377,9 @@ class AdminQuestionController extends AdminController
                     ];
                 }
 
+                // array_merge : on garde l'erreur éventuelle de l'image
                 if (! $this->validateData($formData, $rules)) {
-                    $errors = $this->validator->getErrors();
+                    $errors = array_merge($errors, $this->validator->getErrors());
                 }
 
                 // Les quiz cochés doivent tous être du thème de la question
@@ -437,7 +432,7 @@ class AdminQuestionController extends AdminController
                     if ($idQuestion !== false
                         && $this->quiz_question_model->updateLiaisons($idQuestion, $form->quiz)) {
                         $db->transCommit();
-                        $this->session->remove('questionForm');
+                        $this->session->remove('questionForm'); // l'image envoyée est maintenant celle de la question
 
 
                         if ($modal) {
@@ -544,6 +539,84 @@ class AdminQuestionController extends AdminController
             . view('notice')
             . view('admin/tracabilite/formQuestion', $data)
             . view('footer');
+    }
+
+    /**
+     * Image de la question : case « Retirer l'image », ou fichier choisi (champ fichier_image).
+     * Le fichier est vérifié avec les règles de fichier de CodeIgniter, puis déplacé
+     * dans public/images/questions/ sous un nom aléatoire (deux fichiers du même nom ne s'écrasent pas).
+     * La question ne garde que ce nom (colonne image).
+     *
+     * Une image envoyée pendant la saisie puis remplacée ou retirée avant l'enregistrement
+     * est supprimée du dossier. L'image déjà enregistrée avec la question n'est jamais supprimée ici.
+     *
+     * @param QuestionForm $form Formulaire en cours (image et image_envoyee mis à jour).
+     * @return string|null Message d'erreur à afficher, ou null.
+     *
+     * @author Arthur
+     */
+    private function gererImage(QuestionForm $form): ?string
+    {
+        $dossier = FCPATH . 'images/questions/';
+
+        // Retire l'image envoyée pendant cette saisie (pas celle déjà enregistrée avec la question)
+        $oublierImageEnvoyee = function () use ($form, $dossier): void {
+            $envoyee = (string) ($form->image_envoyee ?? '');
+            if ($envoyee !== '' && is_file($dossier . $envoyee)) {
+                unlink($dossier . $envoyee);
+            }
+            $form->image_envoyee = null;
+        };
+
+        if ($this->request->getPost('retirer_image') === '1') {
+            $oublierImageEnvoyee();
+            $form->image = '';
+        }
+
+        // getFile() renvoie null si le champ n'existe pas. UPLOAD_ERR_NO_FILE : aucun fichier choisi.
+        $fichier = $this->request->getFile('fichier_image');
+        if ($fichier === null || $fichier->getError() === UPLOAD_ERR_NO_FILE) {
+            return null;
+        }
+
+        // Règles de fichier de CodeIgniter. Instance non partagée (false) : le validateur
+        // du contrôleur ($this->validator) reste libre pour les autres champs.
+        $validation = service('validation', null, false);
+        $validation->setRules([
+            'fichier_image' => [
+                'label'  => 'Image',
+                'rules'  => [
+                    'uploaded[fichier_image]',
+                    'is_image[fichier_image]',
+                    'mime_in[fichier_image,image/png,image/jpeg,image/webp]',
+                    'ext_in[fichier_image,png,jpg,jpeg,webp]',
+                    'max_size[fichier_image,2048]',
+                ],
+                'errors' => [
+                    'uploaded' => 'L’image n’a pas pu être envoyée (2 Mo au maximum).',
+                    'is_image' => 'Le fichier choisi n’est pas une image.',
+                    'mime_in'  => 'L’image doit être au format PNG, JPG ou WEBP.',
+                    'ext_in'   => 'L’image doit être au format PNG, JPG ou WEBP.',
+                    'max_size' => 'L’image ne peut pas dépasser 2 Mo.',
+                ],
+            ],
+        ]);
+
+        if (! $validation->withRequest($this->request)->run()) {
+            return $validation->getError('fichier_image');
+        }
+
+        // Nom aléatoire avec la bonne extension (getRandomName), puis déplacement
+        $nom = $fichier->getRandomName();
+        if (! $fichier->move($dossier, $nom) || ! $fichier->hasMoved()) {
+            return 'L’image n’a pas pu être enregistrée. Veuillez réessayer.';
+        }
+
+        $oublierImageEnvoyee();
+        $form->image = $nom;
+        $form->image_envoyee = $nom;
+
+        return null;
     }
 
     /**

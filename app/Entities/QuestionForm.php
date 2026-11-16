@@ -28,12 +28,12 @@ class QuestionForm extends Entity
         'quiz' => [],             // ids des quiz cochés
         'libelle' => '',
         'image' => '',
+        'image_envoyee' => null,
         'extrait_mode' => 'aucun',
         'id_extrait' => null,
         'extrait_titre' => '',
         'extrait_type' => '',
         'extrait_contenu' => '',
-        // Action en cours sur l'extrait existant choisi : null ou 'modifier'
         'extrait_action' => null,
         'edit_titre' => '',
         'edit_type' => '',
