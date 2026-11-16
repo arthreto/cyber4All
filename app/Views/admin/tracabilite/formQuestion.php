@@ -5,14 +5,15 @@
  *
  * Données préparées par le contrôleur (AdminQuestionController::questionAjouter) :
  * - $form         : valeurs du formulaire (modifier, id_theme, libelle, bonne_reponse, explication, actif, image,
- *                   extrait_mode, id_extrait, extrait_action, edit_titre, edit_type, edit_contenu...)
+ *                   extrait_mode, id_extrait, extrait_titre, extrait_contenu...)
  * - $blocsThemes  : un bloc par thème, avec ses quiz et ses extraits
  *                   [['id', 'nom', 'choisi' => true/false,
  *                     'quiz' => [['id', 'titre', 'coche'], ...],
  *                     'extraits' => [['id', 'titre', 'contenu', 'debut', 'choisi'], ...]], ...]
- * - $typesExtrait : types d'extrait [valeur => libellé] (modification d'un extrait)
- * - $infoExtrait     : message après une action sur un extrait (modifié, supprimé), ou null
  * - $errors          : erreurs de validation [champ => message]
+ *
+ * Les extraits se modifient et se suppriment dans l'onglet « Extrait » (AdminExtraitController) :
+ * ici, on en choisit un existant ou on en crée un nouveau.
  * - $modal           : true si le formulaire est affiché dans le modal du formulaire d'un quiz
  *                      (iframe, adresse avec ?modal=1) : pas de lien de retour, « Annuler » ferme le modal
  *
@@ -46,16 +47,12 @@ if ($modal) {
     $actionFormulaire = site_url($actionFormulaire) . '?modal=1';
 }
 
-// Option choisie pour l'extrait (aucun, existant, nouveau), et extrait en cours de modification
+// Option choisie pour l'extrait (aucun, existant, nouveau)
 $modeExtrait = $form->extrait_mode ?? 'aucun';
-$extraitEnModification = ($form->extrait_action ?? null) === 'modifier';
 
 // Classes des libellés
 $label = ['class' => 'glossary-form__label'];
 $labelRequis = ['class' => 'glossary-form__label glossary-form__label--required'];
-
-// Types d'extrait pour les listes déroulantes (libellés échappés)
-$optionsTypes = esc($typesExtrait);
 
 $classeChamp = fn (string $classe, string $champ): string
     => $classe . (isset($errors[$champ]) ? ' sio-admin__input--erreur' : '');
@@ -177,12 +174,6 @@ $erreurChamp = fn (string $champ): string
 
                     <?= $erreurChamp('extrait_mode') ?>
 
-                    <?php if (! empty($infoExtrait)): ?>
-                        <p class="sio-admin__info-extrait" role="status"><?= esc($infoExtrait) ?></p>
-                    <?php endif; ?>
-
-                    <?= $erreurChamp('extrait') ?>
-
                     <!-- Choix d'un extrait existant : un bloc par thème, l'aperçu s'ouvre sous l'extrait coché -->
                     <div class="sio-admin__extrait-bloc sio-admin__extrait-bloc--existant">
                         <?= $erreurChamp('id_extrait') ?>
@@ -216,84 +207,10 @@ $erreurChamp = fn (string $champ): string
                                                 ]
                                             ) ?>
 
+                                            <!-- Aperçu de l'extrait coché. Modifier ou supprimer un extrait :
+                                                 onglet « Extrait » (AdminExtraitController) -->
                                             <div class="sio-admin__extrait-contenu">
-                                                <?php if ($extrait['choisi'] && $extraitEnModification): ?>
-                                                    <!-- Modification de l'extrait choisi -->
-                                                    <div class="glossary-form__field">
-                                                        <?= form_label('Titre de l\'extrait', 'champ-edit-titre', $labelRequis) ?>
-                                                        <?= form_input([
-                                                            'name'      => 'edit_titre',
-                                                            'id'        => 'champ-edit-titre',
-                                                            'value'     => $form->edit_titre ?? '',
-                                                            'maxlength' => '100',
-                                                            'class'     => $classeChamp('glossary-form__input', 'edit_titre'),
-                                                        ]) ?>
-                                                        <?= $erreurChamp('edit_titre') ?>
-                                                    </div>
-
-                                                    <div class="glossary-form__field">
-                                                        <?= form_label('Type', 'champ-edit-type', $labelRequis) ?>
-                                                        <?= form_dropdown('edit_type', $optionsTypes, (string) ($form->edit_type ?? ''), [
-                                                            'id'    => 'champ-edit-type',
-                                                            'class' => $classeChamp('sio-admin__select', 'edit_type'),
-                                                        ]) ?>
-                                                        <?= $erreurChamp('edit_type') ?>
-                                                    </div>
-
-                                                    <div class="glossary-form__field">
-                                                        <?= form_label('Contenu de l\'extrait', 'champ-edit-contenu', $labelRequis) ?>
-                                                        <?= form_textarea([
-                                                            'name'  => 'edit_contenu',
-                                                            'id'    => 'champ-edit-contenu',
-                                                            'value' => $form->edit_contenu ?? '',
-                                                            'rows'  => '6',
-                                                            'class' => $classeChamp('glossary-form__input sio-admin__code', 'edit_contenu'),
-                                                        ]) ?>
-                                                        <?= $erreurChamp('edit_contenu') ?>
-                                                    </div>
-
-                                                    <div class="sio-admin__ligne-actions">
-                                                        <?= form_button([
-                                                            'type'           => 'submit',
-                                                            'name'           => 'action',
-                                                            'value'          => 'enregistrer_extrait',
-                                                            'content'        => 'Enregistrer l\'extrait',
-                                                            'class'          => 'sio-admin__btn-principal sio-admin__btn--petit',
-                                                            'formnovalidate' => true,
-                                                        ]) ?>
-                                                        <?= form_button([
-                                                            'type'           => 'submit',
-                                                            'name'           => 'action',
-                                                            'value'          => 'annuler_extrait',
-                                                            'content'        => 'Annuler',
-                                                            'class'          => 'sio-admin__btn-secondaire sio-admin__btn--petit',
-                                                            'formnovalidate' => true,
-                                                        ]) ?>
-                                                    </div>
-                                                <?php else: ?>
-                                                    <!-- Aperçu de l'extrait -->
-                                                    <pre class="sio-admin__apercu-extrait sio-admin__code"><?= esc($extrait['contenu']) ?></pre>
-
-                                                    <div class="sio-admin__ligne-actions">
-                                                        <?= form_button([
-                                                            'type'           => 'submit',
-                                                            'name'           => 'action',
-                                                            'value'          => 'modifier_extrait',
-                                                            'content'        => 'Modifier cet extrait',
-                                                            'class'          => 'sio-admin__btn-secondaire sio-admin__btn--petit',
-                                                            'formnovalidate' => true,
-                                                        ]) ?>
-                                                        <?= form_button([
-                                                            'type'           => 'submit',
-                                                            'name'           => 'action',
-                                                            'value'          => 'supprimer_extrait',
-                                                            'content'        => 'Supprimer cet extrait',
-                                                            'class'          => 'sio-admin__btn-supprimer',
-                                                            'formnovalidate' => true,
-                                                            'onclick'        => "return confirm('Supprimer définitivement cet extrait ? Il ne sera plus disponible pour aucune question.');",
-                                                        ]) ?>
-                                                    </div>
-                                                <?php endif; ?>
+                                                <pre class="sio-admin__apercu-extrait sio-admin__code"><?= esc($extrait['contenu']) ?></pre>
                                             </div>
                                         </div>
                                     <?php endforeach; ?>
