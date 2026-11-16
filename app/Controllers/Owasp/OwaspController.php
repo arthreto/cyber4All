@@ -44,6 +44,7 @@ class OwaspController extends BaseController
         if (!$data['Top']) { throw new \CodeIgniter\Exceptions\PageNotFoundException(); }
             return view('owasp/headerView', $data) .
                 view('owasp/listeRisqueView', $data) .
+                view('owasp/choixQuizView') .
                 view('owasp/footerView');
     }
 

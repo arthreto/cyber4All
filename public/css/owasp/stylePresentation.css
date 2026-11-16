@@ -320,4 +320,38 @@ body.web {
     .back-button {
         text-align: center;
     }
+
+    body.quiz-home {
+        --grad-1: #7864e6;
+        --grad-2: #6353d8;
+        --grad-3: #60a5fa;
+    }
+
+    .quiz-choice {
+        display: flex;
+        gap: 16px;
+        padding: 24px 0 8px;
+    }
+
+    .quiz-choice .back-button {
+        min-width: 180px;
+        min-height: 64px;
+        font-size: 18px;
+    }
+
+    .quiz-choice-api {
+        background: linear-gradient(135deg, #f04462, #795de2);
+        box-shadow: 0 8px 20px rgba(205, 61, 88, 0.24);
+    }
+
+    .quiz-choice-web {
+        background: linear-gradient(135deg, #3b6fd4, #1e3a8a);
+        box-shadow: 0 8px 20px rgba(30, 58, 138, 0.25);
+    }
+
+    @media (max-width: 800px) {
+        .quiz-choice {
+            flex-direction: column;
+        }
+    }
 }
