@@ -5,8 +5,8 @@
         </header>
 
         <div class="quiz-choice">
-            <?= anchor('quiz/api', 'API', ['class' => 'back-button']) ?>
-            <?= anchor('quiz/web', 'WEB', ['class' => 'back-button']) ?>
+            <?= anchor('quiz/api', 'API', ['class' => 'back-button-api']) ?>
+            <?= anchor('quiz/web', 'WEB', ['class' => 'back-button-web']) ?>
         </div>
     </article>
 </main>
