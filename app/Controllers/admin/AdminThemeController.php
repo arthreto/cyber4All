@@ -147,11 +147,11 @@ class AdminThemeController extends AdminController
             'themeSelect'    => $themeSelect,
             'questionList'   => array_slice($questions, ($page - 1) * $parPage, $parPage),
             'totalQuestions' => $totalQuestions,
-            'filtreThemes'   => $this->filtreThemes($base, $this->theme_model->getAllThemes(), $themeSelect, $parametresTri),
-            'colonnes'       => $this->colonnesTri($base, $colonnes, $tri, $ordre, $parametresTheme),
+            'filtreThemes'   => parent::filtreThemes($base, $this->theme_model->getAllThemes(), $themeSelect, $parametresTri),
+            'colonnes'       => parent::colonnesTri($base, $colonnes, $tri, $ordre, $parametresTheme),
             'messageTri'     => $this->messageTri('Questions triées', $colonnes, $tri, $ordre),
-            'urlSansTri'     => $this->adresseListe($base, $parametresTheme),
-            'pages'          => $this->pagesListe($base, $nbPages, $page, $parametresTheme + $parametresTri),
+            'urlSansTri'     => parent::adresseListe($base, $parametresTheme),
+            'pages'          => parent::pagesListe($base, $nbPages, $page, $parametresTheme + $parametresTri),
         ];
 
         return view('header')
@@ -682,10 +682,10 @@ class AdminThemeController extends AdminController
             'themeSelect'  => $themeSelect,
             'quizList'     => array_slice($quizList, ($page - 1) * $parPage, $parPage),
             'totalQuiz'    => $totalQuiz,
-            'filtreThemes' => $this->filtreThemes($base, $this->theme_model->getAllThemes(), $themeSelect, $parametresTri),
-            'colonnes'     => $this->colonnesTri($base, $colonnes, $tri, $ordre, $parametresTheme),
-            'messageTri'   => $this->messageTri('Quiz triés', $colonnes, $tri, $ordre),
-            'urlSansTri'   => $this->adresseListe($base, $parametresTheme),
+            'filtreThemes' => parent::filtreThemes($base, $this->theme_model->getAllThemes(), $themeSelect, $parametresTri),
+            'colonnes'     => parent::colonnesTri($base, $colonnes, $tri, $ordre, $parametresTheme),
+            'messageTri'   => parent::messageTri('Quiz triés', $colonnes, $tri, $ordre),
+            'urlSansTri'   => parent::adresseListe($base, $parametresTheme),
             'pages'        => $this->pagesListe($base, $nbPages, $page, $parametresTheme + $parametresTri),
         ];
 
@@ -761,10 +761,10 @@ class AdminThemeController extends AdminController
             'themeSelect'  => $themeSelect,
             'leconList'    => array_slice($lecons, ($page - 1) * $parPage, $parPage),
             'totalLecons'  => $totalLecons,
-            'filtreThemes' => $this->filtreThemes($base, $this->theme_model->getAllThemes(), $themeSelect, $parametresTri),
-            'colonnes'     => $this->colonnesTri($base, $colonnes, $tri, $ordre, $parametresTheme),
-            'messageTri'   => $this->messageTri('Leçons triées', $colonnes, $tri, $ordre),
-            'urlSansTri'   => $this->adresseListe($base, $parametresTheme),
+            'filtreThemes' => parent::filtreThemes($base, $this->theme_model->getAllThemes(), $themeSelect, $parametresTri),
+            'colonnes'     => parent::colonnesTri($base, $colonnes, $tri, $ordre, $parametresTheme),
+            'messageTri'   => parent::messageTri('Leçons triées', $colonnes, $tri, $ordre),
+            'urlSansTri'   => parent::adresseListe($base, $parametresTheme),
             'pages'        => $this->pagesListe($base, $nbPages, $page, $parametresTheme + $parametresTri),
         ];
 
@@ -773,178 +773,5 @@ class AdminThemeController extends AdminController
             . view('admin/tracabilite/onglets', $data)
             . view('admin/tracabilite/adminLecons', $data)
             . view('footer');
-    }
-
-    /* =====================================================================
-     * Méthodes privées utilisées par les trois listes (leçons, questions, quiz).
-     *
-     * Elles préparent ce que les vues affichent : liens du filtre par thème,
-     * en-têtes de colonnes triables, phrase du tri et numéros de page.
-     * ===================================================================== */
-
-    /**
-     * Adresse d'une liste avec ses paramètres d'URL.
-     * Exemple : $this->adresseListe('floribondant/theme/lecons', ['tri' => 'titre', 'ordre' => 'asc'])
-     * donne http://.../floribondant/theme/lecons?tri=titre&amp;ordre=asc
-     *
-     * Le & est écrit &amp; car l'adresse est placée dans un attribut HTML (href).
-     *
-     * @param string $base       Adresse de la liste, sans paramètres
-     * @param array  $parametres Paramètres d'URL [nom => valeur]
-     * @return string
-     * @author Arthur
-     * @author Raphael Bierlaire
-     */
-    private function adresseListe(string $base, array $parametres = []): string
-    {
-        if ($parametres === []) {
-            return site_url($base);
-        }
-
-        return site_url($base) . '?' . http_build_query($parametres, '', '&amp;');
-    }
-
-    /**
-     * Liens du filtre par thème : "Tous les thèmes", puis un lien par thème.
-     *
-     * @param string $base          Adresse de la liste
-     * @param array  $themeList     Thèmes (objets avec id et nom)
-     * @param int    $themeSelect   Thème affiché, -1 pour tous
-     * @param array  $parametresTri Tri en cours, conservé quand on change de thème
-     * @return array Liste de liens ['nom' => ..., 'url' => ..., 'actif' => true si c'est le thème affiché]
-     * @author Arthur
-     * @author Raphael Bierlaire
-     */
-    private function filtreThemes(string $base, array $themeList, int $themeSelect, array $parametresTri): array
-    {
-        $liens = [];
-
-        $liens[] = [
-            'nom'   => 'Tous les thèmes',
-            'url'   => $this->adresseListe($base, $parametresTri),
-            'actif' => $themeSelect <= 0,
-        ];
-
-        foreach ($themeList as $theme) {
-            $parametres = $parametresTri;
-            $parametres['id_theme'] = (int) $theme->id;
-
-            $liens[] = [
-                'nom'   => $theme->nom,
-                'url'   => $this->adresseListe($base, $parametres),
-                'actif' => (int) $theme->id === $themeSelect,
-            ];
-        }
-
-        return $liens;
-    }
-
-    /**
-     * En-têtes du tableau. Un clic sur une colonne triable donne :
-     * ordre croissant, puis décroissant, puis retour à l'ordre par défaut.
-     *
-     * Chaque colonne est décrite par : entete (texte affiché), et si elle est triable :
-     * phrase (« par titre »), asc (« de A à Z ») et desc (« de Z à A »).
-     *
-     * @param string      $base            Adresse de la liste
-     * @param array       $colonnes        Colonnes [clé => description]
-     * @param string|null $tri             Colonne triée, null pour l'ordre par défaut
-     * @param string      $ordre           Sens du tri : asc ou desc
-     * @param array       $parametresTheme Thème filtré, conservé quand on change de tri
-     * @return array Liste d'en-têtes ['texte', 'url' (null si non triable), 'infobulle', 'aria_sort']
-     * @author Arthur
-     * @author Raphael Bierlaire
-     */
-    private function colonnesTri(string $base, array $colonnes, ?string $tri, string $ordre, array $parametresTheme): array
-    {
-        $entetes = [];
-
-        foreach ($colonnes as $cle => $colonne) {
-            // Colonne non triable : texte seul
-            if (! isset($colonne['phrase'])) {
-                $entetes[] = ['texte' => $colonne['entete'], 'url' => null, 'infobulle' => '', 'aria_sort' => 'none'];
-                continue;
-            }
-
-            if ($tri !== $cle) {
-                // Colonne pas encore triée : le clic trie dans l'ordre croissant
-                $parametres = ['tri' => $cle, 'ordre' => 'asc'];
-                $infobulle  = 'Trier ' . $colonne['phrase'] . ', ' . $colonne['asc'];
-                $ariaSort   = 'none';
-            } elseif ($ordre === 'asc') {
-                // Colonne triée dans l'ordre croissant : le clic passe en décroissant
-                $parametres = ['tri' => $cle, 'ordre' => 'desc'];
-                $infobulle  = 'Trier ' . $colonne['phrase'] . ', ' . $colonne['desc'];
-                $ariaSort   = 'ascending';
-            } else {
-                // Colonne triée dans l'ordre décroissant : le clic revient à l'ordre par défaut
-                $parametres = [];
-                $infobulle  = 'Revenir à l\'ordre par défaut';
-                $ariaSort   = 'descending';
-            }
-
-            // + ajoute les paramètres du thème à ceux du tri
-            $entetes[] = [
-                'texte'     => $colonne['entete'],
-                'url'       => $this->adresseListe($base, $parametres + $parametresTheme),
-                'infobulle' => $infobulle,
-                'aria_sort' => $ariaSort, // flèche affichée par le CSS selon cette valeur
-            ];
-        }
-
-        return $entetes;
-    }
-
-    /**
-     * Phrase qui rappelle le tri en cours, par exemple « Leçons triées par titre, de A à Z. »
-     *
-     * @param string      $debut    Début de la phrase, par exemple « Leçons triées »
-     * @param array       $colonnes Colonnes (même tableau que pour colonnesTri)
-     * @param string|null $tri      Colonne triée, null pour l'ordre par défaut
-     * @param string      $ordre    Sens du tri : asc ou desc
-     * @return string|null La phrase, ou null s'il n'y a pas de tri
-     * @author Arthur
-     * @author Raphael Bierlaire
-     */
-    private function messageTri(string $debut, array $colonnes, ?string $tri, string $ordre): ?string
-    {
-        if ($tri === null) {
-            return null;
-        }
-
-        return $debut . ' ' . $colonnes[$tri]['phrase'] . ', ' . $colonnes[$tri][$ordre] . '.';
-    }
-
-    /**
-     * Numéros de page. La page affichée n'a pas de lien.
-     *
-     * @param string $base       Adresse de la liste
-     * @param int    $nbPages    Nombre de pages
-     * @param int    $page       Page affichée
-     * @param array  $parametres Thème et tri en cours, conservés d'une page à l'autre
-     * @return array Liste de pages ['numero', 'url', 'actuelle' => true pour la page affichée]
-     * @author Arthur
-     * @author Raphael Bierlaire
-     */
-    private function pagesListe(string $base, int $nbPages, int $page, array $parametres): array
-    {
-        $pages = [];
-
-        for ($numero = 1; $numero <= $nbPages; $numero++) {
-            $parametresPage = $parametres;
-
-            // La page 1 n'a pas besoin de ?page=1 dans l'adresse
-            if ($numero > 1) {
-                $parametresPage['page'] = $numero;
-            }
-
-            $pages[] = [
-                'numero'   => $numero,
-                'url'      => $this->adresseListe($base, $parametresPage),
-                'actuelle' => $numero === $page,
-            ];
-        }
-
-        return $pages;
     }
 }

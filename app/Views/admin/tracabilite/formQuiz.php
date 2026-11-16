@@ -208,7 +208,6 @@ $caseQuestion = function (array $question, bool $cochee): string {
                 <?= form_fieldset('<span class="glossary-form__label">Questions</span>', ['class' => 'sio-admin__bloc-quiz']) ?>
                     <p class="glossary-form__help">
                         Cochez une question pour l'ajouter au quiz, décochez-la pour la retirer.
-                        Seules les questions du thème du quiz sont proposées.
                     </p>
                     <?= $erreurChamp('questions') ?>
                     <?= $erreurChamp('questions_theme') ?>
