@@ -9,10 +9,7 @@ use App\Models\QuizQuestionModel;
 use CodeIgniter\Exceptions\PageNotFoundException;
 
 /**
- * Ce controller gère les quiz de l'Espace compréhension SIO (administration) :
- * liste, ajout / modification avec leurs questions, et suppression.
- *
- * Le contrôle de l'administrateur et les méthodes des listes sont dans AdminController.
+ * Ce controller gère les quiz de l'Espace compréhension SIO (administration)
  *
  * @since 2.0.0
  * @package Cyber4all
@@ -26,7 +23,6 @@ class AdminQuizController extends AdminController
 
     public function __construct()
     {
-        // Constructeur du parent : session, ThemeModel et vérification de l'administrateur
         parent::__construct();
 
         $this->quiz_model = new QuizModel();
@@ -35,7 +31,7 @@ class AdminQuizController extends AdminController
     }
 
     /**
-     * Liste des quiz : filtre par thème, tri et pagination.
+     * Liste des quiz filtre par thème, tri et pagination.
      *
      * @return string
      * @author Arthur
@@ -44,7 +40,6 @@ class AdminQuizController extends AdminController
     {
         $base = 'floribondant/theme/quiz';
 
-        // Colonnes du tableau
         $colonnes = [
             'titre'        => ['entete' => 'Titre', 'phrase' => 'par titre', 'asc' => 'de A à Z', 'desc' => 'de Z à A'],
             'theme_nom'    => ['entete' => 'Thème', 'phrase' => 'par thème', 'asc' => 'de A à Z', 'desc' => 'de Z à A'],
@@ -52,7 +47,6 @@ class AdminQuizController extends AdminController
             'actif'        => ['entete' => 'Actif', 'phrase' => 'par visibilité', 'asc' => 'inactifs d\'abord', 'desc' => 'actifs d\'abord'],
         ];
 
-        // 1. Paramètres de l'URL
         $themeSelect = (int) ($this->request->getGet('id_theme') ?? -1);
 
         $tri = $this->request->getGet('tri');
@@ -65,24 +59,32 @@ class AdminQuizController extends AdminController
             $ordre = 'desc';
         }
 
-        // 2. Quiz du thème choisi (-1 = tous les thèmes)
+        // 2. Quiz du thème choisi, -1 pour tous les thèmes
         $quizList = $this->quiz_model->getQuizAdmin($themeSelect);
 
-        // Tri en PHP avec une fonction anonyme (voir l'explication dans index())
         if ($tri !== null) {
+            // Permet de trié l'alphabet et de comparé / trié des chaines
             $collator = new \Collator('fr_FR');
 
-            usort($quizList, function (array $a, array $b) use ($tri, $ordre, $collator): int {
-                if ($tri === 'nb_questions' || $tri === 'actif') {
-                    // Nombres : comparés comme des nombres (en texte, "10" serait avant "9").
-                    // <=> renvoie -1 si a < b, 0 si a = b, 1 si a > b
-                    $resultat = (int) ($a[$tri] ?? 1) <=> (int) ($b[$tri] ?? 1);
+            usort($quizList, function ($a, $b) use ($tri, $ordre, $collator) {
+
+                if ($tri == 'nb_questions' || $tri == 'actif') {
+                    $valeurA = (int) $a[$tri];
+                    $valeurB = (int) $b[$tri];
+
+                    if ($valeurA < $valeurB) {
+                        $resultat = -1;
+                    } elseif ($valeurA > $valeurB) {
+                        $resultat = 1;
+                    } else {
+                        $resultat = 0;
+                    }
+
                 } else {
-                    // Textes : ordre alphabétique français
-                    $resultat = $collator->compare((string) $a[$tri], (string) $b[$tri]);
+                    $resultat = $collator->compare($a[$tri], $b[$tri]);
                 }
 
-                if ($ordre === 'desc') {
+                if ($ordre == 'desc') {
                     $resultat = -$resultat;
                 }
 
@@ -90,7 +92,6 @@ class AdminQuizController extends AdminController
             });
         }
 
-        // 3. Pagination : 20 quiz par page
         $parPage = 20;
         $totalQuiz = count($quizList);
         $nbPages = max(1, (int) ceil($totalQuiz / $parPage));
@@ -103,7 +104,6 @@ class AdminQuizController extends AdminController
             $page = $nbPages;
         }
 
-        // 4. Liens pour la vue
         $parametresTri = [];
         if ($tri !== null) {
             $parametresTri = ['tri' => $tri, 'ordre' => $ordre];
@@ -134,8 +134,7 @@ class AdminQuizController extends AdminController
 
     /**
      * Suppression d'un quiz.
-     * Les liaisons avec ses questions sont supprimées, les questions sont conservées.
-     *
+
      * @param int $idQuiz Identifiant du quiz à supprimer
      * @return \CodeIgniter\HTTP\RedirectResponse Retour à la liste des quiz, avec un message
      *
@@ -150,8 +149,6 @@ class AdminQuizController extends AdminController
                 ->with('error', 'Ce quiz n\'existe pas ou a déjà été supprimé.');
         }
 
-        // delete($idQuiz) supprimerait la liaison dont l'id vaut $idQuiz :
-        // on supprime toutes les liaisons du quiz avec where(), puis le quiz
         $this->quiz_question_model->where('id_quiz', $idQuiz)->delete();
         $this->quiz_model->delete($idQuiz);
 
@@ -161,12 +158,6 @@ class AdminQuizController extends AdminController
 
     /**
      * Ajout ou modification d'un quiz, avec ses questions.
-     * Les questions sont des cases à cocher : tout est enregistré en une seule fois.
-     *
-     * Règles :
-     * - un quiz n'a qu'un thème, et seulement des questions de ce thème ;
-     * - nb_question est le nombre maximum de questions du quiz.
-     *
      * @param int|null $idQuizModif Identifiant du quiz à modifier, null pour un ajout.
      * @return mixed
      *
@@ -176,7 +167,6 @@ class AdminQuizController extends AdminController
     {
         $form = new QuizForm();
 
-        // Modification : le formulaire est rempli avec le quiz et ses questions
         if ($idQuizModif !== null) {
             $quiz = $this->quiz_model->find($idQuizModif);
 
@@ -196,15 +186,12 @@ class AdminQuizController extends AdminController
             unset($post['questions'], $post['modifier']);
             $form->fill($post);
 
-            // Questions cochées : aucune case cochée = rien n'est envoyé, d'où le ?? [].
-            // On garde les nombres uniquement, sans doublon (une question peut apparaître dans plusieurs thèmes).
-            // On remplit un tableau simple, puis on le donne à $form : on ne peut pas faire
-            // $form->questions[] = ... sur une entité (la modification serait perdue).
+
             $questionsCochees = [];
             foreach ((array) ($this->request->getPost('questions') ?? []) as $idQuestion) {
                 $idQuestion = (string) $idQuestion;
 
-                // ctype_digit() : uniquement des chiffres. in_array() : pas de doublon.
+                // ctype_digit() : uniquement des chiffres
                 if (ctype_digit($idQuestion) && ! in_array($idQuestion, $questionsCochees, true)) {
                     $questionsCochees[] = $idQuestion;
                 }
@@ -319,14 +306,12 @@ class AdminQuizController extends AdminController
 
         $themeList = $this->theme_model->getAllThemes();
 
-        // Questions cochées, en texte pour les comparer strictement aux identifiants
         $idsQuiz = [];
         foreach ($form->questions ?? [] as $idQuestion) {
             $idsQuiz[] = (string) $idQuestion;
         }
 
-        // Questions du quiz (tous thèmes confondus).
-        // whereIn() avec un tableau vide provoquerait une erreur SQL : on ne fait la requête que s'il y a des questions.
+
         $questionsQuiz = [];
         if ($idsQuiz !== []) {
             $questionsQuiz = $this->question_model
@@ -337,15 +322,12 @@ class AdminQuizController extends AdminController
                 ->findAll();
         }
 
-        // Questions du quiz qui ne sont pas du thème du quiz (quiz créé avant la règle « un seul thème ») :
-        // la vue les signale, il faut les décocher pour pouvoir enregistrer
         $themeQuiz = (int) ($form->id_theme ?? 0);
         foreach ($questionsQuiz as $numero => $question) {
             $questionsQuiz[$numero]['autre_theme'] = $themeQuiz > 0 && (int) $question['id_theme'] !== $themeQuiz;
         }
 
-        // Questions à ajouter : un bloc par thème, avec les questions de ce thème qui ne sont pas déjà dans le quiz.
-        // La vue affiche seulement le bloc du thème coché (petit script sio-admin-theme-filtre.js).
+
         $blocsThemes = [];
         foreach ($themeList as $theme) {
             $questionsAjout = [];

@@ -33,7 +33,7 @@ endif;
 <body>
     <header id="header-site" class="header-site">
         <div class="header__wrapper">
-            <?php if((isset($utilisateur) && $utilisateur->role === "admin" && strpos($_SERVER['REQUEST_URI'], 'floribondant'))):?>
+            <?php if((isset($utilisateur) && $utilisateur->role === "admin" && (strpos($_SERVER['REQUEST_URI'], 'floribondant') || strpos($_SERVER['REQUEST_URI'], 'compte')))):?>
             <div class="header__marque">
                <?= img($logo_cyber4all) ?>
                 <h1 class="header__titre">ADMINISTRATION</h1>
@@ -62,7 +62,7 @@ endif;
 
             <nav class="header__navigation" id="header-navigation" role="navigation" aria-label="Navigation principale">
                 <ul class="menu-nav">
-                    <?php if(isset($utilisateur) && $utilisateur->role === "admin"  && strpos($_SERVER['REQUEST_URI'], 'floribondant')):?>
+                    <?php if(isset($utilisateur) && $utilisateur->role === "admin"  && (strpos($_SERVER['REQUEST_URI'], 'floribondant') || strpos($_SERVER['REQUEST_URI'], 'compte'))):?>
                         <li class="menu-nav__item">
                             <?= anchor(
                                     base_url('floribondant/mots'),

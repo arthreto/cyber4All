@@ -228,25 +228,26 @@ $caseQuestion = function (array $question, bool $cochee): string {
                         <p class="glossary-form__help sio-admin__recherche-resultat" aria-live="polite"></p>
                     </div>
 
-                    <!-- Questions déjà dans le quiz : toutes cochées, dans une zone qui défile -->
+                    <!-- Questions déjà dans le quiz : toutes cochées, dans une zone qui défile.
+                         Une question créée dans le modal y est ajoutée par js/sio-admin-modal-question.js -->
                     <p class="sio-admin__sous-titre">
                         Dans ce quiz :
-                        <?php if ($nbQuestions === 0): ?>
-                            aucune question
-                        <?php else: ?>
-                            <?= $nbQuestions ?> question<?= $nbQuestions > 1 ? 's' : '' ?>
-                        <?php endif; ?>
+                        <span class="sio-admin__nb-questions-quiz">
+                            <?php if ($nbQuestions === 0): ?>
+                                aucune question
+                            <?php else: ?>
+                                <?= $nbQuestions ?> question<?= $nbQuestions > 1 ? 's' : '' ?>
+                            <?php endif; ?>
+                        </span>
                     </p>
 
-                    <?php if ($questionsQuiz === []): ?>
-                        <p class="glossary-form__help">Aucune question pour l'instant : cochez-en ci-dessous.</p>
-                    <?php else: ?>
-                        <div class="sio-admin__questions sio-admin__questions--quiz">
-                            <?php foreach ($questionsQuiz as $question): ?>
-                                <?= $caseQuestion($question, true) ?>
-                            <?php endforeach; ?>
-                        </div>
-                    <?php endif; ?>
+                    <p class="glossary-form__help sio-admin__aucune-question-quiz"<?= $questionsQuiz === [] ? '' : ' hidden' ?>>Aucune question pour l'instant : cochez-en ci-dessous.</p>
+
+                    <div class="sio-admin__questions sio-admin__questions--quiz"<?= $questionsQuiz === [] ? ' hidden' : '' ?>>
+                        <?php foreach ($questionsQuiz as $question): ?>
+                            <?= $caseQuestion($question, true) ?>
+                        <?php endforeach; ?>
+                    </div>
 
                     <!-- Questions à ajouter : un bloc par thème, seul celui du thème coché est affiché -->
                     <p class="sio-admin__sous-titre">Ajouter des questions</p>
@@ -270,11 +271,15 @@ $caseQuestion = function (array $question, bool $cochee): string {
                         </div>
                     <?php endforeach; ?>
 
-                    <!-- Nouvel onglet : le quiz en cours de saisie n'est pas perdu -->
-                    <?= anchor('floribondant/theme/questions/ajouter', 'Créer une nouvelle question (nouvel onglet)', [
-                        'class'  => 'sio-admin__retour',
-                        'target' => '_blank',
-                        'rel'    => 'noopener',
+                    <!-- Avec JavaScript : ouvre le formulaire de question dans un modal, sur cette page
+                         (thème et quiz présélectionnés). Sans JavaScript : nouvel onglet,
+                         le quiz en cours de saisie n'est pas perdu. -->
+                    <?= anchor('floribondant/theme/questions/ajouter', 'Créer une nouvelle question', [
+                        'class'               => 'sio-admin__retour',
+                        'target'              => '_blank',
+                        'rel'                 => 'noopener',
+                        'data-modal-question' => '',
+                        'data-quiz'           => $estModification ? (string) (int) $form->modifier : '',
                     ]) ?>
                 <?= form_fieldset_close() ?>
             </div>
@@ -299,5 +304,17 @@ $caseQuestion = function (array $question, bool $cochee): string {
     </div>
 </div>
 
+<!-- Modal « Nouvelle question » : le formulaire de question est chargé dans l'iframe
+     (adresse avec ?modal=1). Ouvert et fermé par js/sio-admin-modal-question.js -->
+<dialog class="sio-admin__dialog" id="modal-question" aria-labelledby="modal-question-titre">
+    <div class="sio-admin__dialog-entete">
+        <h2 class="glossary-form__dialog-title" id="modal-question-titre">Nouvelle question</h2>
+        <button type="button" class="sio-admin__dialog-fermer" data-modal-fermer aria-label="Fermer sans enregistrer">&times;</button>
+    </div>
+    <iframe class="sio-admin__dialog-cadre" title="Formulaire de création d'une question"></iframe>
+</dialog>
+
 <!-- Confort : position de défilement, questions du thème coché, recherche, limite et récapitulatif -->
 <?= script_tag(['src' => 'js/sio-admin-theme.js?v=' . filemtime(FCPATH . 'js/sio-admin-theme.js'), 'defer' => null]) ?>
+<!-- Modal de création d'une question -->
+<?= script_tag(['src' => 'js/sio-admin-modal-question.js?v=' . filemtime(FCPATH . 'js/sio-admin-modal-question.js'), 'defer' => null]) ?>

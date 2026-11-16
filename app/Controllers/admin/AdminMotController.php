@@ -58,7 +58,7 @@ class AdminMotController extends BaseController
     }
 
     /**
-     * Récupère tous les mots paginés et triés par l'ordre transmit.
+     * Récupère tous les mots paginés et triés par l'ordre transmit
      * Récupère tous les signalements
      * Récupère le nombre total de signalements en cours
      * @return string Affichage principal de la page d'admin

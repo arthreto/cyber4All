@@ -11,12 +11,6 @@ use CodeIgniter\Session\Session;
 /**
  * Contrôleur parent de l'administration de l'Espace compréhension SIO.
  *
- * Les contrôleurs des questions, des quiz et des leçons héritent de celui-ci (extends AdminController) :
- * - le constructeur vérifie que l'utilisateur connecté est administrateur ;
- * - les méthodes du bas préparent les liens des listes (filtre par thème, tri, pagination).
- *
- * « abstract » : on ne l'utilise jamais seul, aucune route ne pointe vers lui.
- *
  * @since 2.0.0
  * @package Cyber4all
  * @author Arthur
@@ -43,24 +37,11 @@ abstract class AdminController extends BaseController
         }
     }
 
-    /* =====================================================================
-     * Méthodes utilisées par les trois listes (leçons, questions, quiz).
-     * « protected » : elles servent aux contrôleurs enfants (AdminQuestionController,
-     * AdminQuizController, AdminLeconController), mais aucune route ne peut les appeler.
-     *
-     * Elles préparent ce que les vues affichent : liens du filtre par thème,
-     * en-têtes de colonnes triables, phrase du tri et numéros de page.
-     * ===================================================================== */
-
     /**
      * Adresse d'une liste avec ses paramètres d'URL.
-     * Exemple : $this->adresseListe('floribondant/theme/lecons', ['tri' => 'titre', 'ordre' => 'asc'])
-     * donne http://.../floribondant/theme/lecons?tri=titre&amp;ordre=asc
      *
-     * Le & est écrit &amp; car l'adresse est placée dans un attribut HTML (href).
-     *
-     * @param string $base       Adresse de la liste, sans paramètres
-     * @param array  $parametres Paramètres d'URL [nom => valeur]
+     * @param string $base Adresse de la liste, sans paramètres
+     * @param array  $parametres Paramètres d'URL
      * @return string
      * @author Arthur
      * @author Raphael Bierlaire
@@ -75,13 +56,13 @@ abstract class AdminController extends BaseController
     }
 
     /**
-     * Liens du filtre par thème : "Tous les thèmes", puis un lien par thème.
+     * Liens du filtre par thème.
      *
      * @param string $base          Adresse de la liste
      * @param array  $themeList     Thèmes (objets avec id et nom)
      * @param int    $themeSelect   Thème affiché, -1 pour tous
      * @param array  $parametresTri Tri en cours, conservé quand on change de thème
-     * @return array Liste de liens ['nom' => ..., 'url' => ..., 'actif' => true si c'est le thème affiché]
+     * @return array Liste de liens
      * @author Arthur
      * @author Raphael Bierlaire
      */
@@ -110,18 +91,15 @@ abstract class AdminController extends BaseController
     }
 
     /**
-     * En-têtes du tableau. Un clic sur une colonne triable donne :
-     * ordre croissant, puis décroissant, puis retour à l'ordre par défaut.
+     * Header du tableau. Un clic sur une colonne triable.
      *
-     * Chaque colonne est décrite par : entete (texte affiché), et si elle est triable :
-     * phrase (« par titre »), asc (« de A à Z ») et desc (« de Z à A »).
      *
      * @param string      $base            Adresse de la liste
-     * @param array       $colonnes        Colonnes [clé => description]
+     * @param array       $colonnes        Colonnes
      * @param string|null $tri             Colonne triée, null pour l'ordre par défaut
      * @param string      $ordre           Sens du tri : asc ou desc
      * @param array       $parametresTheme Thème filtré, conservé quand on change de tri
-     * @return array Liste d'en-têtes ['texte', 'url' (null si non triable), 'infobulle', 'aria_sort']
+     * @return array Liste du header
      * @author Arthur
      * @author Raphael Bierlaire
      */
@@ -166,9 +144,9 @@ abstract class AdminController extends BaseController
     }
 
     /**
-     * Phrase qui rappelle le tri en cours, par exemple « Leçons triées par titre, de A à Z. »
+     * Phrase qui rappelle le tri en cours
      *
-     * @param string      $debut    Début de la phrase, par exemple « Leçons triées »
+     * @param string      $debut    Début de la phrase
      * @param array       $colonnes Colonnes (même tableau que pour colonnesTri)
      * @param string|null $tri      Colonne triée, null pour l'ordre par défaut
      * @param string      $ordre    Sens du tri : asc ou desc
@@ -186,13 +164,13 @@ abstract class AdminController extends BaseController
     }
 
     /**
-     * Numéros de page. La page affichée n'a pas de lien.
+     * Numéros de page
      *
      * @param string $base       Adresse de la liste
      * @param int    $nbPages    Nombre de pages
      * @param int    $page       Page affichée
-     * @param array  $parametres Thème et tri en cours, conservés d'une page à l'autre
-     * @return array Liste de pages ['numero', 'url', 'actuelle' => true pour la page affichée]
+     * @param array  $parametres Thème et tri en cours
+     * @return array Liste de pages
      * @author Arthur
      * @author Raphael Bierlaire
      */
@@ -203,7 +181,7 @@ abstract class AdminController extends BaseController
         for ($numero = 1; $numero <= $nbPages; $numero++) {
             $parametresPage = $parametres;
 
-            // La page 1 n'a pas besoin de ?page=1 dans l'adresse
+            // La page 1 n'a pas besoin de ?page=1 dans l'adresse pour fonctionné
             if ($numero > 1) {
                 $parametresPage['page'] = $numero;
             }
