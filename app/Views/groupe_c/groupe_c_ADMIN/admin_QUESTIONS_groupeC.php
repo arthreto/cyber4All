@@ -2,6 +2,11 @@
 <style>body { margin: 0; background: #f7f8fc; }</style>
 <body>
 
+<?php if (session()->getFlashdata('succes')): ?>
+    <!-- Affiché seulement si le contrôleur a envoyé un message flash -->
+    <div class="popup-succes">✔ <?= esc(session()->getFlashdata('succes')) ?></div>
+<?php endif; ?>
+
 <div class="quiz-concept">
 
     <!-------------------- EN-TÊTE ---------------->
@@ -42,6 +47,14 @@
                                 <div class="actions">
                                     <!-- ?modifier=ID ouvre le formulaire de droite -->
                                     <a href="?modifier=<?= $q['id'] ?>" class="bouton bouton-modifier">Modifier</a>
+
+                                    <!-- Suppression directement depuis la liste, avec confirmation -->
+                                    <form method="post" action="<?= base_url('floribondant/groupe_c/admin/questions/supprimer') ?>">
+                                        <?= csrf_field() ?>
+                                        <input type="hidden" name="id_question" value="<?= esc($q['id']) ?>">
+                                        <button type="submit" class="bouton bouton-supprimer"
+                                                onclick="return confirm('Supprimer cette question ? Cette action est définitive.')">Supprimer</button>
+                                    </form>
                                 </div>
                             </td>
                         </tr>
@@ -90,18 +103,9 @@
                     </div>
 
                     <div class="boutons-formulaire">
-                        <!-- Ce bouton envoie le 2ème formulaire (form-supprimer) plus bas -->
-                        <button type="submit" form="form-supprimer" class="bouton bouton-supprimer"
-                                onclick="return confirm('Supprimer cette question ?')">Supprimer</button>
                         <a href="<?= current_url() ?>" class="bouton bouton-annuler">Annuler</a>
                         <button type="submit" class="bouton bouton-principal">Enregistrer</button>
                     </div>
-                </form>
-
-                <!-- Formulaire de suppression (séparé, déclenché par le bouton Supprimer) -->
-                <form id="form-supprimer" method="post" action="<?= base_url('floribondant/groupe_c/admin/questions/supprimer') ?>">
-                    <?= csrf_field() ?>
-                    <input type="hidden" name="id_question" value="<?= esc($edition['id']) ?>">
                 </form>
             </div>
 

@@ -69,76 +69,87 @@ class DICT_Concept_Admin_groupeC extends DICT_Admin_Base_GroupeC
     {
         $modelConcept = new \App\Models\Model_groupe_C\ModelAdminCmot_cle_categorie();
         $db           = \Config\Database::connect();
-        $idMot        = (int) $this->request->getPost('id_mot_cle'); // id du terme (champ caché du formulaire)
+        $idMot        = (int) $this->request->getPost('id_mot_cle');
 
-        // Une case cochée envoie "1", une case décochée n'envoie rien : on convertit en 1 / 0
         $valeurs = [
-            'disponibilite'   => $this->request->getPost('disponibilite') ? 1 : 0,
-            'integrite'       => $this->request->getPost('integrite') ? 1 : 0,
-            'confidentialite' => $this->request->getPost('confidentialite') ? 1 : 0,
-            'tracabilite'     => $this->request->getPost('tracabilite') ? 1 : 0,
+                'disponibilite'   => $this->request->getPost('disponibilite') ? 1 : 0,
+                'integrite'       => $this->request->getPost('integrite') ? 1 : 0,
+                'confidentialite' => $this->request->getPost('confidentialite') ? 1 : 0,
+                'tracabilite'     => $this->request->getPost('tracabilite') ? 1 : 0,
         ];
 
-        // Transaction : soit TOUT est enregistré, soit RIEN (évite les données à moitié mises à jour)
         $db->transStart();
 
-        $modelConcept->update($idMot, $valeurs); // on met à jour les cases du terme
+        $modelConcept->update($idMot, $valeurs);
 
-        // On recalcule les bonnes réponses de chaque question liée à ce terme
         $questions = $db->table('question_quiz')->select('id')->where('id_mot_cle', $idMot)->get()->getResultArray();
         foreach ($questions as $q) {
-            $this->synchroniserReponses($db, (int) $q['id'], $idMot); // méthode de DICT_Admin_Base_GroupeC
+            $this->synchroniserReponses($db, (int) $q['id'], $idMot);
         }
 
-        $db->transComplete(); // fin de la transaction : validation
+        $db->transComplete();
 
-        // On revient sur la page, avec le terme toujours ouvert en modification
+        // transStatus() = true si TOUTES les requêtes de la transaction ont réussi
+        if ($db->transStatus()) {
+            // ->with('succes', ...) crée un message flash : affiché une seule fois à la prochaine page
+            return redirect()->to(base_url('floribondant/DICT') . '?modifier=' . $idMot)
+                    ->with('succes', 'Le terme a bien été modifié.');
+        }
+
+        // Échec : on redirige SANS message de succès, donc pas de pop-up
         return redirect()->to(base_url('floribondant/DICT') . '?modifier=' . $idMot);
     }
 
     /**
      * CLASSE un terme existant dans le quiz (route POST groupe_c/admin/ajouter)
-     * Il est ajouté à conceptcyber avec toutes les cases à 0, on les cochera ensuite.
      */
     public function GroupeC_Ajouter()
     {
-        $idMot = (int) $this->request->getPost('id_mot_cle'); // terme choisi dans la liste déroulante
+        $idMot = (int) $this->request->getPost('id_mot_cle');
         $db    = \Config\Database::connect();
 
-        // Sécurités : le mot existe bien dans le glossaire ? n'est-il pas déjà classé ?
         $motExiste   = $db->table('mot_cle')->where('id', $idMot)->countAllResults() > 0;
         $dejaPresent = $db->table('conceptcyber')->where('id_mot_cle', $idMot)->countAllResults() > 0;
 
         if ($motExiste && !$dejaPresent) {
             $db->table('conceptcyber')->insert([
-                'id_mot_cle'      => $idMot,
-                'disponibilite'   => 0, // aucune catégorie cochée au départ
-                'integrite'       => 0,
-                'confidentialite' => 0,
-                'tracabilite'     => 0,
+                    'id_mot_cle'      => $idMot,
+                    'disponibilite'   => 0,
+                    'integrite'       => 0,
+                    'confidentialite' => 0,
+                    'tracabilite'     => 0,
             ]);
+
+            // Ajout réussi : message flash => pop-up
+            return redirect()->to(base_url('floribondant/DICT') . '?modifier=' . $idMot)
+                    ->with('succes', 'Le terme a bien été ajouté.');
         }
 
-        // On ouvre directement le terme en modification pour cocher ses catégories
+        // Le mot n'existe pas ou est déjà classé : pas de message de succès
         return redirect()->to(base_url('floribondant/DICT') . '?modifier=' . $idMot);
     }
 
     /**
      * RETIRE un terme du classement (route POST groupe_c/admin/supprimer)
-     * Le mot reste dans le glossaire, il n'est juste plus dans le quiz.
      */
     public function GroupeC_Supprimer()
     {
-        $idMot = (int) $this->request->getPost('id_mot_cle'); // id du terme (champ caché du formulaire)
+        $idMot = (int) $this->request->getPost('id_mot_cle');
 
-        if ($idMot > 0) { // sécurité : on ignore un id invalide
-            \Config\Database::connect()
-                ->table('conceptcyber')        // table des classements D/I/C/T
-                ->where('id_mot_cle', $idMot)  // la ligne de ce terme
-                ->delete();                    // on la supprime
+        if ($idMot > 0) {
+            $db = \Config\Database::connect();
+
+            $db->table('conceptcyber')
+                    ->where('id_mot_cle', $idMot)
+                    ->delete();
+
+            // affectedRows() = nombre de lignes réellement supprimées (0 = rien n'a été supprimé)
+            if ($db->affectedRows() > 0) {
+                return redirect()->to(base_url('floribondant/DICT'))
+                        ->with('succes', 'Le terme a bien été supprimé du classement.');
+            }
         }
 
-        // Retour à la liste, sans terme ouvert
         return redirect()->to(base_url('floribondant/DICT'));
     }
 }
