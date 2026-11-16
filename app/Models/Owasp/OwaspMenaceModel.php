@@ -18,17 +18,28 @@ class OwaspMenaceModel extends Model
         'prog_menace',
         'tops_id'
     ];
+    protected $returnType = 'object';
     public function getMenaces(string $id): ?array
     {
-        return $this->select('id_menace, nom_menace')->
-        where('tops_id', $id)->
-        get()->getResult();
+        return $this->select('id_menace, nom_menace')
+            ->where('tops_id', $id)
+            ->get()
+            ->getResult();
     }
-    public function getMenace(string $top)
+    public function getMenaceContreMesures( int $id): ?array
     {
-        return $this->select('desc_menace, nom_menace, prog_menace, desc_cm, prog_cm')->
-        join('contre_mesure', 'menace.id_menace = contre_mesure.menace_id')->
-        where('tops_id ', $top)->
-        get()->getResult();
+        return $this->db->table('contre_mesure')
+            ->select('desc_cm, prog_cm')
+            ->where('menace_id', $id)
+            ->get()
+            ->getResult();
+    }
+    public function getMenace(string $top, int $id)
+    {
+        return $this->select('desc_menace, nom_menace, prog_menace')
+            ->where('tops_id ', $top)
+            ->where('id_menace', $id)
+            ->get()
+            ->getRow();
     }
 }

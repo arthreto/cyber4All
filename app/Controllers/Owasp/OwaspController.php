@@ -49,19 +49,24 @@ class OwaspController extends BaseController
                 view('owasp/footerView');
     }
 
-    public function getMenace($top)
+    public function getMenace($top,$num):string
     {
-        $menace = $this->Menace->getMenace($top);
-        $data['nom'] = $menace[0]->nom_menace;
-        $data['description'] = $menace[0]->desc_menace;
-        $data['prog'] = $menace[0]->prog_menace;
+        $num+=10;
+        $menace = $this->Menace->getMenace($top, $num);
+        $data['nom'] = $menace->nom_menace;
+        $data['description'] = $menace->desc_menace;
+        $data['prog'] = $menace->prog_menace;
+
+        $menace = $this->Menace->getMenaceContreMesures($num);
+        $i=0;
         foreach ($menace as $element)
         {
-            $i =+ 1;
+            $i++;
             $data['prog_cm'][$i] = $element->prog_cm;
             $data['description_cm'][$i] = $element->desc_cm;
         }
         $data['Top'] = $this->Top->getTopById($top);
+
         return view('owasp/headerView', $data) .
             view('owasp/MenaceView', $data) .
             view('owasp/footerView');

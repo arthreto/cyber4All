@@ -17,8 +17,7 @@
                 <h4>Exemple de code</h4>
                 <pre><code><?= esc($prog ?? '') ?></code></pre>
             </div>
-        </div>
-
+</div>
         <?php if (!empty($prog_cm)): ?>
             <div class="countermeasures">
                 <h4 class="counter-title">Contre-mesures associées</h4>

@@ -18,7 +18,7 @@
                             </div>
                             <span class="risk-list-arrow" aria-hidden="true">⟶</span>'; ?>
                         <li>
-                            <?= anchor(base_url() . 'top10/api/detail/' . $nom_top, $contenu, ['class' => 'risk-card']) ?>
+                            <?= anchor(base_url() . 'top10/api/detail/' . $nom_top . '/' . $id, $contenu, ['class' => 'risk-card']) ?>
                         </li>
                     <?php endforeach;
                 endif; ?>
