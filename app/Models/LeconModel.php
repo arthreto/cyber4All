@@ -97,47 +97,85 @@ class LeconModel extends Model
      * En cas d'erreur (ex. problème de connexion ou de requête), un message
      * d'erreur est logué et un tableau vide est retourné.
      *
-     * @param int|null $idTheme Identifiant du thème pour filtrer, null pour toutes les leçons.
+     * La liste de l'administration peut demander un tri ($tri) : titre, theme, auteur,
+     * date_ajout ou date_modif. Sans tri, l'ordre reste thème puis id.
+     *
+     * @param int|null    $idTheme Identifiant du thème pour filtrer, null pour toutes les leçons.
+     * @param string|null $tri     Colonne de tri (voir ci-dessus), null pour l'ordre par défaut.
+     * @param string      $ordre   Sens du tri : asc ou desc.
      * @return Lecon[] Tableau d'objets `Lecon`, vide en cas d'erreur.
      *
      * @since 1.0.0
      * @author Raphael BIERLAIRE
      */
-    public function getAllLecons(?int $idTheme = null): array
-{
-    try {
-        $this->select('lecon.*, theme.nom AS nom_theme')
-            ->join('theme', 'theme.id = lecon.id_theme');
+    public function getAllLecons(?int $idTheme = null, ?string $tri = null, string $ordre = 'asc'): array
+    {
+        // Colonnes SQL des tris possibles (le tri par auteur se fait plus bas, en PHP)
+        $colonnesTri = [
+            'titre'      => 'lecon.titre',
+            'theme'      => 'theme.nom',
+            'date_ajout' => 'lecon.date_ajout',
+            'date_modif' => 'lecon.date_modif',
+        ];
 
-        // Filtre facultatif : uniquement les leçons du thème choisi
-        if ($idTheme !== null) {
-            $this->where('lecon.id_theme', $idTheme);
+        $sens = 'ASC';
+        if ($ordre === 'desc') {
+            $sens = 'DESC';
         }
 
-        // Requête ordonnée par thème, puis par le champ id en ASC
-        $lecons = $this->orderBy('lecon.id_theme', 'ASC')
-            ->orderBy('lecon.id', 'ASC')
-            ->findAll();
-    } catch (DatabaseException $e) {
-        log_message('error', 'Erreur getAllLecons : ' . $e->getMessage());
-        return [];
+        try {
+            $this->select('lecon.*, theme.nom AS nom_theme')
+                ->join('theme', 'theme.id = lecon.id_theme');
+
+            // Filtre facultatif : uniquement les leçons du thème choisi
+            if ($idTheme !== null) {
+                $this->where('lecon.id_theme', $idTheme);
+            }
+
+            if ($tri !== null && isset($colonnesTri[$tri])) {
+                // Tri demandé par la liste de l'administration
+                $this->orderBy($colonnesTri[$tri], $sens);
+            } else {
+                // Ordre par défaut : par thème, puis par le champ id en ASC
+                $this->orderBy('lecon.id_theme', 'ASC')
+                    ->orderBy('lecon.id', 'ASC');
+            }
+
+            $lecons = $this->findAll();
+        } catch (DatabaseException $e) {
+            log_message('error', 'Erreur getAllLecons : ' . $e->getMessage());
+            return [];
+        }
+
+        $utilisateurModel = new UtilisateurModel();
+
+        foreach ($lecons as $lecon) {
+            // Auteur et dernier modificateur (null si absent ou introuvable)
+            $lecon->user_auteur = $lecon->id_auteur !== null
+                ? $utilisateurModel->getUtilisateurById((int) $lecon->id_auteur)
+                : null;
+
+            $lecon->user_modificateur = $lecon->id_auteur_modif !== null
+                ? $utilisateurModel->getUtilisateurById((int) $lecon->id_auteur_modif)
+                : null;
+        }
+
+        // Tri par auteur : le pseudo est dans une autre base, on trie donc en PHP.
+        // usort() compare les leçons deux par deux avec une fonction anonyme (sans nom).
+        if ($tri === 'auteur') {
+            usort($lecons, function ($a, $b) use ($ordre): int {
+                $resultat = strcasecmp((string) ($a->user_auteur->pseudo ?? ''), (string) ($b->user_auteur->pseudo ?? ''));
+
+                if ($ordre === 'desc') {
+                    $resultat = -$resultat;
+                }
+
+                return $resultat;
+            });
+        }
+
+        return $lecons;
     }
-
-    $utilisateurModel = new UtilisateurModel();
-
-    foreach ($lecons as $lecon) {
-        // Auteur et dernier modificateur (null si absent ou introuvable)
-        $lecon->user_auteur = $lecon->id_auteur !== null
-            ? $utilisateurModel->getUtilisateurById((int) $lecon->id_auteur)
-            : null;
-
-        $lecon->user_modificateur = $lecon->id_auteur_modif !== null
-            ? $utilisateurModel->getUtilisateurById((int) $lecon->id_auteur_modif)
-            : null;
-    }
-
-    return $lecons;
-}
 
     /**
      * Crée une nouvelle leçon.

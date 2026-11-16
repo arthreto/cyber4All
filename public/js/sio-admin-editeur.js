@@ -1,40 +1,54 @@
 /**
- * Éditeur Markdown du contenu des leçons (EasyMDE)
- * Exception à la règle 0 JS de l'administration.
- * Sans JavaScript, le textarea classique reste utilisable.
+ * Éditeur Markdown du contenu d'une leçon (EasyMDE)
+ *
+ * @author Raphael Bierlaire
  */
 
-// Attend que la page soit entièrement chargée avant de chercher le champ
 document.addEventListener('DOMContentLoaded', () => {
-
-    // Récupère le textarea du contenu (id défini dans formLecon.php)
     const champ = document.getElementById('champ-contenu');
 
-    // Si le champ n'existe pas sur cette page, ou si la bibliothèque n'a pas chargé
-    // (CDN indisponible), on s'arrête : le textarea classique reste affiché
+    // Pas de champ sur la page, ou bibliothèque non chargée : on garde la zone de texte classique
     if (!champ || !window.EasyMDE) {
         return;
     }
 
-    // L'éditeur masque le textarea : le navigateur ne peut plus afficher son message
-    // "champ obligatoire" et bloquerait l'envoi sans explication.
-    // La vérification reste faite par le contrôleur (règle "required").
+    // L'éditeur masque la zone de texte : le navigateur ne pourrait plus afficher
+    // son message "champ obligatoire". La vérification est faite par le contrôleur.
     champ.removeAttribute('required');
 
-    // Création de l'éditeur à la place du textarea
     new EasyMDE({
-        element: champ,       // le textarea à remplacer
-        forceSync: true,      // recopie le texte dans le textarea à chaque frappe, pour qu'il soit envoyé
-        spellChecker: false,  // désactive le correcteur intégré, uniquement en anglais
-        status: false,        // masque la barre du bas (nombre de mots, de lignes)
-        minHeight: '400px',   // hauteur minimale de la zone de saisie
+        element: champ,                 // la zone de texte à remplacer
+        forceSync: true,                // recopie le texte dans la zone de texte, pour qu'il soit envoyé
+        spellChecker: false,            // le correcteur intégré est uniquement en anglais
+        status: false,                  // pas de compteur de mots en bas
+        minHeight: '300px',             // pas de hauteur maximale : l'éditeur s'agrandit avec le texte,
+                                        // c'est la page qui défile (pas de barre de défilement dans l'éditeur)
+        placeholder: 'Écrivez la leçon ici…',
+        autoDownloadFontAwesome: false, // boutons en texte : les icônes sont inutiles
+        sideBySideFullscreen: false,    // l'aperçu en direct reste dans la page
+
+        // Texte inséré par le bouton "Tableau"
+        insertTexts: {
+            table: ['', '\n\n| Colonne 1 | Colonne 2 |\n| --- | --- |\n| Texte | Texte |\n\n'],
+        },
 
         // Boutons de la barre d'outils ('|' = séparateur)
         toolbar: [
-            'bold', 'italic', 'heading', '|',          // gras, italique, titres
-            'quote', 'unordered-list', 'ordered-list', '|', // citation, listes à puces et numérotées
-            'link', 'code', 'table', '|',              // lien, bloc de code, tableau
-            'preview', 'side-by-side', 'fullscreen',   // aperçu, aperçu côte à côte, plein écran
+            { name: 'bold', action: EasyMDE.toggleBold, text: 'Gras' },
+            { name: 'italic', action: EasyMDE.toggleItalic, text: 'Italique' },
+            { name: 'heading-2', action: EasyMDE.toggleHeading2, text: 'Titre' },
+            { name: 'heading-3', action: EasyMDE.toggleHeading3, text: 'Sous-titre' },
+            '|',
+            { name: 'unordered-list', action: EasyMDE.toggleUnorderedList, text: 'Liste' },
+            { name: 'ordered-list', action: EasyMDE.toggleOrderedList, text: 'Liste numérotée' },
+            '|',
+            { name: 'link', action: EasyMDE.drawLink, text: 'Lien' },
+            { name: 'code', action: EasyMDE.toggleCodeBlock, text: 'Code' },
+            { name: 'table', action: EasyMDE.drawTable, text: 'Tableau' },
+            '|',
+            // noDisable : ces boutons restent cliquables pendant l'aperçu
+            { name: 'preview', action: EasyMDE.togglePreview, text: 'Aperçu', noDisable: true },
+            { name: 'side-by-side', action: EasyMDE.toggleSideBySide, text: 'Aperçu en direct', noDisable: true },
         ],
     });
 });

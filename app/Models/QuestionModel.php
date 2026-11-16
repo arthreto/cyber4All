@@ -19,7 +19,7 @@ class QuestionModel extends Model
     protected $table = 'question';
     protected $primaryKey = 'id';
     protected $useAutoIncrement = true;
-    protected $allowedFields = ['id', 'libelle','id_extrait','image','bonne_reponse','explication','actif','date_ajout','date_modif'];
+    protected $allowedFields = ['id', 'id_theme', 'libelle','id_extrait','image','bonne_reponse','explication','actif','date_ajout','date_modif'];
     //protected $returnType = \App\Entities\Quiz::class;
 
     /**
@@ -173,6 +173,75 @@ class QuestionModel extends Model
 
         } catch (DatabaseException $e) {
             log_message('error', "Erreur de récupération des questions du quiz : " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Récupère les questions d'un thème (colonne id_theme de la question), avec leurs quiz.
+     *
+     * Même format que getAllQuestions() : utilisée par la liste des questions
+     * quand un thème est choisi dans le filtre.
+     *
+     * En cas de succès, elle retourne un tableau de questions.
+     * En cas d'échec, elle retourne un tableau vide.
+     *
+     * @param int $idTheme Identifiant du thème recherché.
+     * @return array Liste des questions du thème ou tableau vide.
+     *
+     * @since 2.0.0
+     * @author Arthur
+     */
+    public function getQuestionsDuTheme(int $idTheme): array
+    {
+        try {
+            $questions = $this->where('id_theme', $idTheme)->findAll();
+
+            foreach ($questions as &$question) {
+                $question['quiz'] = $this->db->table('quiz')
+                    ->select('quiz.id, quiz.titre')
+                    ->join('quiz_question', 'quiz_question.id_quiz = quiz.id')
+                    ->where('quiz_question.id_question', $question['id'])
+                    ->get()
+                    ->getResultArray();
+            }
+            unset($question);
+
+            return $questions;
+
+        } catch (DatabaseException $e) {
+            log_message('error', "Erreur de récupération des questions du thème : " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Récupère les questions d'un thème pour le formulaire d'un quiz.
+     *
+     * Un quiz ne contient que des questions de son thème : on cherche
+     * les questions dont la colonne id_theme correspond, triées par énoncé.
+     * Elle ne renvoie que les colonnes utiles au formulaire.
+     *
+     * En cas de succès, elle retourne un tableau de questions.
+     * En cas d'échec, elle retourne un tableau vide.
+     *
+     * @param int $idTheme Identifiant du thème recherché.
+     * @return array Liste des questions (id, libelle, bonne_reponse, id_theme) ou tableau vide.
+     *
+     * @since 2.0.0
+     * @author Arthur
+     */
+    public function getQuestionsAdminParTheme(int $idTheme): array
+    {
+        try {
+            return $this->select('id, libelle, bonne_reponse, id_theme')
+                ->where('id_theme', $idTheme)
+                ->orderBy('libelle', 'ASC')
+                ->asArray()
+                ->findAll();
+
+        } catch (DatabaseException $e) {
+            log_message('error', "Erreur de récupération des questions du thème (administration) : " . $e->getMessage());
             return [];
         }
     }

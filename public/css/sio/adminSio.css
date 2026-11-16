@@ -277,7 +277,7 @@
 }
 
 /* Message de réussite d'une action sur un extrait (modifié, supprimé) */
-.sio-admin__info-detail {
+.sio-admin__info-extrait {
     margin: 0;
     padding: 0.5rem 0.75rem;
     border-left: 4px solid var(--color-primary-blue);
@@ -396,4 +396,920 @@
 /* Le bouton « Ajouter … » est un lien : pas de soulignement */
 .sio-admin .glossary-form__trigger {
     text-decoration: none;
+}
+
+/* ==========================================
+   Leçons : liste (adminLecons.php) et formulaire (formLecon.php)
+   Auteur : Raphael Bierlaire
+   Réutilise les classes existantes : .mots-table (tableMots.css),
+   .glossary-form (formMot.css), .notification (notifications.css)
+   ========================================== */
+
+/* ---------- Liste : conteneur ----------
+   Contraint la largeur même si la vue n'est pas placée dans .sio-admin */
+.sio-admin__section {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    color: var(--text-primary);
+}
+
+/* Messages de notifications.css : pleine largeur dans l'admin */
+.sio-admin__section .notification {
+    width: 100%;
+    margin: 0;
+}
+
+.sio-admin__section .notification h3 {
+    margin: 0;
+}
+
+/* ---------- Liste : nombre de leçons, filtre et bouton d'ajout sur une ligne ---------- */
+.sio-admin__barre-liste {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.5rem;
+}
+
+.sio-admin__titre--section {
+    font-size: 1.5rem;
+    white-space: nowrap;
+}
+
+/* Le filtre prend la place disponible entre le titre et le bouton */
+.sio-admin__barre-liste .sio-admin__themes {
+    flex: 1 1 auto;
+}
+
+/* Bouton d'ajout moins haut que celui du glossaire */
+.sio-admin__barre-liste .glossary-form__trigger {
+    padding: 0.75rem 1.25rem;
+    white-space: nowrap;
+}
+
+/* ---------- Liste : filtre par thème (liens) ---------- */
+.sio-admin__themes {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.sio-admin__themes-titre {
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.sio-admin__themes-liste {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    list-style: none;
+}
+
+.sio-admin__theme-lien {
+    display: inline-flex;
+    align-items: center;
+    min-height: 36px;
+    padding: 0 1rem;
+    border: 2px solid var(--border-input);
+    border-radius: 999px;
+    background: var(--white);
+    color: var(--text-secondary);
+    font-weight: 600;
+    text-decoration: none;
+    transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.sio-admin__theme-lien:hover {
+    border-color: var(--color-primary-blue);
+    color: var(--color-primary-blue);
+}
+
+/* Thème actuellement affiché */
+.sio-admin__theme-lien[aria-current="true"] {
+    border-color: transparent;
+    background: var(--gradient-primary);
+    color: var(--white);
+}
+
+/* ---------- Liste : rappel du tri en cours ---------- */
+.sio-admin__etat {
+    color: var(--text-tertiary);
+}
+
+.sio-admin__etat a {
+    color: var(--text-link);
+    font-weight: 600;
+}
+
+/* ---------- Liste : en-têtes triables du tableau ---------- */
+.mots-table__header-cell--tri {
+    padding: 0;
+}
+
+/* Toute la cellule d'en-tête est un lien de tri */
+.mots-table__tri {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    color: var(--white);
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.mots-table__tri:hover {
+    background: var(--rgba-white-02);
+}
+
+/* Flèche de tri : discrète si la colonne n'est pas triée, marquée sinon */
+.mots-table__tri::after {
+    content: "\2195";
+    opacity: 0.6;
+}
+
+.mots-table__header-cell[aria-sort="ascending"] .mots-table__tri::after {
+    content: "\25B2";
+    opacity: 1;
+    font-size: 0.7rem;
+}
+
+.mots-table__header-cell[aria-sort="descending"] .mots-table__tri::after {
+    content: "\25BC";
+    opacity: 1;
+    font-size: 0.7rem;
+}
+
+/* Colonne triée : fond plus clair et trait blanc en bas */
+.mots-table__header-cell[aria-sort="ascending"],
+.mots-table__header-cell[aria-sort="descending"] {
+    background: var(--bg-glass-subtle);
+    box-shadow: inset 0 -3px 0 var(--white);
+}
+
+/* Contour blanc au clavier : le bleu ne se voit pas sur le dégradé */
+.sio-admin__section .mots-table__tri:focus-visible {
+    outline: 2px solid var(--white);
+    outline-offset: -4px;
+}
+
+/* ---------- Liste : cellules (plus compactes que le tableau des mots) ---------- */
+.sio-admin__section .mots-table__cell {
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
+}
+
+.sio-admin__section .mots-table__tri {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+}
+.mots-table__titre {
+    font-weight: 600;
+}
+
+/* "par arthur" sous la date de modification */
+.mots-table__precision {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-tertiary);
+}
+
+/* Boutons Modifier et Supprimer côte à côte */
+.sio-admin__section .sio-admin__ligne-actions {
+    flex-wrap: nowrap;
+}
+
+/* Bouton "Supprimer" un peu moins haut dans le tableau */
+.sio-admin__section .sio-admin__btn-supprimer {
+    min-height: 32px;
+}
+
+/* Bouton "Modifier" à la taille du bouton "Supprimer" */
+.sio-admin__btn--petit {
+    min-height: 32px;
+    padding: 0 0.75rem;
+    border-width: 1px;
+    font-size: 14px;
+}
+
+/* Pagination (.pagination de tableMots.css) : séparée du tableau par un trait */
+.sio-admin__section .pagination {
+    border-top: 1px solid #e2e8f0;
+}
+
+/* Liste vide */
+.sio-admin__vide {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 3rem 1rem;
+    border: 2px dashed var(--border-input);
+    border-radius: 8px;
+    color: var(--text-tertiary);
+}
+
+/* Focus clavier (si la vue n'est pas dans .sio-admin) */
+.sio-admin__section a:focus-visible,
+.sio-admin__section button:focus-visible {
+    outline: 2px solid var(--color-primary-blue);
+    outline-offset: 2px;
+}
+
+/* ---------- Formulaire : largeur ----------
+   Plus large que les autres formulaires : la barre d'outils de l'éditeur tient sur une ligne */
+.sio-admin--formulaire-large {
+    width: min(1000px, 100%);
+}
+
+/* ---------- Formulaire : titre de la page et lien de retour sur une ligne ---------- */
+.sio-admin__entete-form {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.25rem;
+}
+
+.sio-admin__entete-form .sio-admin__retour {
+    padding: 0;
+}
+
+/* ---------- Formulaire : informations en lecture seule ---------- */
+.sio-admin__infos {
+    margin-bottom: 1rem;
+}
+
+/* ---------- Formulaire : récapitulatif des erreurs ---------- */
+.sio-admin__erreur-liste {
+    margin-top: 0.5rem;
+    padding-left: 1.25rem;
+}
+
+.sio-admin__erreur-liste li {
+    margin-left: 5%;
+}
+
+/* ---------- Formulaire : choix du thème (boutons radio) ---------- */
+.sio-admin__radios--cartes {
+    gap: 0.5rem;
+}
+
+/* Chaque thème est une étiquette cliquable avec son bouton radio */
+.sio-admin__choix--carte {
+    padding: 0 1rem 0 0.75rem;
+    border: 2px solid var(--border-input);
+    border-radius: 8px;
+    background: var(--white);
+    font-weight: 600;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.sio-admin__choix--carte:hover {
+    border-color: var(--color-primary-blue);
+}
+
+.sio-admin__choix--carte input {
+    width: 1.1rem;
+    height: 1.1rem;
+    accent-color: var(--color-primary-blue);
+}
+
+/* Thème choisi */
+.sio-admin__choix--carte:has(input:checked) {
+    border-color: var(--color-primary-blue);
+    background: var(--bg-hover-primary);
+    color: var(--color-primary-blue);
+}
+
+/* Contour au clavier sur toute l'étiquette (et non sur le seul bouton radio) */
+.sio-admin__choix--carte:has(input:focus-visible) {
+    outline: 2px solid var(--color-primary-blue);
+    outline-offset: 2px;
+}
+
+.sio-admin__choix--carte input:focus-visible {
+    outline: none;
+}
+
+/* Aucun thème choisi alors qu'il est obligatoire */
+.sio-admin__radios--erreur .sio-admin__choix--carte {
+    border-color: var(--state-error);
+}
+
+/* ---------- Formulaire : aides et aide-mémoire Markdown ---------- */
+.sio-admin__memo code {
+    display: inline-block;
+    padding: 0 0.375rem;
+    border: 1px solid var(--border-input);
+    border-radius: 4px;
+    background: var(--white);
+    color: var(--text-primary);
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 0.9em;
+    white-space: pre-wrap;
+}
+
+/* En-tête du champ Contenu : libellé à gauche, aide-mémoire à droite */
+.sio-admin__entete-champ {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.sio-admin__entete-champ .glossary-form__label {
+    margin-bottom: 0;
+}
+
+.sio-admin__memo {
+    border: 1px solid var(--border-divider-medium);
+    border-radius: 8px;
+    background: var(--gray-50);
+    font-size: 14px;
+}
+
+/* Ouvert, l'aide-mémoire passe sous le libellé, sur toute la largeur */
+.sio-admin__memo[open] {
+    flex-basis: 100%;
+}
+
+.sio-admin__memo-titre {
+    padding: 0.375rem 0.75rem;
+    color: var(--text-link);
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.sio-admin__memo-tableau {
+    width: calc(100% - 1.5rem);
+    margin: 0 0.75rem 0.75rem;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.sio-admin__memo-tableau th,
+.sio-admin__memo-tableau td {
+    padding: 0.4rem 0.5rem;
+    border-top: 1px solid var(--border-input);
+    text-align: left;
+    vertical-align: top;
+}
+
+.sio-admin__memo-tableau th {
+    width: 40%;
+    font-weight: 400;
+}
+
+.sio-admin__memo-tableau thead th {
+    border-top: none;
+    font-weight: 600;
+}
+
+/* ---------- Formulaire : barre d'enregistrement ----------
+   Reste visible en bas de l'écran pendant la saisie */
+
+/* formMot.css met overflow-y: auto sur le formulaire, ce qui empêche
+   la barre de rester collée en bas de l'écran */
+.sio-admin .glossary-form__form {
+    overflow: visible;
+}
+
+.sio-admin__barre {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 50;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.75rem;
+    /* Les boutons s'alignent sur le bord droit du formulaire (1200px au plus) */
+    padding: 0.75rem max(1.5rem, calc((100% - 1200px) / 2));
+    border-top: 1px solid var(--border-divider-medium);
+    background: var(--white);
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.06);
+}
+
+/* Espace en bas des formulaires : la barre fixe ne cache pas les derniers champs */
+.sio-admin--formulaire {
+    padding-bottom: 5rem;
+}
+
+/* ---------- Formulaire : éditeur Markdown (EasyMDE) ----------
+   Boutons en toutes lettres à la place des icônes */
+.sio-admin .EasyMDEContainer .editor-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.5rem;
+    border: 2px solid var(--border-input);
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
+    background: var(--gray-50);
+    opacity: 1;
+}
+
+.sio-admin .EasyMDEContainer .editor-toolbar button {
+    width: auto;
+    min-width: 0;
+    height: 2.25rem;
+    margin: 0;
+    padding: 0 0.6rem;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    color: var(--text-primary);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* EasyMDE ajoute un petit chiffre après les boutons de titre : inutile avec du texte */
+.sio-admin .EasyMDEContainer .editor-toolbar button::after {
+    content: none;
+}
+
+.sio-admin .EasyMDEContainer .editor-toolbar button:hover,
+.sio-admin .EasyMDEContainer .editor-toolbar button.active {
+    border-color: var(--color-primary-blue);
+    background: var(--white);
+    color: var(--color-primary-blue);
+}
+
+.sio-admin .EasyMDEContainer .editor-toolbar i.separator {
+    align-self: stretch;
+    margin: 0.25rem;
+    border-left: 1px solid var(--border-input);
+    border-right: none;
+}
+
+.sio-admin .EasyMDEContainer .CodeMirror {
+    border: 2px solid var(--border-input);
+    border-radius: 0 0 8px 8px;
+    color: var(--text-primary);
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+.sio-admin .EasyMDEContainer .CodeMirror-focused {
+    border-color: var(--color-primary-blue);
+    box-shadow: 0 0 0 3px var(--bg-hover-primary);
+}
+
+/* Aperçu en direct : le formulaire s'élargit pour laisser de la place
+   au texte et au rendu (EasyMDE ajoute la classe sided--no-fullscreen) */
+.sio-admin--formulaire:has(.sided--no-fullscreen) {
+    width: min(1400px, 100%);
+}
+
+/* Aperçu en direct : le panneau de rendu a la même bordure que la saisie */
+.sio-admin .EasyMDEContainer .editor-preview-side {
+    border: 2px solid var(--border-input);
+    border-radius: 0 0 8px 0;
+}
+
+.sio-admin .EasyMDEContainer .CodeMirror-sided {
+    border-radius: 0 0 0 8px;
+}
+
+/* Titres dans la zone de saisie : repérables sans être démesurés */
+.sio-admin .EasyMDEContainer .cm-header-2 {
+    font-size: 1.375em;
+}
+
+.sio-admin .EasyMDEContainer .cm-header-3 {
+    font-size: 1.15em;
+}
+
+/* Contenu manquant */
+.sio-admin__champ--erreur .EasyMDEContainer .CodeMirror {
+    border-color: var(--state-error);
+}
+
+/* Aperçu : rétablit les espacements retirés par la remise à zéro de style.css */
+.sio-admin .editor-preview h2,
+.sio-admin .editor-preview h3,
+.sio-admin .editor-preview p,
+.sio-admin .editor-preview ul,
+.sio-admin .editor-preview ol,
+.sio-admin .editor-preview pre,
+.sio-admin .editor-preview table,
+.sio-admin .editor-preview-side h2,
+.sio-admin .editor-preview-side h3,
+.sio-admin .editor-preview-side p,
+.sio-admin .editor-preview-side ul,
+.sio-admin .editor-preview-side ol,
+.sio-admin .editor-preview-side pre,
+.sio-admin .editor-preview-side table {
+    margin-bottom: 0.75rem;
+}
+
+.sio-admin .editor-preview ul,
+.sio-admin .editor-preview ol,
+.sio-admin .editor-preview-side ul,
+.sio-admin .editor-preview-side ol {
+    padding-left: 1.5rem;
+}
+
+.sio-admin .editor-preview pre,
+.sio-admin .editor-preview-side pre {
+    padding: 0.75rem;
+}
+
+.sio-admin .editor-preview th,
+.sio-admin .editor-preview td,
+.sio-admin .editor-preview-side th,
+.sio-admin .editor-preview-side td {
+    padding: 0.375rem 0.75rem;
+    border: 1px solid var(--border-input);
+}
+
+/* ==========================================
+   Questions : liste (adminQuestions.php) et formulaire (formQuestion.php)
+   Auteur : Arthur
+   Réutilise les classes de la section « Leçons »
+   ========================================== */
+
+/* ---------- Liste : bonne réponse et questions inactives ---------- */
+.sio-admin__badge--vrai {
+    background: var(--bg-hover-success);
+    color: #15803d;
+}
+
+.sio-admin__badge--faux {
+    background: var(--bg-hover-error);
+    color: #b91c1c;
+}
+
+/* Question inactive : ligne grisée (la couleur du texte vient de .sio-admin__ligne--inactive) */
+.sio-admin__ligne--inactive .mots-table__link,
+.sio-admin__ligne--inactive .sio-admin__miniature {
+    opacity: 0.6;
+}
+
+/* ---------- Formulaire : deux colonnes ---------- */
+.sio-admin--formulaire-xl {
+    width: min(1200px, 100%);
+}
+
+.sio-admin__colonnes {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    gap: 1.5rem;
+    align-items: start;
+}
+
+.sio-admin__colonne {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    min-width: 0;
+}
+
+/* L'espacement entre les blocs vient de la colonne */
+.sio-admin__colonne .sio-admin__bloc-quiz {
+    margin-bottom: 0;
+}
+
+/* ---------- Formulaire : groupes repliables (quiz par thème, extraits par type) ---------- */
+.sio-admin__groupe {
+    border: 1px solid var(--border-divider-medium);
+    border-radius: 8px;
+}
+
+.sio-admin__groupe + .sio-admin__groupe {
+    margin-top: 0.5rem;
+}
+
+/* Titre du groupe : nom du thème ou du type, et nombre d'éléments */
+.sio-admin__groupe-titre {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    font-weight: 600;
+    list-style: none;
+    cursor: pointer;
+}
+
+/* Flèche : à droite si le groupe est fermé, vers le bas s'il est ouvert */
+.sio-admin__groupe-titre::-webkit-details-marker {
+    display: none;
+}
+
+.sio-admin__groupe-titre::before {
+    content: "▸";
+    order: -2;
+    color: var(--text-tertiary);
+}
+
+.sio-admin__groupe[open] > .sio-admin__groupe-titre::before {
+    content: "▾";
+}
+
+.sio-admin__groupe-titre:hover {
+    background: var(--bg-hover-primary);
+}
+
+.sio-admin__groupe-nombre {
+    margin-left: auto;
+    color: var(--text-tertiary);
+    font-size: 13px;
+    font-weight: 400;
+}
+
+/* Contenu d'un groupe ouvert */
+.sio-admin__groupe > :not(summary) {
+    padding: 0 0.75rem 0.75rem;
+}
+
+/* Groupe qui contient un élément coché : titre en bleu et pastille, même fermé */
+.sio-admin__groupe:has(input:checked) > .sio-admin__groupe-titre {
+    color: var(--color-primary-blue);
+}
+
+.sio-admin__groupe:has(input:checked) > .sio-admin__groupe-titre::after {
+    content: "";
+    order: -1;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-primary-blue);
+}
+
+/* ---------- Formulaire : étiquettes cliquables ---------- */
+/* Version compacte (quiz, extraits, options de l'extrait) */
+.sio-admin__choix--petit {
+    min-height: 36px;
+    padding: 0 0.75rem 0 0.5rem;
+    font-size: 14px;
+}
+
+/* Bonne réponse : vert pour Vrai, rouge pour Faux une fois coché */
+.sio-admin__choix--vrai:has(input:checked) {
+    border-color: var(--state-success);
+    background: var(--bg-hover-success);
+    color: #15803d;
+}
+
+.sio-admin__choix--faux:has(input:checked) {
+    border-color: var(--state-error);
+    background: var(--bg-hover-error);
+    color: #b91c1c;
+}
+
+.sio-admin__choix--vrai input {
+    accent-color: var(--state-success);
+}
+
+.sio-admin__choix--faux input {
+    accent-color: var(--state-error);
+}
+
+/* ---------- Formulaire : extrait facultatif ---------- */
+.sio-admin__extrait-bloc,
+.sio-admin__extrait-contenu {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+/* Extraits existants : grille d'étiquettes, l'extrait coché prend toute la largeur */
+.sio-admin__extraits {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 0.5rem;
+}
+
+.sio-admin__extrait {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 0;
+}
+
+.sio-admin__extrait:has(> label input:checked) {
+    grid-column: 1 / -1;
+}
+
+/* Étiquette d'un extrait : titre, puis début du contenu sur deux lignes au maximum */
+.sio-admin__choix--extrait {
+    align-items: flex-start;
+    height: auto;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+.sio-admin__choix--extrait input {
+    flex-shrink: 0;
+    margin-top: 0.2rem;
+}
+
+.sio-admin__extrait-texte {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-width: 0;
+}
+
+.sio-admin__extrait-debut {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.4;
+    color: var(--text-tertiary);
+    overflow-wrap: anywhere;
+}
+
+/* Extrait coché : le contenu complet s'affiche dessous, le début est inutile */
+.sio-admin__extrait:has(> label input:checked) .sio-admin__extrait-debut {
+    display: none;
+}
+
+
+/* Affiche seulement le bloc de l'option choisie et l'aperçu de l'extrait coché,
+   sans recharger la page. Sans prise en charge de :has(), tout reste affiché. */
+@supports selector(:has(*)) {
+    .sio-admin__extrait-bloc,
+    .sio-admin__extrait-contenu {
+        display: none;
+    }
+
+    .sio-admin__bloc-extrait:has(#mode-extrait-existant:checked) .sio-admin__extrait-bloc--existant,
+    .sio-admin__bloc-extrait:has(#mode-extrait-nouveau:checked) .sio-admin__extrait-bloc--nouveau,
+    .sio-admin__extrait:has(> label input:checked) .sio-admin__extrait-contenu {
+        display: flex;
+    }
+}
+
+/* ---------- Formulaire : image actuelle ---------- */
+.sio-admin__apercu-image {
+    display: block;
+    max-width: 100%;
+    max-height: 100px;
+    border: 1px solid var(--border-input);
+    border-radius: 8px;
+    background: var(--gray-100);
+}
+
+/* Pas d'animation pour les personnes qui les ont désactivées */
+@media (prefers-reduced-motion: reduce) {
+    .sio-admin__theme-lien,
+    .sio-admin__choix--carte {
+        transition: none;
+    }
+}
+
+/* ==========================================
+   Quiz : formulaire d'ajout / de modification
+   Auteur : Arthur
+   ========================================== */
+
+/* Colonnes inversées : le quiz à gauche (plus étroit), ses questions à droite */
+.sio-admin__colonnes--quiz {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+}
+
+/* Sous-titre entre « Dans ce quiz » et les groupes de questions à ajouter */
+.sio-admin__sous-titre {
+    margin: 0.5rem 0 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+}
+
+/* Liste des questions d'un groupe : une question par ligne */
+.sio-admin__questions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+/* Étiquette d'une question : case, énoncé (sur plusieurs lignes si besoin), bonne réponse à droite */
+.sio-admin__choix--question {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.4;
+}
+
+.sio-admin__choix--question input {
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+}
+
+.sio-admin__question-libelle {
+    flex: 1;
+    min-width: 0;
+}
+
+.sio-admin__choix--question .sio-admin__badge {
+    flex-shrink: 0;
+    font-size: 12px;
+}
+
+/* « Dans ce quiz » : zone qui défile, pour garder la page courte même avec beaucoup de questions */
+.sio-admin__questions--quiz {
+    max-height: 320px;
+    overflow-y: auto;
+    padding: 0.5rem;
+    border: 1px solid var(--border-divider-medium);
+    border-radius: 8px;
+}
+
+/* Question décochée dans « Dans ce quiz » : barrée, elle sera retirée à l'enregistrement */
+.sio-admin__questions--quiz .sio-admin__choix--question:not(:has(input:checked)) {
+    border-style: dashed;
+}
+
+.sio-admin__questions--quiz .sio-admin__choix--question:not(:has(input:checked)) .sio-admin__question-libelle {
+    color: var(--text-tertiary);
+    text-decoration: line-through;
+}
+
+.sio-admin__questions--quiz .sio-admin__choix--question:not(:has(input:checked)) .sio-admin__question-libelle::after {
+    content: " (retirée à l'enregistrement)";
+    display: inline-block;
+    margin-left: 0.25rem;
+    color: var(--state-error);
+    font-size: 12px;
+    text-decoration: none;
+}
+
+/* Éléments masqués par l'attribut hidden (recherche, récapitulatif) :
+   sans cette règle, un display: flex de leur classe les laisserait visibles */
+.sio-admin [hidden] {
+    display: none !important;
+}
+
+/* Recherche dans les questions */
+.sio-admin__recherche {
+    margin-bottom: 0;
+}
+
+.sio-admin__recherche-resultat:empty {
+    display: none;
+}
+
+/* Récapitulatif des changements, à gauche des boutons de la barre du bas */
+.sio-admin__recap {
+    align-self: center;
+    margin: 0 auto 0 0;
+    color: var(--text-tertiary);
+    font-size: 14px;
+}
+
+/* ==========================================
+   Thème dans les formulaires des questions et des quiz
+   Auteur : Arthur
+   ========================================== */
+
+/* Bloc d'un thème (quiz, extraits ou questions) : seul celui du thème coché est affiché par le script */
+.sio-admin__par-theme {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.sio-admin__par-theme + .sio-admin__par-theme {
+    margin-top: 0.75rem;
+}
+
+.sio-admin__par-theme-titre {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-tertiary);
+}
+
+/* Case bloquée (limite du nombre de questions atteinte) */
+.sio-admin__choix--carte:has(input:disabled) {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Question d'un autre thème que le quiz : à décocher pour pouvoir enregistrer */
+.sio-admin__choix--autre-theme:has(input:checked) {
+    border-color: var(--state-error);
+}
+
+/* Champ de nombre : largeur réduite */
+.sio-admin__input--court {
+    max-width: 10rem;
 }

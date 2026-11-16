@@ -2,224 +2,372 @@
 
 namespace App\Controllers\admin;
 
-use App\Controllers\BaseController;
 use App\Entities\QuizForm;
-use App\Entities\Utilisateur;
 use App\Models\QuestionModel;
 use App\Models\QuizModel;
 use App\Models\QuizQuestionModel;
-use App\Models\ThemeModel;
 use CodeIgniter\Exceptions\PageNotFoundException;
-use CodeIgniter\Session\Session;
 
 /**
- * Ce controller permet l'ajout et la modification des quiz
- * de l'Espace compréhension SIO (administration).
+ * Ce controller gère les quiz de l'Espace compréhension SIO (administration) :
+ * liste, ajout / modification avec leurs questions, et suppression.
+ *
+ * Le contrôle de l'administrateur et les méthodes des listes sont dans AdminController.
  *
  * @since 2.0.0
  * @package Cyber4all
  * @author Arthur
  */
-class AdminQuizController extends BaseController
+class AdminQuizController extends AdminController
 {
-    protected ?Utilisateur $utilisateur = null;
-    protected Session $session;
-    protected ThemeModel $theme_model;
     protected QuizModel $quiz_model;
     protected QuestionModel $question_model;
     protected QuizQuestionModel $quiz_question_model;
 
     public function __construct()
     {
-        $this->session = session();
+        // Constructeur du parent : session, ThemeModel et vérification de l'administrateur
+        parent::__construct();
 
-        $this->theme_model = new ThemeModel();
         $this->quiz_model = new QuizModel();
         $this->question_model = new QuestionModel();
         $this->quiz_question_model = new QuizQuestionModel();
-
-        // Vérification de la session et du rôle de l'utilisateur
-        $utilisateur = $this->session->get('utilisateur');
-
-        if ($utilisateur && $utilisateur->role === 'admin') {
-            $this->utilisateur = $utilisateur;
-        } else {
-            throw PageNotFoundException::forPageNotFound('Accès refusé');
-        }
     }
 
     /**
-     * Suppresion d'un Quiz
+     * Liste des quiz : filtre par thème, tri et pagination.
      *
-     * @param int|null $idQuiz Identifiant du quiz à supprimer
-     * @return boolean Suppresion reussi, Vrai = Oui, Faux = Non
+     * @return string
+     * @author Arthur
+     */
+    public function index()
+    {
+        $base = 'floribondant/theme/quiz';
+
+        // Colonnes du tableau
+        $colonnes = [
+            'titre'        => ['entete' => 'Titre', 'phrase' => 'par titre', 'asc' => 'de A à Z', 'desc' => 'de Z à A'],
+            'theme_nom'    => ['entete' => 'Thème', 'phrase' => 'par thème', 'asc' => 'de A à Z', 'desc' => 'de Z à A'],
+            'nb_questions' => ['entete' => 'Questions', 'phrase' => 'par nombre de questions', 'asc' => 'du plus petit au plus grand', 'desc' => 'du plus grand au plus petit'],
+            'actif'        => ['entete' => 'Actif', 'phrase' => 'par visibilité', 'asc' => 'inactifs d\'abord', 'desc' => 'actifs d\'abord'],
+        ];
+
+        // 1. Paramètres de l'URL
+        $themeSelect = (int) ($this->request->getGet('id_theme') ?? -1);
+
+        $tri = $this->request->getGet('tri');
+        if (! in_array($tri, array_keys($colonnes), true)) {
+            $tri = null;
+        }
+
+        $ordre = 'asc';
+        if ($this->request->getGet('ordre') === 'desc') {
+            $ordre = 'desc';
+        }
+
+        // 2. Quiz du thème choisi (-1 = tous les thèmes)
+        $quizList = $this->quiz_model->getQuizAdmin($themeSelect);
+
+        // Tri en PHP avec une fonction anonyme (voir l'explication dans index())
+        if ($tri !== null) {
+            $collator = new \Collator('fr_FR');
+
+            usort($quizList, function (array $a, array $b) use ($tri, $ordre, $collator): int {
+                if ($tri === 'nb_questions' || $tri === 'actif') {
+                    // Nombres : comparés comme des nombres (en texte, "10" serait avant "9").
+                    // <=> renvoie -1 si a < b, 0 si a = b, 1 si a > b
+                    $resultat = (int) ($a[$tri] ?? 1) <=> (int) ($b[$tri] ?? 1);
+                } else {
+                    // Textes : ordre alphabétique français
+                    $resultat = $collator->compare((string) $a[$tri], (string) $b[$tri]);
+                }
+
+                if ($ordre === 'desc') {
+                    $resultat = -$resultat;
+                }
+
+                return $resultat;
+            });
+        }
+
+        // 3. Pagination : 20 quiz par page
+        $parPage = 20;
+        $totalQuiz = count($quizList);
+        $nbPages = max(1, (int) ceil($totalQuiz / $parPage));
+
+        $page = (int) ($this->request->getGet('page') ?? 1);
+        if ($page < 1) {
+            $page = 1;
+        }
+        if ($page > $nbPages) {
+            $page = $nbPages;
+        }
+
+        // 4. Liens pour la vue
+        $parametresTri = [];
+        if ($tri !== null) {
+            $parametresTri = ['tri' => $tri, 'ordre' => $ordre];
+        }
+        $parametresTheme = [];
+        if ($themeSelect > 0) {
+            $parametresTheme = ['id_theme' => $themeSelect];
+        }
+
+        $data = [
+            'onglet'       => 'quiz',
+            'themeSelect'  => $themeSelect,
+            'quizList'     => array_slice($quizList, ($page - 1) * $parPage, $parPage),
+            'totalQuiz'    => $totalQuiz,
+            'filtreThemes' => $this->filtreThemes($base, $this->theme_model->getAllThemes(), $themeSelect, $parametresTri),
+            'colonnes'     => $this->colonnesTri($base, $colonnes, $tri, $ordre, $parametresTheme),
+            'messageTri'   => $this->messageTri('Quiz triés', $colonnes, $tri, $ordre),
+            'urlSansTri'   => $this->adresseListe($base, $parametresTheme),
+            'pages'        => $this->pagesListe($base, $nbPages, $page, $parametresTheme + $parametresTri),
+        ];
+
+        return view('header')
+            . view('notice')
+            . view('admin/tracabilite/onglets', $data)
+            . view('admin/tracabilite/adminQuiz', $data)
+            . view('footer');
+    }
+
+    /**
+     * Suppression d'un quiz.
+     * Les liaisons avec ses questions sont supprimées, les questions sont conservées.
+     *
+     * @param int $idQuiz Identifiant du quiz à supprimer
+     * @return \CodeIgniter\HTTP\RedirectResponse Retour à la liste des quiz, avec un message
+     *
+     * @author Arthur
      */
     public function quizSupprimer(int $idQuiz)
     {
-        $this->quiz_question_model->delete($idQuiz);
+        $quiz = $this->quiz_model->find($idQuiz);
+
+        if ($quiz === null) {
+            return redirect()->to(base_url('floribondant/theme/quiz'))
+                ->with('error', 'Ce quiz n\'existe pas ou a déjà été supprimé.');
+        }
+
+        // delete($idQuiz) supprimerait la liaison dont l'id vaut $idQuiz :
+        // on supprime toutes les liaisons du quiz avec where(), puis le quiz
+        $this->quiz_question_model->where('id_quiz', $idQuiz)->delete();
         $this->quiz_model->delete($idQuiz);
 
-        return redirect()->route('quizList');
+        return redirect()->to(base_url('floribondant/theme/quiz'))
+            ->with('success', 'Quiz « ' . $quiz->titre . ' » supprimé.');
     }
 
     /**
-     * Ajout ou modification d'un quiz,
-     * avec le rattachement de ses questions.
+     * Ajout ou modification d'un quiz, avec ses questions.
+     * Les questions sont des cases à cocher : tout est enregistré en une seule fois.
+     *
+     * Règles :
+     * - un quiz n'a qu'un thème, et seulement des questions de ce thème ;
+     * - nb_question est le nombre maximum de questions du quiz.
      *
      * @param int|null $idQuizModif Identifiant du quiz à modifier, null pour un ajout.
      * @return mixed
+     *
+     * @author Arthur
      */
     public function quizAjouter(?int $idQuizModif = null)
     {
-        $form = $this->session->get('quizForm');
+        $form = new QuizForm();
 
-        if ($form !== null && (int) ($form->modifier ?? 0) !== (int) ($idQuizModif ?? 0)) {
-            $form = null;
-        }
+        // Modification : le formulaire est rempli avec le quiz et ses questions
+        if ($idQuizModif !== null) {
+            $quiz = $this->quiz_model->find($idQuizModif);
 
-        if ($form === null) {
-            $form = new QuizForm();
-
-            if ($idQuizModif !== null) {
-                $quiz = $this->quiz_model->find($idQuizModif);
-
-                if ($quiz === null) {
-                    throw PageNotFoundException::forPageNotFound('Quiz introuvable');
-                }
-
-                $form->fill($quiz->toArray());
-                $form->modifier = $idQuizModif;
-                $form->questions = $this->quiz_question_model->getIdsQuestionsByQuiz($idQuizModif);
+            if ($quiz === null) {
+                throw PageNotFoundException::forPageNotFound('Quiz introuvable');
             }
+
+            $form->fill($quiz->toArray());
+            $form->modifier = $idQuizModif;
+            $form->questions = $this->quiz_question_model->getIdsQuestionsByQuiz($idQuizModif);
         }
 
         $errors = [];
 
-        if ($this->request->is('post')) {
+        if ($this->request->is('post') && $this->request->getPost('action') === 'enregistrer') {
             $post = $this->request->getPost();
             unset($post['questions'], $post['modifier']);
-
             $form->fill($post);
 
-            $action = $this->request->getPost('action');
+            // Questions cochées : aucune case cochée = rien n'est envoyé, d'où le ?? [].
+            // On garde les nombres uniquement, sans doublon (une question peut apparaître dans plusieurs thèmes).
+            // On remplit un tableau simple, puis on le donne à $form : on ne peut pas faire
+            // $form->questions[] = ... sur une entité (la modification serait perdue).
+            $questionsCochees = [];
+            foreach ((array) ($this->request->getPost('questions') ?? []) as $idQuestion) {
+                $idQuestion = (string) $idQuestion;
 
-            if ($action === 'ajouter_question') {
-                $questions = $form->questions;
-                $idQuestion = $this->request->getPost('id_question_ajout');
+                // ctype_digit() : uniquement des chiffres. in_array() : pas de doublon.
+                if (ctype_digit($idQuestion) && ! in_array($idQuestion, $questionsCochees, true)) {
+                    $questionsCochees[] = $idQuestion;
+                }
+            }
+            $form->questions = $questionsCochees;
 
-                if ($idQuestion && !in_array($idQuestion, $questions)) {
-                    $questions[] = $idQuestion;
+            $formData = [
+                'id_theme'    => $this->request->getPost('id_theme') ?? '',
+                'titre'       => trim($this->request->getPost('titre') ?? ''),
+                'description' => trim($this->request->getPost('description') ?? ''),
+                'nb_question' => $this->request->getPost('nb_question') ?? '',
+                'actif'       => $this->request->getPost('actif') ?? '0',
+            ];
+
+            $rules = [
+                'id_theme' => [
+                    'label' => 'Thème',
+                    'rules' => 'required|is_natural_no_zero',
+                    'errors' => [
+                        'required' => 'Veuillez choisir un thème.',
+                        'is_natural_no_zero' => 'Le thème choisi est invalide.',
+                    ],
+                ],
+                'titre' => [
+                    'label' => 'Titre',
+                    'rules' => 'required|min_length[14]|max_length[150]',
+                    'errors' => [
+                        'required' => 'Veuillez renseigner un titre.',
+                        'min_length' => 'Le titre doit contenir au moins 14 caractères.',
+                        'max_length' => 'Le titre ne peut pas dépasser 150 caractères.',
+                    ],
+                ],
+                'description' => [
+                    'label' => 'Description',
+                    'rules' => 'permit_empty|max_length[1000]',
+                    'errors' => [
+                        'max_length' => 'La description ne peut pas dépasser 1000 caractères.',
+                    ],
+                ],
+                'nb_question' => [
+                    'label' => 'Nombre de questions',
+                    'rules' => 'required|is_natural_no_zero|less_than_equal_to[200]',
+                    'errors' => [
+                        'required' => 'Veuillez indiquer le nombre de questions du quiz.',
+                        'is_natural_no_zero' => 'Le nombre de questions doit être un nombre entier supérieur à 0.',
+                        'less_than_equal_to' => 'Le nombre de questions ne peut pas dépasser 200.',
+                    ],
+                ],
+                'actif' => [
+                    'label' => 'Statut',
+                    'rules' => 'required|in_list[0,1]',
+                    'errors' => [
+                        'required' => 'Veuillez définir le statut du quiz.',
+                        'in_list' => 'Le statut du quiz est invalide.',
+                    ],
+                ],
+            ];
+
+            if (! $this->validateData($formData, $rules)) {
+                $errors = $this->validator->getErrors();
+            }
+
+            // Pas plus de questions cochées que le nombre prévu
+            $nbMax = (int) $formData['nb_question'];
+            if ($nbMax > 0 && count($form->questions) > $nbMax) {
+                $errors['questions'] = 'Ce quiz est limité à ' . $nbMax . ' question(s) : vous en avez coché ' . count($form->questions) . '.';
+            }
+
+            // Toutes les questions cochées doivent être du thème du quiz
+            $idTheme = (int) $formData['id_theme'];
+            if ($idTheme > 0 && $form->questions !== []) {
+                $themesQuestions = $this->question_model
+                    ->select('id, id_theme')
+                    ->whereIn('id', $form->questions)
+                    ->asArray()
+                    ->findAll();
+
+                $nbAutreTheme = 0;
+                foreach ($themesQuestions as $question) {
+                    if ((int) $question['id_theme'] !== $idTheme) {
+                        $nbAutreTheme++;
+                    }
                 }
 
-                $form->questions = $questions;
-
-            } elseif ($this->request->getPost('retirer_question')) {
-                $idQuestion = $this->request->getPost('retirer_question');
-
-                $form->questions = array_values(array_diff($form->questions, [$idQuestion]));
-
-            } elseif ($action === 'enregistrer') {
-                $formData = [
-                    'id_theme'    => $this->request->getPost('id_theme') ?? '',
-                    'titre'       => trim($this->request->getPost('titre') ?? ''),
-                    'description' => trim($this->request->getPost('description') ?? ''),
-                    'actif'       => $this->request->getPost('actif') ?? '0',
-                ];
-
-                $rules = [
-                    'id_theme' => [
-                        'label' => 'Thème',
-                        'rules' => 'required|is_natural_no_zero',
-                        'errors' => [
-                            'required' => 'Veuillez choisir un thème.',
-                            'is_natural_no_zero' => 'Le thème choisi est invalide.',
-                        ],
-                    ],
-                    'titre' => [
-                        'label' => 'Titre',
-                        'rules' => 'required|min_length[14]|max_length[150]',
-                        'errors' => [
-                            'required' => 'Veuillez renseigner un titre.',
-                            'min_length' => 'Le titre doit contenir au moins 14 caractères.',
-                            'max_length' => 'Le titre ne peut pas dépasser 150 caractères.',
-                        ],
-                    ],
-                    'description' => [
-                        'label' => 'Description',
-                        'rules' => 'permit_empty|max_length[1000]',
-                        'errors' => [
-                            'max_length' => 'La description ne peut pas dépasser 1000 caractères.',
-                        ],
-                    ],
-                    'actif' => [
-                        'label' => 'Statut',
-                        'rules' => 'required|in_list[0,1]',
-                        'errors' => [
-                            'required' => 'Veuillez définir le statut du quiz.',
-                            'in_list' => 'Le statut du quiz est invalide.',
-                        ],
-                    ],
-                ];
-
-                if (!$this->validateData($formData, $rules)) {
-                    $errors = $this->validator->getErrors();
-                }
-
-                if (empty($errors)) {
-                    $estModification = !empty($form->modifier);
-
-                    if ($estModification) {
-                        $idQuiz = $this->quiz_model->updateQuiz($formData, (int) $form->modifier)
-                            ? (int) $form->modifier
-                            : false;
-                    } else {
-                        $idQuiz = $this->quiz_model->creerQuiz($formData);
-                    }
-
-                    if ($idQuiz !== false
-                        && $this->quiz_question_model->updateLiaisonsQuiz($idQuiz, $form->questions ?? [])) {
-                        $this->session->remove('quizForm');
-
-                        return redirect()->to(base_url('floribondant/theme/quiz'))
-                            ->with('success', $estModification
-                                ? 'Quiz modifié avec succès !'
-                                : 'Quiz créé avec succès !');
-                    }
-
-                    $errors['enregistrement'] = "Le quiz n'a pas pu être enregistré. Veuillez réessayer.";
+                if ($nbAutreTheme > 0) {
+                    $errors['questions_theme'] = $nbAutreTheme . ' question(s) cochée(s) ne sont pas du thème du quiz : décochez-les.';
                 }
             }
 
-            $this->session->set('quizForm', $form);
+            if (empty($errors)) {
+                $estModification = ! empty($form->modifier);
+
+                if ($estModification) {
+                    $idQuiz = $this->quiz_model->updateQuiz($formData, (int) $form->modifier)
+                        ? (int) $form->modifier
+                        : false;
+                } else {
+                    $idQuiz = $this->quiz_model->creerQuiz($formData);
+                }
+
+                if ($idQuiz !== false
+                    && $this->quiz_question_model->updateLiaisonsQuiz($idQuiz, $form->questions)) {
+                    return redirect()->to(base_url('floribondant/theme/quiz'))
+                        ->with('success', $estModification
+                            ? 'Quiz modifié avec succès !'
+                            : 'Quiz créé avec succès !');
+                }
+
+                $errors['enregistrement'] = "Le quiz n'a pas pu être enregistré. Veuillez réessayer.";
+            }
         }
 
-        // Thème qui filtre les questions à ajouter : par défaut celui du quiz
         $themeList = $this->theme_model->getAllThemes();
 
-        if (empty($form->id_theme_questions)) {
-            $form->id_theme_questions = $form->id_theme ?: ($themeList[0]->id ?? null);
+        // Questions cochées, en texte pour les comparer strictement aux identifiants
+        $idsQuiz = [];
+        foreach ($form->questions ?? [] as $idQuestion) {
+            $idsQuiz[] = (string) $idQuestion;
         }
 
-        $idsAjoutes = array_map('strval', $form->questions ?? []);
+        // Questions du quiz (tous thèmes confondus).
+        // whereIn() avec un tableau vide provoquerait une erreur SQL : on ne fait la requête que s'il y a des questions.
+        $questionsQuiz = [];
+        if ($idsQuiz !== []) {
+            $questionsQuiz = $this->question_model
+                ->select('id, libelle, bonne_reponse, id_theme')
+                ->whereIn('id', $idsQuiz)
+                ->orderBy('libelle', 'ASC')
+                ->asArray()
+                ->findAll();
+        }
 
-        // Questions déjà dans le quiz (tous thèmes confondus)
-        $questionsAjoutees = empty($idsAjoutes) ? [] : $this->question_model
-            ->select('id, libelle, bonne_reponse')
-            ->whereIn('id', $idsAjoutes)
-            ->orderBy('libelle', 'ASC')
-            ->findAll();
+        // Questions du quiz qui ne sont pas du thème du quiz (quiz créé avant la règle « un seul thème ») :
+        // la vue les signale, il faut les décocher pour pouvoir enregistrer
+        $themeQuiz = (int) ($form->id_theme ?? 0);
+        foreach ($questionsQuiz as $numero => $question) {
+            $questionsQuiz[$numero]['autre_theme'] = $themeQuiz > 0 && (int) $question['id_theme'] !== $themeQuiz;
+        }
 
-        // Questions du thème choisi qui ne sont pas encore dans le quiz
-        $questionsDisponibles = array_values(array_filter(
-            $this->question_model->getQuestionsFromTheme((int) $form->id_theme_questions),
-            static fn ($question) => !in_array((string) $question['id'], $idsAjoutes, true)
-        ));
+        // Questions à ajouter : un bloc par thème, avec les questions de ce thème qui ne sont pas déjà dans le quiz.
+        // La vue affiche seulement le bloc du thème coché (petit script sio-admin-theme-filtre.js).
+        $blocsThemes = [];
+        foreach ($themeList as $theme) {
+            $questionsAjout = [];
+            foreach ($this->question_model->getQuestionsAdminParTheme((int) $theme->id) as $question) {
+                if (! in_array((string) $question['id'], $idsQuiz, true)) {
+                    $questionsAjout[] = $question;
+                }
+            }
+
+            $blocsThemes[] = [
+                'id'        => (int) $theme->id,
+                'nom'       => $theme->nom,
+                'choisi'    => (int) $theme->id === $themeQuiz,
+                'questions' => $questionsAjout,
+            ];
+        }
 
         $data = [
             'form' => $form,
             'themeList' => $themeList,
-            'questionsAjoutees' => $questionsAjoutees,
-            'questionsDisponibles' => $questionsDisponibles,
+            'questionsQuiz' => $questionsQuiz,
+            'blocsThemes' => $blocsThemes,
             'errors' => $errors,
         ];
 

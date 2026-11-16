@@ -3,34 +3,27 @@
 namespace App\Controllers\admin;
 
 use App\Controllers\BaseController;
-use App\Entities\Image;
-use App\Entities\MotCle;
 use App\Entities\QuestionForm;
 use App\Entities\Utilisateur;
-use App\Models\CategorieModel;
 use App\Models\ExtraitModel;
-use App\Models\ImageModel;
-use App\Models\MotCle\MotCleCategorieModel;
-use App\Models\MotCle\MotCleModel;
-use App\Models\MotCle\MotCleValidationModel;
+use App\Models\LeconModel;
 use App\Models\QuestionModel;
 use App\Models\QuizModel;
 use App\Models\QuizQuestionModel;
-use App\Models\SignalementModel;
 use App\Models\ThemeModel;
-use App\Models\LeconModel;
 use App\Models\UtilisateurModel;
-use CodeIgniter\Config\Services;
 use CodeIgniter\Exceptions\PageNotFoundException;
 use CodeIgniter\HTTP\RedirectResponse;
 use CodeIgniter\Session\Session;
-use CodeIgniter\Validation\Validation;
 
 /**
- * Ce controller permet la gestion de la page d'administration des mots
+ * Ce controller gère l'administration de l'Espace compréhension SIO :
+ * listes des questions, des quiz et des leçons, et formulaire des questions.
+ *
  * @since 1.0.0
  * @package Cyber4all
- * @author Benjamin Lorieul
+ * @author Arthur
+ * @author Raphael Bierlaire (leçons)
  */
 class AdminThemeController extends BaseController
 {
@@ -38,6 +31,7 @@ class AdminThemeController extends BaseController
     protected UtilisateurModel $utilisateur_model;
     protected ?Utilisateur $utilisateur = null;
     protected Session $session;
+    protected ThemeModel $theme_model;
     protected QuizModel $quiz_model;
     protected QuestionModel $question_model;
     protected LeconModel $lecon_model;
@@ -67,27 +61,109 @@ class AdminThemeController extends BaseController
     }
 
     /**
-     * Récupère toutes les leçons, thèmes.
-     * @return string Affichage principal de la page d'admin
+     * Liste des questions : filtre par thème, tri et pagination.
      *
-     * @since 1.0.0
+     * @return string
      * @author Arthur
      */
     public function index()
     {
-        $data = ['onglet' => 'questions',
-            'themeList' => $this->theme_model->getAllThemes(),
-            'themeSelect' => -1];
+        $base = 'floribondant/theme';
 
-        if ($this->request->is('post') && $this->request->getPost('id_theme') != null) {
-            $data['themeSelect'] = $this->request->getPost('id_theme');
+        // Colonnes du tableau. La colonne Quiz n'a pas de phrase : elle n'est pas triable.
+        $colonnes = [
+            'libelle'       => ['entete' => 'Énoncé', 'phrase' => 'par énoncé', 'asc' => 'de A à Z', 'desc' => 'de Z à A'],
+            'quiz'          => ['entete' => 'Quiz'],
+            'bonne_reponse' => ['entete' => 'Réponse', 'phrase' => 'par bonne réponse', 'asc' => 'Faux d\'abord', 'desc' => 'Vrai d\'abord'],
+            'actif'         => ['entete' => 'Active', 'phrase' => 'par visibilité', 'asc' => 'inactives d\'abord', 'desc' => 'actives d\'abord'],
+            'date_modif'    => ['entete' => 'Dernière modification', 'phrase' => 'par date de modification', 'asc' => 'de la plus ancienne à la plus récente', 'desc' => 'de la plus récente à la plus ancienne'],
+        ];
+
+        // 1. Paramètres de l'URL
+        $themeSelect = (int) ($this->request->getGet('id_theme') ?? -1);
+
+        $tri = $this->request->getGet('tri');
+        if (! in_array($tri, ['libelle', 'bonne_reponse', 'actif', 'date_modif'], true)) {
+            $tri = null;
         }
 
-        if($data['themeSelect'] == -1){
-            $data['questionList'] = $this->question_model->getAllQuestions();
+        $ordre = 'asc';
+        if ($this->request->getGet('ordre') === 'desc') {
+            $ordre = 'desc';
+        }
+
+        // 2. Questions du thème choisi, ou toutes les questions
+        if ($themeSelect > 0) {
+            $questions = $this->question_model->getQuestionsFromTheme($themeSelect);
         } else {
-            $data['questionList'] = $this->question_model->getQuestionsFromTheme($data['themeSelect']);
+            $questions = $this->question_model->getAllQuestions();
         }
+
+        // Tri en PHP. usort() compare les questions deux par deux avec la fonction donnée :
+        // c'est une fonction anonyme (sans nom), écrite directement à l'endroit où elle sert.
+        // use (...) lui donne accès aux variables $tri, $ordre et $collator de la méthode.
+        // Le Collator compare les textes dans l'ordre alphabétique français (É rangé avec E).
+        if ($tri !== null) {
+            $collator = new \Collator('fr_FR');
+
+            usort($questions, function (array $a, array $b) use ($tri, $ordre, $collator): int {
+                $valeurA = (string) $a[$tri];
+                $valeurB = (string) $b[$tri];
+
+                // Pour la date, une question jamais modifiée est rangée selon sa date d'ajout
+                if ($tri === 'date_modif') {
+                    $valeurA = (string) ($a['date_modif'] ?? $a['date_ajout']);
+                    $valeurB = (string) ($b['date_modif'] ?? $b['date_ajout']);
+                }
+
+                $resultat = $collator->compare($valeurA, $valeurB);
+
+                // Ordre décroissant : on inverse le résultat
+                if ($ordre === 'desc') {
+                    $resultat = -$resultat;
+                }
+
+                return $resultat;
+            });
+        }
+
+        // 3. Pagination : 20 questions par page
+        $parPage = 20;
+        $totalQuestions = count($questions);
+        $nbPages = max(1, (int) ceil($totalQuestions / $parPage));
+
+        $page = (int) ($this->request->getGet('page') ?? 1);
+        if ($page < 1) {
+            $page = 1;
+        }
+        if ($page > $nbPages) {
+            $page = $nbPages;
+        }
+
+        // 4. Liens pour la vue
+        $parametresTri = [];
+        if ($tri !== null) {
+            $parametresTri = ['tri' => $tri, 'ordre' => $ordre];
+        }
+        $parametresTheme = [];
+        if ($themeSelect > 0) {
+            $parametresTheme = ['id_theme' => $themeSelect];
+        }
+
+        // Un formulaire de question resté en session ne sert plus quand on revient à la liste
+        session()->remove('questionForm');
+
+        $data = [
+            'onglet'         => 'questions',
+            'themeSelect'    => $themeSelect,
+            'questionList'   => array_slice($questions, ($page - 1) * $parPage, $parPage),
+            'totalQuestions' => $totalQuestions,
+            'filtreThemes'   => $this->filtreThemes($base, $this->theme_model->getAllThemes(), $themeSelect, $parametresTri),
+            'colonnes'       => $this->colonnesTri($base, $colonnes, $tri, $ordre, $parametresTheme),
+            'messageTri'     => $this->messageTri('Questions triées', $colonnes, $tri, $ordre),
+            'urlSansTri'     => $this->adresseListe($base, $parametresTheme),
+            'pages'          => $this->pagesListe($base, $nbPages, $page, $parametresTheme + $parametresTri),
+        ];
 
         return view('header')
             . view('notice')
@@ -97,22 +173,39 @@ class AdminThemeController extends BaseController
     }
 
     /**
-     * Suppresion d'une Question
+     * Suppression d'une question et de ses liaisons avec les quiz.
      *
-     * @param int|null $idQuestion Identifiant de la question à supprimer
-     * @return boolean Suppresion reussi, Vrai = Oui, Faux = Non
+     * @param int $idQuestion Identifiant de la question à supprimer
+     * @return RedirectResponse Retour à la liste des questions, avec un message
+     *
+     * @author Arthur
      */
     public function questionSupprimer(int $idQuestion)
     {
-        $this->quiz_question_model->delete($idQuestion);
+        if ($this->question_model->find($idQuestion) === null) {
+            return redirect()->to(base_url('floribondant/theme'))
+                ->with('error', 'Cette question n\'existe pas ou a déjà été supprimée.');
+        }
+
+        // delete($idQuestion) supprimerait la liaison dont l'id vaut $idQuestion :
+        // on supprime toutes les liaisons de la question avec where(), puis la question
+        $this->quiz_question_model->where('id_question', $idQuestion)->delete();
         $this->question_model->delete($idQuestion);
 
-        // Redirection vers la liste : l'URL redevient celle de la liste (la position de
-        // défilement y est remise) et un rafraîchissement ne renvoie pas la suppression
-        return redirect()->to(base_url('floribondant/theme'));
+        return redirect()->to(base_url('floribondant/theme'))
+            ->with('success', 'Question supprimée.');
     }
 
 
+    /**
+     * Ajout ou modification d'une question, avec son extrait facultatif et ses quiz.
+     * Le formulaire est gardé en session entre deux envois (actions sur un extrait).
+     *
+     * @param int|null $idQuestionModif Identifiant de la question à modifier, null pour un ajout.
+     * @return mixed
+     *
+     * @author Arthur
+     */
     public function questionAjouter(?int $idQuestionModif = null)
     {
         $form = $this->session->get('questionForm');
@@ -133,25 +226,21 @@ class AdminThemeController extends BaseController
                     $form->fill($question);
                     $form->modifier = $idQuestionModif;
 
-                    // Détail : la question a-t-elle déjà un extrait ?
-                    $form->detail_mode = !empty($question['id_extrait']) ? 'existant' : 'aucun';
-
-                    $form->quiz = $this->quiz_question_model->getIdsQuizByQuestion($idQuestionModif);
-
-                    // Preselectionne le premier quiz
-                    if (!empty($form->quiz)) {
-                        $premierQuiz = $this->quiz_model->find($form->quiz[0]);
-
-                        if ($premierQuiz !== null) {
-                            $form->id_theme = $premierQuiz->id_theme;
-                        }
+                    // Extrait : la question en a-t-elle déjà un ?
+                    if (! empty($question['id_extrait'])) {
+                        $form->extrait_mode = 'existant';
+                    } else {
+                        $form->extrait_mode = 'aucun';
                     }
+
+                    // Quiz de la question (cases cochées dans le formulaire)
+                    $form->quiz = $this->quiz_question_model->getIdsQuizByQuestion($idQuestionModif);
                 }
             }
         }
 
         $errors = [];
-        $infoDetail = null;
+        $infoExtrait = null;
         $extraitList = $this->extrait_model->getAllExtraits();
 
         if ($this->request->is('post')) {
@@ -159,6 +248,9 @@ class AdminThemeController extends BaseController
             unset($post['quiz']);
 
             $form->fill($post);
+
+            // Quiz cochés : aucune case cochée = rien n'est envoyé, d'où le ?? []
+            $form->quiz = array_values((array) ($this->request->getPost('quiz') ?? []));
 
             $action = (string) $this->request->getPost('action');
             $actionsExtrait = ['modifier_extrait', 'enregistrer_extrait', 'supprimer_extrait', 'annuler_extrait'];
@@ -170,31 +262,13 @@ class AdminThemeController extends BaseController
             }
 
             if (in_array($action, $actionsExtrait, true)) {
-                $infoDetail = $this->gererActionExtrait($action, $form, $errors);
+                $infoExtrait = $this->gererActionExtrait($action, $form, $errors);
                 $extraitList = $this->extrait_model->getAllExtraits();
-            } elseif ($action === 'ajouter_quiz') {
-                $quiz = $form->quiz;
-                $idQuiz = $this->request->getPost('id_quiz_ajout');
-
-                if ($idQuiz && !in_array($idQuiz, $quiz)) {
-                    $quiz[] = $idQuiz;
-                }
-
-                $form->quiz = $quiz;
-            } elseif ($this->request->getPost('retirer_quiz')) {
-                $quiz = $form->quiz;
-                $idQuiz = $this->request->getPost('retirer_quiz');
-
-                $quiz = array_values(array_diff($quiz, [$idQuiz]));
-
-                $form->quiz = $quiz;
             } else {
                 $formData = [
-                    'id_theme'      => $this->request->getPost('id_theme') ?? '',
-                    'id_quiz_ajout' => $this->request->getPost('id_quiz_ajout') ?? '',
                     'libelle'        => $this->request->getPost('libelle') ?? '',
                     'image'         => $this->request->getPost('image') ?? '',
-                    'detail_mode'     => $form->detail_mode ?? 'aucun',
+                    'extrait_mode'    => $form->extrait_mode ?? 'aucun',
                     'id_extrait'      => $form->id_extrait ?? '',
                     'extrait_titre'   => $form->extrait_titre ?? '',
                     'extrait_type'    => $form->extrait_type ?? '',
@@ -228,12 +302,12 @@ class AdminThemeController extends BaseController
                             'regex_match' => 'L’image doit être au format PNG, AVIF, JPG, JPEG ou WEBP.',
                         ],
                     ],
-                    'detail_mode' => [
-                        'label' => 'Détail',
+                    'extrait_mode' => [
+                        'label' => 'Extrait',
                         'rules' => 'required|in_list[aucun,existant,nouveau]',
                         'errors' => [
-                            'required' => 'Veuillez choisir une option pour le détail.',
-                            'in_list' => 'L’option choisie pour le détail est invalide.',
+                            'required' => 'Veuillez choisir une option pour l’extrait.',
+                            'in_list' => 'L’option choisie pour l’extrait est invalide.',
                         ],
                     ],
                     'bonne_reponse' => [
@@ -263,8 +337,8 @@ class AdminThemeController extends BaseController
                     ],
                 ];
 
-                // Règles du détail selon l'option choisie
-                if ($formData['detail_mode'] === 'existant') {
+                // Règles de l'extrait selon l'option choisie
+                if ($formData['extrait_mode'] === 'existant') {
                     $rules['id_extrait'] = [
                         'label' => 'Extrait',
                         'rules' => 'required|in_list[' . implode(',', array_column($extraitList, 'id')) . ']',
@@ -273,7 +347,7 @@ class AdminThemeController extends BaseController
                             'in_list' => 'L’extrait choisi n’existe pas.',
                         ],
                     ];
-                } elseif ($formData['detail_mode'] === 'nouveau') {
+                } elseif ($formData['extrait_mode'] === 'nouveau') {
                     $rules['extrait_titre'] = [
                         'label' => 'Titre de l’extrait',
                         'rules' => 'required|max_length[100]',
@@ -315,12 +389,12 @@ class AdminThemeController extends BaseController
                         $db = \Config\Database::connect('tracabilite');
                         $db->transBegin();
 
-                        // Détail : aucun, extrait existant, ou nouvel extrait créé maintenant
+                        // Extrait : aucun, extrait existant, ou nouvel extrait créé maintenant
                         $idExtrait = null;
 
-                        if ($formData['detail_mode'] === 'existant') {
+                        if ($formData['extrait_mode'] === 'existant') {
                             $idExtrait = (int) $formData['id_extrait'];
-                        } elseif ($formData['detail_mode'] === 'nouveau') {
+                        } elseif ($formData['extrait_mode'] === 'nouveau') {
                             $idExtrait = $this->extrait_model->creerExtrait([
                                 'titre'   => $formData['extrait_titre'],
                                 'type'    => $formData['extrait_type'],
@@ -362,27 +436,92 @@ class AdminThemeController extends BaseController
             $this->session->set('questionForm', $form);
         }
 
-        $quizList = $this->quiz_model->getAllQuizCategoryById($form->id_theme ?? 1);
+        // Tous les quiz, rangés par nom de thème : [nom du thème => quiz du thème]
+        $typesExtrait = ExtraitModel::TYPES;
+        $quizParTheme = [];
+        foreach ($this->theme_model->getAllThemes() as $theme) {
+            $quizParTheme[$theme->nom] = $this->quiz_model->getAllQuizCategoryById((int) $theme->id);
+        }
 
-        $quizAdded = [];
+        // ---------- Préparation de l'affichage : la vue n'a plus qu'à faire des foreach ----------
 
-        foreach ($form->quiz ?? [] as $idQuiz) {
-            $quiz = $this->quiz_model->find($idQuiz);
+        // Quiz cochés, en texte pour les comparer strictement aux identifiants
+        $quizCoches = [];
+        foreach ((array) ($form->quiz ?? []) as $idQuiz) {
+            $quizCoches[] = (string) $idQuiz;
+        }
 
-            if ($quiz) {
-                $quizAdded[$idQuiz] = $quiz->titre;
+        // Quiz regroupés par thème. Un groupe est ouvert s'il contient un quiz coché.
+        $groupesQuiz = [];
+        foreach ($quizParTheme as $nomTheme => $quizDuTheme) {
+            if (empty($quizDuTheme)) {
+                continue; // thème sans quiz : pas de groupe
+            }
+
+            $groupe = ['theme' => $nomTheme, 'ouvert' => false, 'quiz' => []];
+
+            // array_column() donne [id => titre], que les quiz soient des tableaux ou des objets
+            foreach (array_column($quizDuTheme, 'titre', 'id') as $idQuiz => $titre) {
+                $coche = in_array((string) $idQuiz, $quizCoches, true);
+
+                $groupe['quiz'][] = ['id' => (int) $idQuiz, 'titre' => $titre, 'coche' => $coche];
+
+                if ($coche) {
+                    $groupe['ouvert'] = true;
+                }
+            }
+
+            $groupesQuiz[] = $groupe;
+        }
+
+        // Extraits triés par titre. usort() compare les extraits deux par deux
+        // avec une fonction anonyme (fonction sans nom, écrite à l'endroit où elle sert).
+        usort($extraitList, function (array $a, array $b): int {
+            return strcasecmp($a['titre'], $b['titre']);
+        });
+
+        // Extraits regroupés par type. Un groupe est ouvert s'il contient l'extrait choisi.
+        $idExtraitChoisi = (string) ($form->id_extrait ?? '');
+        $groupesExtraits = [];
+
+        foreach ($extraitList as $extrait) {
+            // Libellé du type (« Requête HTTP » pour http), ou la valeur brute si le type est inconnu
+            $type = $typesExtrait[$extrait['type']] ?? $extrait['type'];
+
+            if (! isset($groupesExtraits[$type])) {
+                $groupesExtraits[$type] = ['type' => $type, 'ouvert' => false, 'extraits' => []];
+            }
+
+            $choisi = (string) $extrait['id'] === $idExtraitChoisi;
+
+            // Début du contenu, affiché sous le titre : retours à la ligne remplacés par des espaces,
+            // puis coupé à 160 caractères
+            $debut = preg_replace('/\s+/u', ' ', (string) $extrait['contenu']);
+            $debut = mb_strimwidth(trim($debut), 0, 160, '…');
+
+            $groupesExtraits[$type]['extraits'][] = [
+                'id'      => (int) $extrait['id'],
+                'titre'   => $extrait['titre'],
+                'contenu' => $extrait['contenu'],
+                'debut'   => $debut,
+                'choisi'  => $choisi,
+            ];
+
+            if ($choisi) {
+                $groupesExtraits[$type]['ouvert'] = true;
             }
         }
 
+        // Groupes dans l'ordre alphabétique des types (ksort trie selon les clés du tableau)
+        ksort($groupesExtraits);
+
         $data = [
-            'form' => $form,
-            'themeList' => $this->theme_model->getAllThemes(),
-            'quizList' => $quizList,
-            'quizAdded' => $quizAdded,
-            'extraitList' => $extraitList,
-            'typesExtrait' => ExtraitModel::TYPES,
-            'infoDetail' => $infoDetail,
-            'errors' => $errors,
+            'form'            => $form,
+            'groupesQuiz'     => $groupesQuiz,
+            'groupesExtraits' => $groupesExtraits,
+            'typesExtrait'    => $typesExtrait,
+            'infoExtrait'     => $infoExtrait,
+            'errors'          => $errors,
         ];
 
         return view('header')
@@ -399,6 +538,8 @@ class AdminThemeController extends BaseController
      * @param QuestionForm $form Formulaire en cours (mis à jour).
      * @param array $errors Erreurs à afficher (complété).
      * @return string|null Message de réussite à afficher, ou null.
+     *
+     * @author Arthur
      */
     private function gererActionExtrait(string $action, QuestionForm $form, array &$errors): ?string
     {
@@ -494,7 +635,7 @@ class AdminThemeController extends BaseController
 
                 $form->extrait_action = null;
                 $form->id_extrait = null;
-                $form->detail_mode = 'aucun';
+                $form->extrait_mode = 'aucun';
                 return 'Extrait supprimé.';
         }
 
@@ -502,22 +643,95 @@ class AdminThemeController extends BaseController
     }
 
     /**
-     * Onglet Quiz : liste des quiz, filtrable par thème.
-     * Même fonctionnement que index() pour les questions.
+     * Liste des quiz : filtre par thème, tri et pagination.
+     *
+     * @return string
+     * @author Arthur
      */
     public function quizSection()
     {
-        $data = [
-            'onglet' => 'quiz',
-            'themeList' => $this->theme_model->getAllThemes(),
-            'themeSelect' => -1,
+        $base = 'floribondant/theme/quiz';
+
+        // Colonnes du tableau
+        $colonnes = [
+            'titre'        => ['entete' => 'Titre', 'phrase' => 'par titre', 'asc' => 'de A à Z', 'desc' => 'de Z à A'],
+            'theme_nom'    => ['entete' => 'Thème', 'phrase' => 'par thème', 'asc' => 'de A à Z', 'desc' => 'de Z à A'],
+            'nb_questions' => ['entete' => 'Questions', 'phrase' => 'par nombre de questions', 'asc' => 'du plus petit au plus grand', 'desc' => 'du plus grand au plus petit'],
+            'actif'        => ['entete' => 'Actif', 'phrase' => 'par visibilité', 'asc' => 'inactifs d\'abord', 'desc' => 'actifs d\'abord'],
         ];
 
-        if ($this->request->is('post')) {
-            $data['themeSelect'] = (int) $this->request->getPost('id_theme');
+        // 1. Paramètres de l'URL
+        $themeSelect = (int) ($this->request->getGet('id_theme') ?? -1);
+
+        $tri = $this->request->getGet('tri');
+        if (! in_array($tri, array_keys($colonnes), true)) {
+            $tri = null;
         }
 
-        $data['quizList'] = $this->quiz_model->getQuizAdmin($data['themeSelect']);
+        $ordre = 'asc';
+        if ($this->request->getGet('ordre') === 'desc') {
+            $ordre = 'desc';
+        }
+
+        // 2. Quiz du thème choisi (-1 = tous les thèmes)
+        $quizList = $this->quiz_model->getQuizAdmin($themeSelect);
+
+        // Tri en PHP avec une fonction anonyme (voir l'explication dans index())
+        if ($tri !== null) {
+            $collator = new \Collator('fr_FR');
+
+            usort($quizList, function (array $a, array $b) use ($tri, $ordre, $collator): int {
+                if ($tri === 'nb_questions' || $tri === 'actif') {
+                    // Nombres : comparés comme des nombres (en texte, "10" serait avant "9").
+                    // <=> renvoie -1 si a < b, 0 si a = b, 1 si a > b
+                    $resultat = (int) ($a[$tri] ?? 1) <=> (int) ($b[$tri] ?? 1);
+                } else {
+                    // Textes : ordre alphabétique français
+                    $resultat = $collator->compare((string) $a[$tri], (string) $b[$tri]);
+                }
+
+                if ($ordre === 'desc') {
+                    $resultat = -$resultat;
+                }
+
+                return $resultat;
+            });
+        }
+
+        // 3. Pagination : 20 quiz par page
+        $parPage = 20;
+        $totalQuiz = count($quizList);
+        $nbPages = max(1, (int) ceil($totalQuiz / $parPage));
+
+        $page = (int) ($this->request->getGet('page') ?? 1);
+        if ($page < 1) {
+            $page = 1;
+        }
+        if ($page > $nbPages) {
+            $page = $nbPages;
+        }
+
+        // 4. Liens pour la vue
+        $parametresTri = [];
+        if ($tri !== null) {
+            $parametresTri = ['tri' => $tri, 'ordre' => $ordre];
+        }
+        $parametresTheme = [];
+        if ($themeSelect > 0) {
+            $parametresTheme = ['id_theme' => $themeSelect];
+        }
+
+        $data = [
+            'onglet'       => 'quiz',
+            'themeSelect'  => $themeSelect,
+            'quizList'     => array_slice($quizList, ($page - 1) * $parPage, $parPage),
+            'totalQuiz'    => $totalQuiz,
+            'filtreThemes' => $this->filtreThemes($base, $this->theme_model->getAllThemes(), $themeSelect, $parametresTri),
+            'colonnes'     => $this->colonnesTri($base, $colonnes, $tri, $ordre, $parametresTheme),
+            'messageTri'   => $this->messageTri('Quiz triés', $colonnes, $tri, $ordre),
+            'urlSansTri'   => $this->adresseListe($base, $parametresTheme),
+            'pages'        => $this->pagesListe($base, $nbPages, $page, $parametresTheme + $parametresTri),
+        ];
 
         return view('header')
             . view('notice')
@@ -526,20 +740,81 @@ class AdminThemeController extends BaseController
             . view('footer');
     }
 
+    /**
+     * Liste des leçons : filtre par thème, tri et pagination.
+     *
+     * @return string
+     * @author Raphael Bierlaire
+     */
     public function leconsSection()
     {
-        $themeSelect = -1;
+        $base = 'floribondant/theme/lecons';
 
-        if ($this->request->is('post')) {
-            $themeSelect = (int) $this->request->getPost('id_theme');
+        // Colonnes du tableau : texte de l'en-tête, puis les phrases qui décrivent le tri
+        $colonnes = [
+            'titre'      => ['entete' => 'Titre', 'phrase' => 'par titre', 'asc' => 'de A à Z', 'desc' => 'de Z à A'],
+            'theme'      => ['entete' => 'Thème', 'phrase' => 'par thème', 'asc' => 'de A à Z', 'desc' => 'de Z à A'],
+            'auteur'     => ['entete' => 'Auteur', 'phrase' => 'par auteur', 'asc' => 'de A à Z', 'desc' => 'de Z à A'],
+            'date_ajout' => ['entete' => 'Ajoutée le', 'phrase' => 'par date d\'ajout', 'asc' => 'de la plus ancienne à la plus récente', 'desc' => 'de la plus récente à la plus ancienne'],
+            'date_modif' => ['entete' => 'Dernière modification', 'phrase' => 'par date de modification', 'asc' => 'de la plus ancienne à la plus récente', 'desc' => 'de la plus récente à la plus ancienne'],
+        ];
+
+        // 1. Paramètres de l'URL (exemple : ?id_theme=2&tri=titre&ordre=asc&page=2)
+        $themeSelect = (int) ($this->request->getGet('id_theme') ?? -1);
+
+        $tri = $this->request->getGet('tri');
+        if (! in_array($tri, array_keys($colonnes), true)) {
+            $tri = null; // colonne inconnue ou absente : ordre par défaut
         }
 
+        $ordre = 'asc';
+        if ($this->request->getGet('ordre') === 'desc') {
+            $ordre = 'desc';
+        }
+
+        // 2. Leçons du thème choisi (null = tous les thèmes), triées par le modèle
+        $idTheme = null;
+        if ($themeSelect > 0) {
+            $idTheme = $themeSelect;
+        }
+        $lecons = $this->lecon_model->getAllLecons($idTheme, $tri, $ordre);
+
+        // 3. Pagination : 20 leçons par page
+        $parPage = 20;
+        $totalLecons = count($lecons);
+        $nbPages = max(1, (int) ceil($totalLecons / $parPage));
+
+        $page = (int) ($this->request->getGet('page') ?? 1);
+        if ($page < 1) {
+            $page = 1;
+        }
+        if ($page > $nbPages) {
+            $page = $nbPages;
+        }
+
+        // 4. Liens pour la vue (méthodes privées en bas du contrôleur) : on garde le tri quand on change de thème, et le thème quand on change de tri
+        $parametresTri = [];
+        if ($tri !== null) {
+            $parametresTri = ['tri' => $tri, 'ordre' => $ordre];
+        }
+        $parametresTheme = [];
+        if ($themeSelect > 0) {
+            $parametresTheme = ['id_theme' => $themeSelect];
+        }
+
+        // Un formulaire de leçon resté en session ne sert plus quand on revient à la liste
+        session()->remove('leconForm');
+
         $data = [
-            'onglet'      => 'lecons',
-            'themeList'   => $this->theme_model->getAllThemes(),
-            'themeSelect' => $themeSelect,
-            // Toutes les leçons (-1), ou uniquement celles du thème choisi
-            'leconList'   => $this->lecon_model->getAllLecons($themeSelect > 0 ? $themeSelect : null),
+            'onglet'       => 'lecons',
+            'themeSelect'  => $themeSelect,
+            'leconList'    => array_slice($lecons, ($page - 1) * $parPage, $parPage),
+            'totalLecons'  => $totalLecons,
+            'filtreThemes' => $this->filtreThemes($base, $this->theme_model->getAllThemes(), $themeSelect, $parametresTri),
+            'colonnes'     => $this->colonnesTri($base, $colonnes, $tri, $ordre, $parametresTheme),
+            'messageTri'   => $this->messageTri('Leçons triées', $colonnes, $tri, $ordre),
+            'urlSansTri'   => $this->adresseListe($base, $parametresTheme),
+            'pages'        => $this->pagesListe($base, $nbPages, $page, $parametresTheme + $parametresTri),
         ];
 
         return view('header')
@@ -547,5 +822,178 @@ class AdminThemeController extends BaseController
             . view('admin/tracabilite/onglets', $data)
             . view('admin/tracabilite/adminLecons', $data)
             . view('footer');
+    }
+
+    /* =====================================================================
+     * Méthodes privées utilisées par les trois listes (leçons, questions, quiz).
+     *
+     * Elles préparent ce que les vues affichent : liens du filtre par thème,
+     * en-têtes de colonnes triables, phrase du tri et numéros de page.
+     * ===================================================================== */
+
+    /**
+     * Adresse d'une liste avec ses paramètres d'URL.
+     * Exemple : $this->adresseListe('floribondant/theme/lecons', ['tri' => 'titre', 'ordre' => 'asc'])
+     * donne http://.../floribondant/theme/lecons?tri=titre&amp;ordre=asc
+     *
+     * Le & est écrit &amp; car l'adresse est placée dans un attribut HTML (href).
+     *
+     * @param string $base       Adresse de la liste, sans paramètres
+     * @param array  $parametres Paramètres d'URL [nom => valeur]
+     * @return string
+     * @author Arthur
+     * @author Raphael Bierlaire
+     */
+    private function adresseListe(string $base, array $parametres = []): string
+    {
+        if ($parametres === []) {
+            return site_url($base);
+        }
+
+        return site_url($base) . '?' . http_build_query($parametres, '', '&amp;');
+    }
+
+    /**
+     * Liens du filtre par thème : "Tous les thèmes", puis un lien par thème.
+     *
+     * @param string $base          Adresse de la liste
+     * @param array  $themeList     Thèmes (objets avec id et nom)
+     * @param int    $themeSelect   Thème affiché, -1 pour tous
+     * @param array  $parametresTri Tri en cours, conservé quand on change de thème
+     * @return array Liste de liens ['nom' => ..., 'url' => ..., 'actif' => true si c'est le thème affiché]
+     * @author Arthur
+     * @author Raphael Bierlaire
+     */
+    private function filtreThemes(string $base, array $themeList, int $themeSelect, array $parametresTri): array
+    {
+        $liens = [];
+
+        $liens[] = [
+            'nom'   => 'Tous les thèmes',
+            'url'   => $this->adresseListe($base, $parametresTri),
+            'actif' => $themeSelect <= 0,
+        ];
+
+        foreach ($themeList as $theme) {
+            $parametres = $parametresTri;
+            $parametres['id_theme'] = (int) $theme->id;
+
+            $liens[] = [
+                'nom'   => $theme->nom,
+                'url'   => $this->adresseListe($base, $parametres),
+                'actif' => (int) $theme->id === $themeSelect,
+            ];
+        }
+
+        return $liens;
+    }
+
+    /**
+     * En-têtes du tableau. Un clic sur une colonne triable donne :
+     * ordre croissant, puis décroissant, puis retour à l'ordre par défaut.
+     *
+     * Chaque colonne est décrite par : entete (texte affiché), et si elle est triable :
+     * phrase (« par titre »), asc (« de A à Z ») et desc (« de Z à A »).
+     *
+     * @param string      $base            Adresse de la liste
+     * @param array       $colonnes        Colonnes [clé => description]
+     * @param string|null $tri             Colonne triée, null pour l'ordre par défaut
+     * @param string      $ordre           Sens du tri : asc ou desc
+     * @param array       $parametresTheme Thème filtré, conservé quand on change de tri
+     * @return array Liste d'en-têtes ['texte', 'url' (null si non triable), 'infobulle', 'aria_sort']
+     * @author Arthur
+     * @author Raphael Bierlaire
+     */
+    private function colonnesTri(string $base, array $colonnes, ?string $tri, string $ordre, array $parametresTheme): array
+    {
+        $entetes = [];
+
+        foreach ($colonnes as $cle => $colonne) {
+            // Colonne non triable : texte seul
+            if (! isset($colonne['phrase'])) {
+                $entetes[] = ['texte' => $colonne['entete'], 'url' => null, 'infobulle' => '', 'aria_sort' => 'none'];
+                continue;
+            }
+
+            if ($tri !== $cle) {
+                // Colonne pas encore triée : le clic trie dans l'ordre croissant
+                $parametres = ['tri' => $cle, 'ordre' => 'asc'];
+                $infobulle  = 'Trier ' . $colonne['phrase'] . ', ' . $colonne['asc'];
+                $ariaSort   = 'none';
+            } elseif ($ordre === 'asc') {
+                // Colonne triée dans l'ordre croissant : le clic passe en décroissant
+                $parametres = ['tri' => $cle, 'ordre' => 'desc'];
+                $infobulle  = 'Trier ' . $colonne['phrase'] . ', ' . $colonne['desc'];
+                $ariaSort   = 'ascending';
+            } else {
+                // Colonne triée dans l'ordre décroissant : le clic revient à l'ordre par défaut
+                $parametres = [];
+                $infobulle  = 'Revenir à l\'ordre par défaut';
+                $ariaSort   = 'descending';
+            }
+
+            // + ajoute les paramètres du thème à ceux du tri
+            $entetes[] = [
+                'texte'     => $colonne['entete'],
+                'url'       => $this->adresseListe($base, $parametres + $parametresTheme),
+                'infobulle' => $infobulle,
+                'aria_sort' => $ariaSort, // flèche affichée par le CSS selon cette valeur
+            ];
+        }
+
+        return $entetes;
+    }
+
+    /**
+     * Phrase qui rappelle le tri en cours, par exemple « Leçons triées par titre, de A à Z. »
+     *
+     * @param string      $debut    Début de la phrase, par exemple « Leçons triées »
+     * @param array       $colonnes Colonnes (même tableau que pour colonnesTri)
+     * @param string|null $tri      Colonne triée, null pour l'ordre par défaut
+     * @param string      $ordre    Sens du tri : asc ou desc
+     * @return string|null La phrase, ou null s'il n'y a pas de tri
+     * @author Arthur
+     * @author Raphael Bierlaire
+     */
+    private function messageTri(string $debut, array $colonnes, ?string $tri, string $ordre): ?string
+    {
+        if ($tri === null) {
+            return null;
+        }
+
+        return $debut . ' ' . $colonnes[$tri]['phrase'] . ', ' . $colonnes[$tri][$ordre] . '.';
+    }
+
+    /**
+     * Numéros de page. La page affichée n'a pas de lien.
+     *
+     * @param string $base       Adresse de la liste
+     * @param int    $nbPages    Nombre de pages
+     * @param int    $page       Page affichée
+     * @param array  $parametres Thème et tri en cours, conservés d'une page à l'autre
+     * @return array Liste de pages ['numero', 'url', 'actuelle' => true pour la page affichée]
+     * @author Arthur
+     * @author Raphael Bierlaire
+     */
+    private function pagesListe(string $base, int $nbPages, int $page, array $parametres): array
+    {
+        $pages = [];
+
+        for ($numero = 1; $numero <= $nbPages; $numero++) {
+            $parametresPage = $parametres;
+
+            // La page 1 n'a pas besoin de ?page=1 dans l'adresse
+            if ($numero > 1) {
+                $parametresPage['page'] = $numero;
+            }
+
+            $pages[] = [
+                'numero'   => $numero,
+                'url'      => $this->adresseListe($base, $parametresPage),
+                'actuelle' => $numero === $page,
+            ];
+        }
+
+        return $pages;
     }
 }

@@ -55,17 +55,18 @@ $routes->group('floribondant', static function ($routes) {
     $routes->match(['GET', 'POST'], 'mots/validations', 'admin\AdminMotController::afficherValidations');
     $routes->match(['GET', 'POST'], 'mots/validation/decision/(:num)', 'admin\AdminMotController::decisionMotCle/$1');
 
-    $routes->match(['GET', 'POST'], 'theme', 'admin\AdminThemeController::index');
-    $routes->match(['GET', 'POST'], 'theme/quiz', 'admin\AdminThemeController::quizSection', ['as' => 'quizList']);
-    $routes->match(['GET', 'POST'], 'theme/lecons', 'admin\AdminThemeController::leconsSection');
-    $routes->match(['GET', 'POST'], 'theme/questions/ajouter', 'admin\AdminThemeController::questionAjouter');
-    $routes->match(['GET', 'POST'], 'theme/questions/modifier/(:num)', 'admin\AdminThemeController::questionAjouter/$1');
-    $routes->match(['GET', 'POST'], 'theme/questions/supprimer/(:num)', 'admin\AdminThemeController::questionSupprimer/$1');
+    // Espace Traçabilité : un contrôleur par section (le parent commun est AdminController)
+    $routes->match(['GET', 'POST'], 'theme', 'admin\AdminQuestionController::index');
+    $routes->match(['GET', 'POST'], 'theme/questions/ajouter', 'admin\AdminQuestionController::questionAjouter');
+    $routes->match(['GET', 'POST'], 'theme/questions/modifier/(:num)', 'admin\AdminQuestionController::questionAjouter/$1');
+    $routes->match(['GET', 'POST'], 'theme/questions/supprimer/(:num)', 'admin\AdminQuestionController::questionSupprimer/$1');
 
+    $routes->match(['GET', 'POST'], 'theme/quiz', 'admin\AdminQuizController::index', ['as' => 'quizList']);
     $routes->match(['GET', 'POST'], 'theme/quiz/ajouter', 'admin\AdminQuizController::quizAjouter');
     $routes->match(['GET', 'POST'], 'theme/quiz/modifier/(:num)', 'admin\AdminQuizController::quizAjouter/$1');
     $routes->match(['GET', 'POST'], 'theme/quiz/supprimer/(:num)', 'admin\AdminQuizController::quizSupprimer/$1');
 
+    $routes->match(['GET', 'POST'], 'theme/lecons', 'admin\AdminLeconController::index');
     $routes->match(['GET', 'POST'], 'theme/lecons/ajouter', 'admin\AdminLeconController::leconAjouter');
     $routes->match(['GET', 'POST'], 'theme/lecons/modifier/(:num)', 'admin\AdminLeconController::leconAjouter/$1');
     $routes->match(['GET', 'POST'], 'theme/lecons/supprimer/(:num)', 'admin\AdminLeconController::leconSupprimer/$1');

@@ -3,185 +3,295 @@
  * ADMINISTRATION - Espace compréhension SIO
  * Formulaire d'ajout / de modification d'un quiz
  *
- * Helpers utilisés : url (anchor, base_url), html (ul, script_tag),
- * form (form_open, form_label, form_dropdown, form_input, form_textarea, form_checkbox,
- * form_hidden, form_fieldset, form_button, form_fieldset_close, form_close).
+ * Données préparées par le contrôleur (AdminQuizController::quizAjouter) :
+ * - $form          : modifier (id du quiz en modification, vide en ajout), id_theme, titre,
+ *                    description, nb_question, actif, questions (identifiants des questions du quiz)
+ * - $themeList     : liste des thèmes (id, nom)
+ * - $questionsQuiz : questions du quiz (tableaux : id, libelle, bonne_reponse, id_theme,
+ *                    autre_theme = true si la question n'est pas du thème du quiz)
+ * - $blocsThemes   : questions à ajouter, un bloc par thème
+ *                    [['id', 'nom', 'choisi' => true/false, 'questions' => [...]], ...]
+ * - $errors        : erreurs de validation [champ => message]
  *
- * Attention : form_dropdown et form_label n'échappent pas les libellés, d'où les esc().
+ * Mise en page sur deux colonnes :
+ * - à gauche, le quiz (thème, titre, description, nombre de questions) et sa visibilité ;
+ * - à droite, ses questions : une case à cocher par question. Cocher ajoute, décocher retire.
+ *   Tout est enregistré en une fois avec le bouton du bas.
+ *
+ * Règles : un quiz n'a qu'un thème et seulement des questions de ce thème ;
+ * il ne peut pas avoir plus de questions que son « nombre de questions » (nb_question).
+ *
+ * JavaScript, facultatif : le formulaire fonctionne sans (le contrôleur vérifie les règles).
+ * js/sio-admin-theme.js n'affiche que les questions du thème coché (partie 2), et gère la recherche,
+ * la limite du nombre de questions et le récapitulatif dans la barre du bas (partie 3).
+ *
+ * Attention : form_label et form_fieldset n'échappent pas les libellés, d'où les esc().
+ * Styles : sio/adminSio.css (sections « Leçons », « Questions » et « Quiz »), formMot.css
+ *
+ * @author Arthur
  */
+
+$errors = $errors ?? [];
+
+// Mode du formulaire : en modification, l'id du quiz est dans l'URL
 $estModification = ! empty($form->modifier);
-$actionFormulaire = $estModification
-    ? 'floribondant/theme/quiz/modifier/' . (int) $form->modifier
-    : 'floribondant/theme/quiz/ajouter';
+if ($estModification) {
+    $actionFormulaire = 'floribondant/theme/quiz/modifier/' . (int) $form->modifier;
+} else {
+    $actionFormulaire = 'floribondant/theme/quiz/ajouter';
+}
 
-// Classe d'un champ, avec la classe d'erreur si le champ est en erreur
-$classeChamp = static fn (string $classe, string $champ): string
-    => $classe . (isset($errors[$champ]) ? ' sio-admin__input--erreur' : '');
+$nbQuestions = count($questionsQuiz);
 
-// Message d'erreur sous un champ
-$erreurChamp = static fn (string $champ): string
-    => isset($errors[$champ]) ? '<p class="sio-admin__erreur">' . esc($errors[$champ]) . '</p>' : '';
-
+// Classes des libellés
 $label = ['class' => 'glossary-form__label'];
 $labelRequis = ['class' => 'glossary-form__label glossary-form__label--required'];
 
-// Listes déroulantes (libellés échappés)
-$optionsThemes = esc(array_column($themeList ?? [], 'nom', 'id'));
-$optionsQuestions = esc(array_column($questionsDisponibles ?? [], 'libelle', 'id'));
-$nbQuestions = count($questionsAjoutees ?? []);
-?>
-<div class="sio-admin sio-admin--formulaire">
+// Fonctions anonymes : des fonctions sans nom, rangées dans une variable.
+// On les appelle comme une fonction normale : $erreurChamp('titre').
+// fn (...) => ... est l'écriture courte : la fonction renvoie directement le résultat après =>,
+// et elle voit automatiquement les variables du fichier (ici $errors).
 
-    <?= anchor(base_url('floribondant/theme/quiz'), '← Retour aux quiz', ['class' => 'sio-admin__retour']) ?>
+// Classe d'un champ, avec en plus la classe d'erreur si le champ est en erreur
+$classeChamp = fn (string $classe, string $champ): string
+    => $classe . (isset($errors[$champ]) ? ' sio-admin__input--erreur' : '');
+
+// Message d'erreur à afficher sous un champ (texte vide s'il n'y a pas d'erreur)
+$erreurChamp = fn (string $champ): string
+    => isset($errors[$champ]) ? '<p class="sio-admin__erreur">' . esc($errors[$champ]) . '</p>' : '';
+
+// Case à cocher d'une question : case, énoncé, puis badge Vrai / Faux.
+// Elle sert dans « Dans ce quiz » et dans les questions à ajouter : une fonction évite d'écrire ce code deux fois.
+// Écriture longue (function ... { ... return ...; }) car elle contient plusieurs lignes.
+$caseQuestion = function (array $question, bool $cochee): string {
+    $id = 'question-' . $question['id'];
+
+    if ((string) $question['bonne_reponse'] === '1') {
+        $badge = '<span class="sio-admin__badge sio-admin__badge--vrai">Vrai</span>';
+    } else {
+        $badge = '<span class="sio-admin__badge sio-admin__badge--faux">Faux</span>';
+    }
+
+    // Question d'un autre thème que le quiz : à décocher pour pouvoir enregistrer
+    $classe = 'sio-admin__choix sio-admin__choix--carte sio-admin__choix--question';
+    if (! empty($question['autre_theme'])) {
+        $classe .= ' sio-admin__choix--autre-theme';
+        $badge = '<span class="sio-admin__badge sio-admin__badge--faux">Autre thème</span>' . $badge;
+    }
+
+    $case = form_checkbox([
+        'name'    => 'questions[]',
+        'id'      => $id,
+        'value'   => (string) $question['id'],
+        'checked' => $cochee,
+    ]);
+
+    $libelle = '<span class="sio-admin__question-libelle">' . esc($question['libelle']) . '</span>';
+
+    return form_label($case . $libelle . $badge, $id, ['class' => $classe]);
+};
+?>
+<div class="sio-admin sio-admin--formulaire sio-admin--formulaire-xl">
 
     <div class="glossary-form">
-        <div class="glossary-form__header">
-            <h2 class="glossary-form__dialog-title"><?= $estModification ? 'Modifier le quiz' : 'Ajouter un quiz' ?></h2>
+
+        <!-- Titre de la page et lien de retour sur la même ligne -->
+        <div class="sio-admin__entete-form">
+            <h2 class="glossary-form__dialog-title"><?= $estModification ? 'Modifier le quiz' : 'Nouveau quiz' ?></h2>
+            <?= anchor('floribondant/theme/quiz', '← Retour aux quiz', ['class' => 'sio-admin__retour']) ?>
         </div>
 
         <?php if (! empty($errors)): ?>
+            <!-- Récapitulatif des erreurs (ul() n'échappe pas les éléments : esc() sur tout le tableau) -->
             <div class="sio-admin__erreur-globale" role="alert">
-                <strong>Le formulaire contient <?= count($errors) ?> erreur(s).</strong>
-                <?= ul(esc($errors), ['style' => 'margin-left: 5%;']) ?>
+                <strong>Le quiz n'a pas été enregistré. Corrigez les points suivants :</strong>
+                <?= ul(esc($errors), ['class' => 'sio-admin__erreur-liste']) ?>
             </div>
         <?php endif; ?>
 
-        <?= form_open(base_url($actionFormulaire), ['class' => 'glossary-form__form']) ?>
+        <?= form_open($actionFormulaire, ['class' => 'glossary-form__form']) ?>
 
-        <!-- Thème -->
-        <div class="glossary-form__field">
-            <?= form_label('Thème', 'champ-theme-quiz', $labelRequis) ?>
-            <?= form_dropdown('id_theme', $optionsThemes, (string) ($form->id_theme ?? ''), [
-                'id'       => 'champ-theme-quiz',
-                'class'    => $classeChamp('sio-admin__select', 'id_theme'),
-                'required' => 'required',
-            ]) ?>
-            <?= $erreurChamp('id_theme') ?>
-        </div>
+        <div class="sio-admin__colonnes sio-admin__colonnes--quiz">
 
-        <!-- Titre -->
-        <div class="glossary-form__field">
-            <?= form_label('Titre', 'champ-titre', $labelRequis) ?>
-            <?= form_input([
-                'name'        => 'titre',
-                'id'          => 'champ-titre',
-                'value'       => $form->titre ?? '',
-                'minlength'   => '14',
-                'maxlength'   => '150',
-                'placeholder' => 'Reconnaître un token valide',
-                'class'       => $classeChamp('glossary-form__input', 'titre'),
-                'required'    => true,
-            ]) ?>
-            <?= $erreurChamp('titre') ?>
-        </div>
+            <!-- ===== Colonne de gauche : le quiz ===== -->
+            <div class="sio-admin__colonne">
 
-        <!-- Description -->
-        <div class="glossary-form__field">
-            <?= form_label('Description (facultatif)', 'champ-description', $label) ?>
-            <?= form_textarea([
-                'name'             => 'description',
-                'id'               => 'champ-description',
-                'value'            => $form->description ?? '',
-                'rows'             => '4',
-                'class'            => $classeChamp('glossary-form__input sio-admin__textarea--fixe', 'description'),
-                'aria-describedby' => 'aide-description',
-            ]) ?>
-            <p id="aide-description" class="glossary-form__help">Courte présentation affichée dans la liste des quiz.</p>
-            <?= $erreurChamp('description') ?>
-        </div>
+                <?= form_fieldset('<span class="glossary-form__label">Quiz</span>', ['class' => 'sio-admin__bloc-quiz']) ?>
 
-        <!-- Actif : le champ caché envoie 0 quand la case est décochée -->
-        <div class="glossary-form__field">
-            <?= form_label(
-                form_hidden('actif', '0')
-                . form_checkbox(['name' => 'actif', 'id' => 'champ-actif'], '1', ($form->actif ?? 1) == 1)
-                . ' Quiz actif (visible sur la page des quiz)',
-                'champ-actif',
-                ['class' => 'sio-admin__choix']
-            ) ?>
-        </div>
+                    <!-- Thème : un bouton radio par thème -->
+                    <?= form_fieldset('<span class="glossary-form__label glossary-form__label--required">Thème</span>', ['class' => 'sio-admin__fieldset']) ?>
+                        <div class="sio-admin__radios sio-admin__radios--cartes<?= isset($errors['id_theme']) ? ' sio-admin__radios--erreur' : '' ?>">
+                            <?php foreach ($themeList as $theme): ?>
+                                <?= form_label(
+                                    form_radio([
+                                        'name'     => 'id_theme',
+                                        'id'       => 'theme-' . (int) $theme->id,
+                                        'value'    => (string) $theme->id,
+                                        'checked'  => (string) $theme->id === (string) ($form->id_theme ?? ''),
+                                        'required' => true, // le navigateur demande de choisir un thème avant l'envoi
+                                    ]) . esc($theme->nom),
+                                    'theme-' . (int) $theme->id,
+                                    ['class' => 'sio-admin__choix sio-admin__choix--carte sio-admin__choix--petit']
+                                ) ?>
+                            <?php endforeach; ?>
+                        </div>
+                        <?= $erreurChamp('id_theme') ?>
+                    <?= form_fieldset_close() ?>
 
-        <?= form_fieldset('<span class="glossary-form__label">Questions du quiz</span>', ['class' => 'sio-admin__bloc-quiz']) ?>
+                    <!-- Titre (mêmes limites que les règles du contrôleur : 14 à 150 caractères) -->
+                    <div class="glossary-form__field">
+                        <?= form_label('Titre', 'champ-titre', $labelRequis) ?>
+                        <?= form_input([
+                            'name'        => 'titre',
+                            'id'          => 'champ-titre',
+                            'value'       => $form->titre ?? '',
+                            'minlength'   => '14',
+                            'maxlength'   => '150',
+                            'placeholder' => 'Reconnaître un token valide',
+                            'class'       => $classeChamp('glossary-form__input', 'titre'),
+                            'required'    => true,
+                        ]) ?>
+                        <?= $erreurChamp('titre') ?>
+                    </div>
 
-            <div class="sio-admin__ligne">
-                <div class="sio-admin__champ">
-                    <?= form_label('1. Thème des questions', 'champ-theme-questions', $label) ?>
-                    <?= form_dropdown('id_theme_questions', $optionsThemes, (string) ($form->id_theme_questions ?? ''), [
-                        'id'              => 'champ-theme-questions',
-                        'class'           => 'sio-admin__select',
-                        'data-envoi-auto' => 'true',
-                    ]) ?>
-                </div>
-                <noscript>
-                    <?= form_button([
-                        'type'           => 'submit',
-                        'name'           => 'action',
-                        'value'          => 'choisir_theme',
-                        'content'        => 'Afficher les questions',
-                        'class'          => 'sio-admin__btn-secondaire',
-                        'formnovalidate' => true,
-                    ]) ?>
-                </noscript>
+                    <!-- Description -->
+                    <div class="glossary-form__field">
+                        <?= form_label('Description (facultatif)', 'champ-description', $label) ?>
+                        <?= form_textarea([
+                            'name'             => 'description',
+                            'id'               => 'champ-description',
+                            'value'            => $form->description ?? '',
+                            'rows'             => '3',
+                            'maxlength'        => '1000',
+                            'placeholder'      => 'Courte présentation affichée dans la liste des quiz',
+                            'class'            => $classeChamp('glossary-form__input sio-admin__textarea--fixe', 'description'),
+                        ]) ?>
+                        <?= $erreurChamp('description') ?>
+                    </div>
+
+                    <!-- Nombre de questions : nombre maximum de questions du quiz (colonne nb_question) -->
+                    <div class="glossary-form__field">
+                        <?= form_label('Nombre de questions', 'champ-nb-question', $labelRequis) ?>
+                        <?= form_input([
+                            'type'             => 'number',
+                            'name'             => 'nb_question',
+                            'id'               => 'champ-nb-question',
+                            'value'            => (string) ($form->nb_question ?? ''),
+                            'min'              => '1',
+                            'max'              => '200',
+                            'placeholder'      => '10',
+                            'class'            => $classeChamp('glossary-form__input sio-admin__input--court', 'nb_question'),
+                            'required'         => true,
+                            'aria-describedby' => 'aide-nb-question',
+                        ]) ?>
+                        <p id="aide-nb-question" class="glossary-form__help">Une fois ce nombre atteint, on ne peut plus cocher d'autre question.</p>
+                        <?= $erreurChamp('nb_question') ?>
+                    </div>
+
+                <?= form_fieldset_close() ?>
+
+                <!-- Visibilité : le champ caché envoie 0 quand la case est décochée -->
+                <?= form_fieldset('<span class="glossary-form__label">Visibilité</span>', ['class' => 'sio-admin__bloc-quiz']) ?>
+                    <?= form_label(
+                        form_hidden('actif', '0')
+                        . form_checkbox(['name' => 'actif', 'id' => 'champ-actif'], '1', (string) ($form->actif ?? '1') === '1')
+                        . 'Quiz actif',
+                        'champ-actif',
+                        ['class' => 'sio-admin__choix sio-admin__choix--carte']
+                    ) ?>
+                    <p class="glossary-form__help">Un quiz inactif reste enregistré mais n'apparaît plus sur la page des quiz.</p>
+                <?= form_fieldset_close() ?>
             </div>
 
-            <div class="sio-admin__ligne">
-                <div class="sio-admin__champ">
-                    <?= form_label('2. Question à ajouter', 'champ-question', $label) ?>
-                    <?= form_dropdown('id_question_ajout', $optionsQuestions, '', [
-                        'id'    => 'champ-question',
-                        'class' => 'sio-admin__select',
-                    ]) ?>
-                </div>
-                <?php
-                $boutonAjout = [
-                    'type'           => 'submit',
-                    'name'           => 'action',
-                    'value'          => 'ajouter_question',
-                    'content'        => 'Ajouter cette question',
-                    'class'          => 'sio-admin__btn-principal',
-                    'formnovalidate' => true,
-                ];
-                // Les attributs booléens sont toujours écrits par CodeIgniter : on n'ajoute disabled que si besoin
-                if ($optionsQuestions === []) {
-                    $boutonAjout['disabled'] = true;
-                }
-                ?>
-                <?= form_button($boutonAjout) ?>
-            </div>
+            <!-- ===== Colonne de droite : les questions du quiz ===== -->
+            <div class="sio-admin__colonne">
 
-            <div class="sio-admin__rattaches">
-                <p class="glossary-form__label"><?= $nbQuestions ?> question<?= $nbQuestions > 1 ? 's' : '' ?> dans ce quiz</p>
-                <ol class="sio-admin__rattaches-liste">
-                    <?php foreach ($questionsAjoutees ?? [] as $question): ?>
-                        <li class="sio-admin__rattache">
-                            <span>
-                                <?= esc($question['libelle']) ?>
-                                <strong>· <?= $question['bonne_reponse'] == 1 ? 'Vrai' : 'Faux' ?></strong>
-                            </span>
-                            <?= form_button([
-                                'type'           => 'submit',
-                                'name'           => 'retirer_question',
-                                'value'          => (string) $question['id'],
-                                'content'        => 'Retirer',
-                                'class'          => 'sio-admin__btn-supprimer',
-                                'formnovalidate' => true,
-                            ]) ?>
-                        </li>
+                <?= form_fieldset('<span class="glossary-form__label">Questions</span>', ['class' => 'sio-admin__bloc-quiz']) ?>
+                    <p class="glossary-form__help">
+                        Cochez une question pour l'ajouter au quiz, décochez-la pour la retirer.
+                        Seules les questions du thème du quiz sont proposées.
+                    </p>
+                    <?= $erreurChamp('questions') ?>
+                    <?= $erreurChamp('questions_theme') ?>
+
+                    <!-- Recherche : masquée sans JavaScript, affichée par sio-admin-theme.js.
+                         Pas d'attribut name : le texte recherché n'est pas envoyé avec le formulaire -->
+                    <div class="glossary-form__field sio-admin__recherche" hidden>
+                        <?= form_label('Rechercher une question', 'champ-recherche', $label) ?>
+                        <?= form_input([
+                            'type'         => 'search',
+                            'id'           => 'champ-recherche',
+                            'placeholder'  => 'Un mot de l\'énoncé, par exemple : JWT',
+                            'class'        => 'glossary-form__input',
+                            'autocomplete' => 'off',
+                        ]) ?>
+                        <p class="glossary-form__help sio-admin__recherche-resultat" aria-live="polite"></p>
+                    </div>
+
+                    <!-- Questions déjà dans le quiz : toutes cochées, dans une zone qui défile -->
+                    <p class="sio-admin__sous-titre">
+                        Dans ce quiz :
+                        <?php if ($nbQuestions === 0): ?>
+                            aucune question
+                        <?php else: ?>
+                            <?= $nbQuestions ?> question<?= $nbQuestions > 1 ? 's' : '' ?>
+                        <?php endif; ?>
+                    </p>
+
+                    <?php if ($questionsQuiz === []): ?>
+                        <p class="glossary-form__help">Aucune question pour l'instant : cochez-en ci-dessous.</p>
+                    <?php else: ?>
+                        <div class="sio-admin__questions sio-admin__questions--quiz">
+                            <?php foreach ($questionsQuiz as $question): ?>
+                                <?= $caseQuestion($question, true) ?>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+
+                    <!-- Questions à ajouter : un bloc par thème, seul celui du thème coché est affiché -->
+                    <p class="sio-admin__sous-titre">Ajouter des questions</p>
+
+                    <!-- Affiché par le script tant qu'aucun thème n'est coché -->
+                    <p class="glossary-form__help sio-admin__choisir-theme" hidden>Choisissez d'abord le thème du quiz.</p>
+
+                    <?php foreach ($blocsThemes as $theme): ?>
+                        <div class="sio-admin__par-theme" data-theme="<?= $theme['id'] ?>">
+                            <p class="sio-admin__par-theme-titre">Questions du thème <?= esc($theme['nom']) ?></p>
+
+                            <?php if ($theme['questions'] === []): ?>
+                                <p class="glossary-form__help">Aucune autre question dans ce thème.</p>
+                            <?php else: ?>
+                                <div class="sio-admin__questions">
+                                    <?php foreach ($theme['questions'] as $question): ?>
+                                        <?= $caseQuestion($question, false) ?>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php endif; ?>
+                        </div>
                     <?php endforeach; ?>
-                </ol>
+
+                    <!-- Nouvel onglet : le quiz en cours de saisie n'est pas perdu -->
+                    <?= anchor('floribondant/theme/questions/ajouter', 'Créer une nouvelle question (nouvel onglet)', [
+                        'class'  => 'sio-admin__retour',
+                        'target' => '_blank',
+                        'rel'    => 'noopener',
+                    ]) ?>
+                <?= form_fieldset_close() ?>
             </div>
+        </div>
 
-            <?= anchor(base_url('floribondant/theme/questions/ajouter'), '+ Créer une nouvelle question', ['class' => 'sio-admin__retour']) ?>
-
-        <?= form_fieldset_close() ?>
-
-        <div class="glossary-form__field glossary-form__field--row">
+        <!-- Barre d'enregistrement : toujours visible en bas de l'écran -->
+        <div class="sio-admin__barre">
+            <!-- Récapitulatif des changements, rempli par sio-admin-theme.js -->
+            <p class="sio-admin__recap" aria-live="polite" hidden></p>
+            <?= anchor('floribondant/theme/quiz', 'Annuler', ['class' => 'sio-admin__btn-secondaire']) ?>
+            <!-- form_button() et non form_submit() : le contrôleur attend action = "enregistrer" -->
             <?= form_button([
                 'type'    => 'submit',
                 'name'    => 'action',
                 'value'   => 'enregistrer',
-                'content' => 'Enregistrer',
-                'class'   => 'glossary-form__submit',
+                'content' => $estModification ? 'Enregistrer les modifications' : 'Créer le quiz',
+                'class'   => 'sio-admin__btn-principal',
             ]) ?>
         </div>
 
@@ -189,4 +299,5 @@ $nbQuestions = count($questionsAjoutees ?? []);
     </div>
 </div>
 
+<!-- Confort : position de défilement, questions du thème coché, recherche, limite et récapitulatif -->
 <?= script_tag(['src' => 'js/sio-admin-theme.js?v=' . filemtime(FCPATH . 'js/sio-admin-theme.js'), 'defer' => null]) ?>
