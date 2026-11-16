@@ -43,7 +43,7 @@ class OwaspModel extends Model
         $query = $db->table('menace')->
         select('desc_menace, nom_menace, prog_menace, desc_cm, prog_cm')->
         join('contre_mesure', 'menace.id_menace = contre_mesure.menace_id')->
-        where('tops_id =', $top)->
+        where('tops_id ', $top)->
         get()->
         getResult();
         return $query;
