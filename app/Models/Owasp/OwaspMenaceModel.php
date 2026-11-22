@@ -2,12 +2,10 @@
 
 namespace App\Models\Owasp;
 
-use CodeIgniter\Database\Exceptions\DatabaseException;
 use CodeIgniter\Model;
 
 class OwaspMenaceModel extends Model
 {
-
     protected $DBGroup = 'owasp';
     protected $table = 'menace';
     protected $primaryKey = 'id_menace';
@@ -19,14 +17,17 @@ class OwaspMenaceModel extends Model
         'tops_id'
     ];
     protected $returnType = 'object';
-    public function getMenaces(string $id): ?array
+
+    public function getMenaces(string $id): array
     {
         return $this->select('id_menace, nom_menace')
             ->where('tops_id', $id)
+            ->orderBy('id_menace')
             ->get()
             ->getResult();
     }
-    public function getMenaceContreMesures( int $id): ?array
+
+    public function getMenaceContreMesures(int $id): array
     {
         return $this->db->table('contre_mesure')
             ->select('desc_cm, prog_cm')
@@ -34,10 +35,11 @@ class OwaspMenaceModel extends Model
             ->get()
             ->getResult();
     }
-    public function getMenace(string $top, int $id)
+
+    public function getMenace(string $top, int $id): ?object
     {
         return $this->select('desc_menace, nom_menace, prog_menace')
-            ->where('tops_id ', $top)
+            ->where('tops_id', $top)
             ->where('id_menace', $id)
             ->get()
             ->getRow();

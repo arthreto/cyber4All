@@ -5,75 +5,77 @@ namespace App\Controllers\Owasp;
 use App\Controllers\BaseController;
 use App\Models\Owasp\OwaspMenaceModel;
 use App\Models\Owasp\OwaspTopModel;
+use CodeIgniter\Exceptions\PageNotFoundException;
 
 class OwaspController extends BaseController
 {
     protected OwaspMenaceModel $Menace;
     protected OwaspTopModel $Top;
+
     public function __construct()
     {
         $this->Menace = new OwaspMenaceModel();
         $this->Top = new OwaspTopModel();
     }
 
-    public function getMenaces($top): string
+    /**
+     * Données communes aux pages d'un Top : le Top, ses menaces (position => menace)
+     * et les autres Tops. 404 si le Top n'existe pas.
+     */
+    private function chargerTop(string $top): array
     {
-        if ($top=='WEB')
-        {
-            $data['Vulnerabilities'] = [];
-            $tableau_temp = $this->Menace->getMenaces('WEB');
-            foreach ($tableau_temp as $menaces)
-            {
-                $nom = $menaces->nom_menace;
-                $data['Vulnerabilities'][$nom] = $menaces->id_menace;
-            }
-            $data['Top'] = $this->Top->getTopById($top);
-            $data['nom_top'] = 'web';
+        $top      = strtoupper($top);
+        $infosTop = $this->Top->getTopById($top);
+
+        if ($infosTop === null) {
+            throw PageNotFoundException::forPageNotFound();
         }
-        else if ($top=='API'){
-            $data['Vulnerabilities'] = [];
-            $tableau_temp = $this->Menace->getMenaces('API');
-            foreach ($tableau_temp as $menaces)
-            {
-                $nom = $menaces->nom_menace;
-                $data['Vulnerabilities'][$nom] = ($menaces->id_menace)-10;
-            }
-            $data['Top'] = $this->Top->getTopById($top);
-            $data['nom_top'] = 'API';
+
+        $menaces = [];
+        foreach ($this->Menace->getMenaces($top) as $index => $menace) {
+            $menaces[$index + 1] = $menace;   // position affichée : 1, 2, 3...
         }
-        if (!$data['Top']) { throw new \CodeIgniter\Exceptions\PageNotFoundException(); }
-            return view('header', $data) .
-                view('owasp/headerView', $data) .
-                view('owasp/listeRisqueView', $data) .
-                view('owasp/choixQuizView') .
-                view('owasp/footerView');
+
+        return [
+            'Top'        => $infosTop,
+            'menaces'    => $menaces,
+            'autresTops' => $this->Top->getAutresTops($top),
+        ];
     }
 
-    public function getMenace($top,$num):string
+    public function getMenaces(string $top): string
     {
-        $num = match (strtolower($top)) {
-            'web' => $num+=0,
-            'api' => $num+=10,
-            default => $num=1,
-        };
-        $menace = $this->Menace->getMenace($top, $num);
-        $data['nom'] = $menace->nom_menace;
-        $data['description'] = $menace->desc_menace;
-        $data['prog'] = $menace->prog_menace;
+        $data = $this->chargerTop($top);
 
-        $menace = $this->Menace->getMenaceContreMesures($num);
-        $i=0;
-        foreach ($menace as $element)
-        {
-            $i++;
-            $data['prog_cm'][$i] = $element->prog_cm;
-            $data['description_cm'][$i] = $element->desc_cm;
+        return view('header', $data) .
+            view('owasp/headerView', $data) .
+            view('owasp/listeRisqueView', $data) .
+            view('owasp/choixQuizView') .
+            view('owasp/footerView', $data);
+    }
+
+    public function getMenace(string $top, int $position): string
+    {
+        $data = $this->chargerTop($top);
+
+        $entree = $data['menaces'][$position] ?? null;
+        if ($entree === null) {
+            throw PageNotFoundException::forPageNotFound();
         }
-        $data['Top'] = $this->Top->getTopById($top);
 
-        return view('owasp/headerView', $data) .
+        $menace = $this->Menace->getMenace($data['Top']->id_top, $entree->id_menace);
+        if ($menace === null) {
+            throw PageNotFoundException::forPageNotFound();
+        }
+
+        $data['position']      = $position;
+        $data['menace']        = $menace;
+        $data['contreMesures'] = $this->Menace->getMenaceContreMesures($entree->id_menace);
+
+        return view('header', $data) .
+            view('owasp/headerView', $data) .
             view('owasp/MenaceView', $data) .
-            view('owasp/footerView');
+            view('owasp/footerView', $data);
     }
 
     public function getQuiz($top)
