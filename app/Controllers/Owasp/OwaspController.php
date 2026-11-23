@@ -4,6 +4,7 @@ namespace App\Controllers\Owasp;
 
 use App\Controllers\BaseController;
 use App\Models\Owasp\OwaspMenaceModel;
+use App\Models\Owasp\OwaspQuizModel;
 use App\Models\Owasp\OwaspTopModel;
 use CodeIgniter\Exceptions\PageNotFoundException;
 
@@ -16,6 +17,7 @@ class OwaspController extends BaseController
     {
         $this->Menace = new OwaspMenaceModel();
         $this->Top = new OwaspTopModel();
+        $this->Quiz = new OwaspQuizModel();
     }
 
     /**
@@ -78,8 +80,76 @@ class OwaspController extends BaseController
             view('owasp/footerView', $data);
     }
 
+    private const NB_QUESTIONS = 5;
+    private const NB_CHOIX     = 4;
     public function getQuiz($top)
     {
+        $infos = $this->Top->getTopById(strtoupper($top));
 
+        $data = [
+            'Top'        => $infos,
+            'nom_top'    => $top,
+            'detail'     => false,
+            'resultat'   => null,
+            'autresTops' => $this->Top->getAutresTops($infos->id_top),
+        ];
+
+        if ($this->request->is('post') && $this->request->getPost('questions')) {
+            // CORRECTION, revérifiée côté serveur
+            $ids       = array_map('intval', (array) $this->request->getPost('questions'));
+            $reponses  = (array) $this->request->getPost('reponses');
+            $affichees = (array) $this->request->getPost('affichees');
+            $score = 0;
+            $questions = [];
+
+            foreach ($ids as $idQues) {
+                $q = $this->Quiz->find($idQues);
+                if ($q === null) {
+                    continue;
+                }
+
+                $bonnes = $this->Quiz->idsBonnesReponses($idQues);
+                $coche  = array_map('intval', (array) ($reponses[$idQues] ?? []));
+                sort($bonnes);
+                sort($coche);
+                $ok = $bonnes !== [] && $bonnes === $coche;
+                $score += $ok ? 1 : 0;
+
+                $q['ok']       = $ok;
+                $q['bonnes']   = $bonnes;
+                $q['cochees']  = $coche;
+                $q['choix']    = $this->Quiz->propositionsParIds(array_map('intval', (array) ($affichees[$idQues] ?? [])));
+                $q['multiple'] = count($bonnes) > 1;
+                $questions[]   = $q;
+            }
+
+            $data['questions'] = $questions;
+            $data['detail']    = true;
+            $data['resultat']  = ['score' => $score, 'total' => count($questions)];
+        } else {
+            // NOUVEAU QUIZ
+            $questions = $this->Quiz->questionsAleatoires($infos->id_top, self::NB_QUESTIONS);
+            if ($questions === []) {
+                throw PageNotFoundException::forPageNotFound();
+            }
+
+            foreach ($questions as &$q) {
+                $bonnes    = $this->Quiz->bonnesReponses((int) $q['id_ques']);
+                $mauvaises = $this->Quiz->mauvaisesReponses((int) $q['id_ques'], max(0, self::NB_CHOIX - count($bonnes)));
+                $choix     = array_merge($bonnes, $mauvaises);
+                shuffle($choix);
+
+                $q['choix']    = $choix;
+                $q['multiple'] = count($bonnes) > 1;
+            }
+            unset($q);
+
+            $data['questions'] = $questions;
+        }
+
+        return view('header', $data) .
+            view('owasp/headerView', $data) .
+            view('owasp/quizView', $data) .
+            view('owasp/footerView', $data);
     }
 }
