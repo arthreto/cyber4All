@@ -22,14 +22,14 @@
                         <div class="risk-actions">
 
                             <a
-                                href="<?= esc(site_url('floribondant/contenu/' . $top->id_top . '/modifier/' . $menace->id_menace), 'attr') ?>"
+                                href="<?= esc(site_url('floribondant/owasp/contenu/' . $top->id_top . '/modifier/' . $menace->id_menace), 'attr') ?>"
                                 class="action-btn edit-btn"
                                 title="Modifier">
                                 ✏️
                             </a>
 
                             <a
-                                href="<?= site_url('admin/menace/delete/' . $menace->id_menace) ?>"
+                                href="<?= site_url('floribondant/owasp/menace/delete/' . $menace->id_menace) ?>"
                                 class="action-btn delete-btn"
                                 title="Supprimer"
                                 onclick="return confirm('Supprimer cette menace et toutes ses contre-mesures ?');">
@@ -45,7 +45,7 @@
                 <li class="admin-add-item">
 
                     <a
-                        href="<?= esc(site_url('admin/menace/create/' . rawurlencode($top->id_top)), 'attr') ?>"
+                        href="<?= esc(site_url('floribondant/owasp/menace/create/' . rawurlencode($top->id_top)), 'attr') ?>"
                         class="add-risk-btn">
                         ➕ Ajouter une menace
                     </a>

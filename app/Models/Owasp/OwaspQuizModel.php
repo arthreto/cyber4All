@@ -10,6 +10,48 @@ class OwaspQuizModel extends Model
     protected $DBGroup = 'owasp';
     protected $table = 'question';
     protected $primaryKey = 'id_ques';
+    protected $allowedFields = ['libelle_ques', 'menace_id'];
+
+    public function questionsAdmin(string $recherche, string $ordre, int $parPage = 8): array
+    {
+        $tris = [
+            'id_asc' => ['id_ques', 'ASC'],
+            'id_desc' => ['id_ques', 'DESC'],
+            'question_asc' => ['libelle_ques', 'ASC'],
+            'question_desc' => ['libelle_ques', 'DESC'],
+        ];
+        [$colonne, $direction] = $tris[$ordre] ?? $tris['id_asc'];
+
+        if ($recherche !== '') {
+            $this->like('libelle_ques', $recherche);
+        }
+
+        return $this->orderBy($colonne, $direction)->paginate($parPage);
+    }
+
+    public function propositions(): array
+    {
+        return $this->db->table('proposition')->orderBy('id_prop')->get()->getResultArray();
+    }
+
+    public function proposition(int $id): ?array
+    {
+        return $this->db->table('proposition')->where('id_prop', $id)->get()->getRowArray();
+    }
+
+    public function ajouterQuestion(string $libelle, int $menaceId, int $propositionId): bool
+    {
+        $this->db->transStart();
+        $id = $this->insert(['libelle_ques' => $libelle, 'menace_id' => $menaceId]);
+        if ($id === false) {
+            $this->db->transRollback();
+            return false;
+        }
+        $this->db->table('bonne_reponse')->insert(['question_id' => $id, 'proposition_id' => $propositionId]);
+        $this->db->transComplete();
+
+        return $this->db->transStatus();
+    }
 
     /** N questions au hasard, uniquement celles du top demandé (question -> menace -> tops). */
     public function questionsAleatoires(string $idTop, int $nb): array

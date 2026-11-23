@@ -46,6 +46,17 @@ $routes->group('floribondant', static function ($routes) {
     $routes->match(['GET', 'POST'], 'mots/validation/decision/(:num)', 'admin\AdminMotController::decisionMotCle/$1');
     $routes->post('signalement/supprimer', 'SignalementController::supprimerSignalement');
     $routes->match(['GET','POST'], 'utilisateurs', 'admin\AdminUtilisateurController::index');
+    $routes->group('owasp', static function ($routes) {
+        $routes->match(['GET','POST'], '/', 'admin\owasp\AdminOwaspController::index');
+        $routes->match(['GET','POST'], 'contenu', 'admin\owasp\AdminContenuOwaspController::index');
+        $routes->get('contenu/(:segment)', 'admin\owasp\AdminContenuOwaspController::choixTop/$1');
+        $routes->get('contenu/(:segment)/modifier/(:num)', 'admin\owasp\AdminContenuOwaspController::modifElement/$1/$2');
+        $routes->match(['GET','POST'], 'ajouter', 'admin\AdminContenuOwaspController::addElement');
+        $routes->match(['GET','POST'], 'quiz', 'admin\owasp\AdminQuizOwaspController::index');
+        $routes->match(['GET','POST'], 'quiz/ajouter', 'admin\owasp\AdminQuizOwaspController::ajouter');
+        $routes->get('quiz/question/(:num)', 'admin\owasp\AdminQuizOwaspController::question/$1');
+        $routes->get('quiz/reponse/(:num)', 'admin\owasp\AdminQuizOwaspController::reponse/$1');
+    });
     $routes->match(['GET','POST'], 'owasp', 'admin\owasp\AdminOwaspController::index');
     $routes->match(['GET','POST'], 'contenu', 'admin\owasp\AdminContenuOwaspController::index');
     $routes->get('contenu/(:segment)', 'admin\owasp\AdminContenuOwaspController::choixTop/$1');

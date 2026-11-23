@@ -10,7 +10,7 @@
         <tbody>
             <?php foreach ($tops as $top): ?>
                 <tr>
-                    <td><?= anchor((base_url('floribondant/contenu/' . $top->id_top)), esc($top->nom_top)) ?></td>
+                    <td><?= anchor((base_url('floribondant/owasp/contenu/' . $top->id_top)), esc($top->nom_top)) ?></td>
                     <td><button type="button" disabled>Modifier</button></td>
                     <td><button type="button" disabled>Supprimer</button></td>
                 </tr>
