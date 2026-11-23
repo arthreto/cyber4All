@@ -14,7 +14,7 @@
             ]);?>
         </div>
         <div id="admin__pannel-child-2" class="admin__pannel-child">
-            <?= view('admin/tabUtilisateurs') ?>
+            <?= view('admin/tabUtilisateurs', ['utilisateurs' => $utilisateurs ?? [], 'pager' => $pager ?? null]) ?>
         </div>
 
         <div id="admin__pannel-child-3" class="admin__pannel-child">

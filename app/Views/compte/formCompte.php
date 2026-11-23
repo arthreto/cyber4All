@@ -21,7 +21,7 @@ echo form_open(base_url('compte'),$attributs); ?>
                     'placeholder'=>'Nouveau pseudo',
                     'required'=>'required'
             ];
-            echo form_input($attributs,esc($utilisateur->pseudo)??''); ?>
+            echo form_input($attributs, (string) ($utilisateur->pseudo ?? '')); // form_input() échappe la valeur ?>
             <i class='fa-solid fa-user input-icon'></i>
         </div>
         <small class="champIndication">Entre 3 et 13 caractères
@@ -36,7 +36,7 @@ echo form_open(base_url('compte'),$attributs); ?>
                     'class'=>'input-box-connexion',
                     'placeholder'=>'Nouvel email'
             ];
-            echo form_input($attributs,esc($utilisateur->email)??''); ?>
+            echo form_input($attributs, (string) ($utilisateur->email ?? '')); // form_input() échappe la valeur ?>
             <i class="fa-solid fa-envelope input-icon"></i>
         </div>
         <label class="checkbox-container">

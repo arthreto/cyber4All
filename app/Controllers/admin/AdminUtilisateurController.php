@@ -44,17 +44,18 @@ class AdminUtilisateurController extends BaseController
      */
     public function index()
     {
-        $ordre = $this->request->getVar('ordre');
-        $recherche = trim($this->request->getPost('recherche'));
+        $ordre = (string) ($this->request->getVar('ordre') ?? '');
+        $recherche = trim((string) ($this->request->getPost('recherche') ?? ''));
 
-        $this->utilisateurModel = new UtilisateurModel();
-        $data = $this->utilisateurModel->getUtilisateursPaginatedOrderBy($ordre, $recherche);
+        // Les utilisateurs vont à la vue de la page (tabUtilisateurs.php attend $utilisateurs et $pager)
+        $data = [
+            'utilisateurs' => $this->utilisateur_model->getUtilisateursPaginatedOrderBy($ordre, $recherche),
+            'pager'        => $this->utilisateur_model->pager,
+        ];
 
-
-        // TO_DO
-        return view('header', $data)
+        return view('header')
             . view('notice')
-            . view('admin/adminUtilisateurs')
+            . view('admin/adminUtilisateurs', $data)
             . view('footer');
     }
 }

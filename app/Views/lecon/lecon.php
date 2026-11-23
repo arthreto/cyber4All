@@ -7,8 +7,8 @@
  * - $theme          : le thème de la leçon
  * - $idTheme        : l'id du thème (int)
  * - $numero         : la position de la leçon dans le thème (int, à partir de 1)
- * - $leconsTheme    : les leçons du même thème
- * - $leconSuivante  : la leçon suivante du thème (ou null)
+ * - $leconsTheme    : les leçons actives du même thème (chacune a ->position, son numéro dans l'adresse)
+ * - $leconSuivante  : la leçon active suivante du thème (ou null)
  * - $auteur         : l'auteur de la leçon (pseudo), ou null
  */
 
@@ -78,7 +78,7 @@ $nbLecons = count($leconsTheme);
             <?php if ($leconSuivante !== null): ?>
                 <nav class="lecon-suite" aria-label="Leçon suivante">
                     <?= anchor(
-                            url_to('lecon', $idTheme, $numero + 1),
+                            url_to('lecon', $idTheme, $leconSuivante->position),
                             'Leçon suivante : ' . esc($leconSuivante->titre) . ' →',
                             ['class' => 'lecon-suite__lien']
                     ) ?>
@@ -94,7 +94,7 @@ $nbLecons = count($leconsTheme);
             <ol class="lecon-sommaire__liste">
                 <?php foreach ($leconsTheme as $i => $l): ?>
                 <?php
-                $estActive = ($i + 1) === $numero;
+                $estActive = $l->position === $numero;
 
                 $attributs = ['class' => 'lecon-sommaire__lien' . ($estActive ? ' lecon-sommaire__lien--actif' : '')];
                 if ($estActive) {
@@ -102,7 +102,7 @@ $nbLecons = count($leconsTheme);
                 }
                 ?>
                 <li>
-                    <?= anchor(url_to('lecon', $idTheme, $i + 1), esc($l->titre), $attributs) ?>
+                    <?= anchor(url_to('lecon', $idTheme, $l->position), esc($l->titre), $attributs) ?>
                 </li>
                 <?php endforeach ?>
             </ol>

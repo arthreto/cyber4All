@@ -48,95 +48,12 @@ class CompteController extends BaseController
      */
     public function index(): string|RedirectResponse
     {
-        $utilisateur = $this->session->get('utilisateur');
-        $nouvPseudo = $this->request->getPost('nouvPseudo');
-        $nouvEmail = $this->request->getPost('nouvEmail');
-        $suppEmail = $this->request->getPost('suppEmail');
+        // Formulaire « Modifier mes informations » : traitement puis redirection (Post/Redirect/Get),
+        // le message est affiché sur la page rechargée
+        if ($this->request->is('post')) {
+            $this->modifierInformations();
 
-        //traitement du formulaire et des données
-        if (!empty($nouvPseudo) && isset($nouvEmail)) {
-            if (($nouvEmail === $utilisateur->email
-                    && $nouvPseudo === $utilisateur->pseudo
-                    && !isset($suppEmail))
-                || ($nouvPseudo === $utilisateur->pseudo
-                    && empty($nouvEmail))) {
-
-                //aucune modification
-                $this->session->setFlashdata('notice', [
-                    'type' => 'info',
-                    'titre' => "Modification de compte",
-                    'details' => "Aucune modification n'a été faites sur le compte, le pseudo et l'email(si existante) n'ont pas changés",
-                ]);
-            }
-            if (!empty($nouvEmail) && filter_var($nouvEmail, FILTER_VALIDATE_EMAIL) === false) {
-                $this->session->setFlashdata('notice', [
-                    'type' => 'error',
-                    'titre' => "Échec de la modification de compte",
-                    'details' => "L'adresse email: {$nouvEmail}, n'est pas valide",
-                ]);
-            }
-
-            if (!empty($suppEmail) && $suppEmail === "supprimer") {
-                $nouvEmail = null;
-            }
-            // Vérification si l'adresse email existe sur un autre compte.
-
-            if (!empty($nouvEmail) && $nouvEmail !== $utilisateur->email) {
-                if ($this->utilisateur_model->adresseEmailExiste($nouvEmail)) {
-                    $data['nouvPseudo'] = $nouvPseudo;
-                    $this->session->setFlashdata('notice', [
-                        'type' => 'error',
-                        'titre' => "Échec de la modification de compte",
-                        'details' => "L'adresse email: {$nouvEmail}, est déjà utilisée",
-                    ]);
-                }
-            }
-
-            // verifier si le pseudo existe que s'il ne s'agit pas du sien
-            if ($nouvPseudo !== $utilisateur->pseudo) {
-
-                if ($this->utilisateur_model->pseudoExiste($nouvPseudo)) {
-                    if (!empty($nouvEmail)) {
-                        $data['nouvEmail'] = $nouvEmail;
-                    }
-
-                    $this->session->setFlashdata('notice', [
-                        'type' => 'error',
-                        'titre' => "Échec de la modification de compte",
-                        'details' => "Pseudo: {$nouvPseudo}, déjà existant. Veuillez en choisir un autre",
-                    ]);
-                }
-
-            }
-
-            if ($this->utilisateur_model->updateUtilisateurByID(
-                ['pseudo' => $nouvPseudo, 'email' => $nouvEmail], $utilisateur)) {
-
-                $utilisateur = $this->utilisateur_model->getUtilisateurById($utilisateur->id);
-
-                if ($utilisateur === null) {
-                    // Session corrompue, déconnexion
-                    session_destroy();
-
-                    $this->session->setFlashdata('notice', [
-                        'type' => 'error',
-                        'titre' => "Échec de la modification de compte",
-                        'details' => "Les modifications ne se sont pas passez comme prévu, vous avez étés déconnecté",
-                    ]);
-
-                    return redirect()->to(base_url());
-
-                } else {
-                    $this->session->set('utilisateur', $utilisateur);
-                    $this->session->setFlashdata('notice', [
-                        'type' => 'success',
-                        'titre' => "Modification de compte réussie",
-                        'details' => "Les modifications apportés sur votre compte ont été prises en compte avec succés",
-                    ]);
-                }
-
-            }
-
+            return redirect()->to(base_url('compte'));
         }
 
         $data = [
@@ -155,4 +72,75 @@ class CompteController extends BaseController
             . view('footer');
     }
 
+
+    /**
+     * Modifie le pseudo et l'email de l'utilisateur connecté.
+     * À la première erreur, rien n'est enregistré et un message d'erreur est préparé.
+     *
+     * @return void Le résultat est un message flash « notice »
+     */
+    private function modifierInformations(): void
+    {
+        $utilisateur = $this->session->get('utilisateur');
+
+        $nouvPseudo = trim((string) $this->request->getPost('nouvPseudo'));
+        $nouvEmail = trim((string) $this->request->getPost('nouvEmail'));
+
+        // Email facultatif : champ vidé ou case « Supprimer mon email » => NULL en base
+        if ($nouvEmail === '' || $this->request->getPost('suppEmail') === 'supprimer') {
+            $nouvEmail = null;
+        }
+
+        // Les messages sont affichés tels quels par notice.php : les valeurs saisies y sont échappées avec esc()
+        $erreur = null;
+        $longueurPseudo = mb_strlen($nouvPseudo);
+
+        if ($longueurPseudo < 3 || $longueurPseudo > 13) {
+            $erreur = 'Le pseudo doit contenir entre 3 et 13 caractères.';
+        } elseif ($nouvEmail !== null && (filter_var($nouvEmail, FILTER_VALIDATE_EMAIL) === false || mb_strlen($nouvEmail) > 255)) {
+            $erreur = "L'adresse email « " . esc($nouvEmail) . " » n'est pas valide.";
+        } elseif ($nouvPseudo !== $utilisateur->pseudo && $this->utilisateur_model->pseudoExiste($nouvPseudo)) {
+            $erreur = 'Le pseudo « ' . esc($nouvPseudo) . ' » est déjà utilisé. Veuillez en choisir un autre.';
+        } elseif ($nouvEmail !== null && $nouvEmail !== $utilisateur->email && $this->utilisateur_model->adresseEmailExiste($nouvEmail)) {
+            $erreur = "L'adresse email « " . esc($nouvEmail) . ' » est déjà utilisée.';
+        }
+
+        if ($erreur !== null) {
+            $this->session->setFlashdata('notice', [
+                'type'    => 'error',
+                'titre'   => 'Échec de la modification de compte',
+                'details' => $erreur,
+            ]);
+            return;
+        }
+
+        if ($nouvPseudo === $utilisateur->pseudo && $nouvEmail === ($utilisateur->email ?: null)) {
+            $this->session->setFlashdata('notice', [
+                'type'    => 'info',
+                'titre'   => 'Modification de compte',
+                'details' => "Aucune modification : le pseudo et l'email sont les mêmes.",
+            ]);
+            return;
+        }
+
+        if (! $this->utilisateur_model->updateUtilisateurByID(['pseudo' => $nouvPseudo, 'email' => $nouvEmail], $utilisateur)) {
+            $this->session->setFlashdata('notice', [
+                'type'    => 'error',
+                'titre'   => 'Échec de la modification de compte',
+                'details' => "Les modifications n'ont pas pu être enregistrées. Veuillez réessayer.",
+            ]);
+            return;
+        }
+
+        $utilisateurAJour = $this->utilisateur_model->getUtilisateurById($utilisateur->id);
+        if ($utilisateurAJour !== null) {
+            $this->session->set('utilisateur', $utilisateurAJour);
+        }
+
+        $this->session->setFlashdata('notice', [
+            'type'    => 'success',
+            'titre'   => 'Modification de compte réussie',
+            'details' => 'Les modifications ont été enregistrées.',
+        ]);
+    }
 }

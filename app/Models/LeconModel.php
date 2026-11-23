@@ -70,15 +70,19 @@ class LeconModel extends Model
      * @since 1.0.0
      * @author Raphael BIERLAIRE
      */
-    public function getLeconsByTheme(int $idTheme): array
+    public function getLeconsByTheme(int $idTheme, bool $avecInactives = false): array
     {
         try {
-            // Requête limitée à id et titre, leçons actives seulement, ordonnée par le champ id en ASC
-            return $this->select('id, titre')
-                ->where('id_theme', $idTheme)
-                ->where('actif', 1)
-                ->orderBy('id', 'ASC')
-                ->findAll();
+            // Requête limitée à id, titre et actif, ordonnée par le champ id en ASC.
+            // $avecInactives : les leçons désactivées comptent dans la position (adresse theme/idTheme/position)
+            $this->select('id, titre, actif')
+                ->where('id_theme', $idTheme);
+
+            if (! $avecInactives) {
+                $this->where('actif', 1);
+            }
+
+            return $this->orderBy('id', 'ASC')->findAll();
         } catch (DatabaseException $e) {
             log_message('error', "Erreur getLeconsByTheme (thème {id}): {message}", [
                 'id'      => $idTheme,
@@ -263,6 +267,28 @@ class LeconModel extends Model
             ]);
 
             return false;
+        }
+    }
+
+    /**
+     * Identifiants des thèmes qui ont au moins une leçon active (menu « Comprendre les accès »).
+     *
+     * @return int[]
+     */
+    public function getIdsThemesAvecLecon(): array
+    {
+        try {
+            $lignes = $this->db->table($this->table)
+                ->select('id_theme')
+                ->where('actif', 1)
+                ->groupBy('id_theme')
+                ->get()
+                ->getResultArray();
+
+            return array_map('intval', array_column($lignes, 'id_theme'));
+        } catch (DatabaseException $e) {
+            log_message('error', 'Erreur getIdsThemesAvecLecon : ' . $e->getMessage());
+            return [];
         }
     }
 }

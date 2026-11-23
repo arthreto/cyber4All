@@ -33,6 +33,10 @@
     <section class="quiz-liste" aria-labelledby="quiz-liste-titre">
         <h2 id="quiz-liste-titre" class="quiz-liste__titre">Quiz du thème <?= esc($themeActif->nom) ?></h2>
 
+        <?php if ($quizList === []): ?>
+            <p class="quiz-liste__vide">Aucun quiz pour ce thème pour l'instant.</p>
+        <?php endif; ?>
+
         <ul class="quiz-liste__items">
             <!-- position : place fixe du quiz dans le thème (les quiz désactivés comptent), voir QuizController -->
             <?php foreach ($quizList as $element): ?>
@@ -46,5 +50,7 @@
         </ul>
     </section>
 
-    <a href="<?= site_url('theme/' . $themeActif->id) ?>" class="quiz-page__lecon">Revoir les leçons du thème <?= esc($themeActif->nom) ?></a>
+    <?php if ($aDesLecons ?? true): ?>
+        <a href="<?= site_url('theme/' . $themeActif->id) ?>" class="quiz-page__lecon">Revoir les leçons du thème <?= esc($themeActif->nom) ?></a>
+    <?php endif; ?>
 </div>

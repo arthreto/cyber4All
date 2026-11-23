@@ -134,6 +134,8 @@ class ConnexionController extends BaseController
             ]);
         }
 
+        // Nouvel identifiant de session à la connexion : l'ancien cookie ne vaut plus rien (protection contre la fixation de session)
+        session()->regenerate(true);
         session()->set('utilisateur', $utilisateur);
 
         // Admin : page Traçabilité (liste des questions)
@@ -243,6 +245,8 @@ class ConnexionController extends BaseController
 
         $dataUtilisateur = $this->utilisateurModel->getUtilisateurById($idCreerUtilisateur);
 
+        // Nouvel identifiant de session à la connexion : l'ancien cookie ne vaut plus rien (protection contre la fixation de session)
+        session()->regenerate(true);
         session()->set('utilisateur', $dataUtilisateur);
 
         return view('header', $data ?? [])

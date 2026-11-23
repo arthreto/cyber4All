@@ -42,25 +42,43 @@ class ThemeController extends BaseController
      */
     public function afficherPageLecon(int $idTheme, ?int $numero = null)
     {
-        $leconsTheme = $this->lecon_model->getLeconsByTheme($idTheme);
+        // Position d'une leçon = son rang parmi toutes les leçons du thème, désactivées comprises :
+        // supprimer (désactiver) une leçon ne change pas l'adresse des suivantes
+        $toutesLecons = $this->lecon_model->getLeconsByTheme($idTheme, true);
 
-        // Thème inexistant ou sans leçon
+        $leconsTheme = []; // leçons actives, avec leur position
+        foreach ($toutesLecons as $index => $uneLecon) {
+            if ((int) $uneLecon->actif === 1) {
+                $uneLecon->position = $index + 1;
+                $leconsTheme[] = $uneLecon;
+            }
+        }
+
+        // Thème inexistant ou sans leçon active
         if ($leconsTheme === []) {
             throw PageNotFoundException::forPageNotFound();
         }
 
-        // URL theme/idTheme : redirection vers la première leçon du thème
+        // URL theme/idTheme : redirection vers la première leçon active du thème
         if ($numero === null) {
-            return redirect()->to(site_url('theme/' . $idTheme . '/1'));
+            return redirect()->to(site_url('theme/' . $idTheme . '/' . $leconsTheme[0]->position));
         }
 
-        // Contrôle de bornes
-        $nbLecons = count($leconsTheme);
-        if ($numero < 1 || $numero > $nbLecons) {
+        // Position inexistante, ou leçon supprimée (désactivée) : page introuvable
+        if ($numero < 1 || $numero > count($toutesLecons) || (int) $toutesLecons[$numero - 1]->actif !== 1) {
             throw PageNotFoundException::forPageNotFound();
         }
 
-        $lecon = $this->lecon_model->getLeconById($leconsTheme[$numero - 1]->id);
+        // Leçon suivante : la prochaine leçon active après celle-ci
+        $leconSuivante = null;
+        foreach ($leconsTheme as $uneLecon) {
+            if ($uneLecon->position > $numero) {
+                $leconSuivante = $uneLecon;
+                break;
+            }
+        }
+
+        $lecon = $this->lecon_model->getLeconById($toutesLecons[$numero - 1]->id);
 
         // Leçon introuvable (erreur SQL ou supprimée entre les deux requêtes)
         if ($lecon === null) {
@@ -84,7 +102,7 @@ class ThemeController extends BaseController
             'numero'        => $numero,
             'auteur'       => $auteur,
             'leconsTheme'   => $leconsTheme,
-            'leconSuivante' => $leconsTheme[$numero] ?? null,
+            'leconSuivante' => $leconSuivante,
         ];
 
         return view('header', $data)

@@ -19,7 +19,7 @@ function getSortLink(string $col, string $ordreActuel): string
         <?php if (empty($utilisateurs)): ?>
             <div class="signalement-empty">
                 <div class="signalement-empty__icon">📭</div>
-                <div class="signalement-empty__text">Aucun mot</div>
+                <div class="signalement-empty__text">Aucun utilisateur</div>
             </div>
 
         <?php else: ?>
@@ -61,7 +61,7 @@ function getSortLink(string $col, string $ordreActuel): string
                                     <?= esc($utilisateur->pseudo) ?>
                                 </a>
                             </td>
-                            <td class="mots-table__cell"><?= $utilisateur->email ?? '--' ?></td>
+                            <td class="mots-table__cell"><?= esc($utilisateur->email ?? '--') ?></td>
 
                             <td class="mots-table__cell mots-table__date"><?= $utilisateur->date_creation ?></td>
                             <td class="mots-table__cell mots-table__date"><?= $utilisateur->date_modif ?? '--' ?></td>

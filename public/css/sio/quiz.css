@@ -644,3 +644,8 @@
 .quiz-question[hidden] {
     display: none;
 }
+
+/* Thème sans quiz actif (selectionQuiz.php) */
+.quiz-liste__vide {
+    color: var(--text-secondary);
+}

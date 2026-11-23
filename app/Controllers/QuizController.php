@@ -129,6 +129,8 @@ class QuizController extends BaseController
             'themeActif' => $themeActif,
             // Quiz actifs du thème affiché (sans thème dans l'URL : le premier thème)
             'quizList' => $this->quizActifsAvecPosition((int) $themeActif->id),
+            // Lien « Revoir les leçons » seulement si le thème a une leçon active (sinon 404)
+            'aDesLecons' => in_array((int) $themeActif->id, model(\App\Models\LeconModel::class)->getIdsThemesAvecLecon(), true),
         ];
 
         return view('header', $data)

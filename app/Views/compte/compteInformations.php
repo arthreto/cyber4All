@@ -10,7 +10,7 @@ endif;?>
         <div class="input-container">
             <input type='text'
                    name='pseudo'
-                   value="<?= "Pseudo : ".$utilisateur->pseudo ?>"
+                   value="<?= esc('Pseudo : ' . $utilisateur->pseudo, 'attr') ?>"
                    title="Votre pseudo"
                    class='input-box-connexion'
                    disabled
@@ -23,7 +23,7 @@ endif;?>
         <div class="input-container">
             <input type='text'
                    id='email'
-                   value="<?= $utilisateur->email!=null?"Email : ".$utilisateur->email:'Email non renseigné' ?>"
+                   value="<?= esc($utilisateur->email != null ? 'Email : ' . $utilisateur->email : 'Email non renseigné', 'attr') ?>"
                    name='email'
                    title="Votre email"
                    class='input-box-connexion'

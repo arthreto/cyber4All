@@ -133,7 +133,13 @@ endif;
                         <details class="menu-sio">
                             <summary class="menu-nav__lien menu-sio__titre">Comprendre les accès</summary>
                             <ul class="menu-sio__liste">
-                                <?php foreach ($themeList as $theme): ?>
+                                <?php
+                                // Seulement les thèmes qui ont au moins une leçon active (sinon le lien mène à une 404)
+                                $idsThemesAvecLecon = model(\App\Models\LeconModel::class)->getIdsThemesAvecLecon();
+                                foreach ($themeList as $theme):
+                                    if (! in_array((int) $theme->id, $idsThemesAvecLecon, true)) {
+                                        continue;
+                                    } ?>
                                     <li>
                                         <a href="<?= site_url('theme/' . $theme->id) ?>"
                                            class="dropdown-menu__item"
