@@ -23,8 +23,7 @@ class OwaspMenaceModel extends Model
         return $this->select('id_menace, nom_menace')
             ->where('tops_id', $id)
             ->orderBy('id_menace')
-            ->get()
-            ->getResult();
+            ->findAll();
     }
 
     public function getMenaceContreMesures(int $id): array
@@ -41,7 +40,6 @@ class OwaspMenaceModel extends Model
         return $this->select('desc_menace, nom_menace, prog_menace')
             ->where('tops_id', $top)
             ->where('id_menace', $id)
-            ->get()
-            ->getRow();
+            ->first();
     }
 }

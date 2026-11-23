@@ -1,6 +1,23 @@
 <?php
 $descriptionsCm = array_filter(array_column($contreMesures, 'desc_cm'));
 $codesCm        = array_filter(array_column($contreMesures, 'prog_cm'));
+
+// Liens de la navigation latérale
+$liensMenu = [];
+foreach ($menaces as $pos => $item) {
+    $actif = ($pos == $position);
+    $attributs = ['class' => 'top-sidebar-link' . ($actif ? ' active' : '')];
+    if ($actif) {
+        $attributs['aria-current'] = 'page';
+    }
+
+    $liensMenu[] = anchor(
+            'top10/api/detail/' . $Top->id_top . '/' . $pos,
+            '<span class="top-sidebar-rank">' . $pos . '</span>'
+            . '<span class="top-sidebar-name">' . esc($item->nom_menace) . '</span>',
+            $attributs
+    );
+}
 ?>
 <main class="detail-preview">
     <article class="detail-page">
@@ -9,19 +26,7 @@ $codesCm        = array_filter(array_column($contreMesures, 'prog_cm'));
             <!-- Navigation latérale : positions du Top consulté -->
             <nav class="top-sidebar" aria-label="Navigation du Top 10">
                 <h2 class="top-sidebar-title">Top 10 <?= esc($Top->nom_top) ?></h2>
-                <ol class="top-sidebar-list">
-                    <?php foreach ($menaces as $pos => $item): ?>
-                        <?php $actif = ($pos == $position); ?>
-                        <li>
-                            <a href="<?= base_url('top10/api/detail/' . $Top->id_top . '/' . $pos) ?>"
-                               class="top-sidebar-link<?= $actif ? ' active' : '' ?>"
-                                    <?= $actif ? 'aria-current="page"' : '' ?>>
-                                <span class="top-sidebar-rank"><?= $pos ?></span>
-                                <span class="top-sidebar-name"><?= esc($item->nom_menace) ?></span>
-                            </a>
-                        </li>
-                    <?php endforeach; ?>
-                </ol>
+                <?= ol($liensMenu, ['class' => 'top-sidebar-list']) ?>
             </nav>
 
             <!-- Contenu de la menace -->
