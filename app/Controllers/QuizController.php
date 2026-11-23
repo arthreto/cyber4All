@@ -66,11 +66,14 @@ class QuizController extends BaseController
         if ($this->request->is('post')) {
             $data['corrige'] = 1;
             $data['resultatParQuestion'] = [];
+            $data['reponsesUtilisateur'] = [];
+            $reponses = (array) ($this->request->getPost('reponses') ?? []);
             $num = 1;
             $bonneReponse = 0;
             foreach ($questionQuizList as $question) {
-                $reponseUtilisateur = $this->request->getPost('reponses['.$num.']');
-                $resultatQuestion = ($reponseUtilisateur == $question['bonne_reponse']) ? 'Vrai' : 'Faux';
+                $reponseUtilisateur = $reponses[$num] ?? null;
+                $data['reponsesUtilisateur'][$num] = $reponseUtilisateur;
+                $resultatQuestion = ($reponseUtilisateur !== null && $reponseUtilisateur == $question['bonne_reponse']) ? 'Vrai' : 'Faux';
                 $data['resultatParQuestion'][$num] = $resultatQuestion;
 
                 if ($resultatQuestion == 'Vrai') {
