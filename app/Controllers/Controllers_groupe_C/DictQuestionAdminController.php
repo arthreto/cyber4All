@@ -2,7 +2,7 @@
 
 namespace App\Controllers\Controllers_groupe_C;
 
-use App\Models\Model_groupe_C\ModelAdminCmot_cle;
+use App\Models\Model_groupe_C\MotCleModel;
 use CodeIgniter\HTTP\RedirectResponse;
 use Config\Database;
 
@@ -11,12 +11,12 @@ use Config\Database;
  *
  * QUI FAIT QUOI
  * -------------
- *  - DICT_Admin_Base_GroupeC (parent) : vérifie que l'utilisateur est admin (sinon 404)
+ *  - DictAdminBaseController (parent) : vérifie que l'utilisateur est admin (sinon 404)
  *                                       et fournit synchroniserReponses().
  *  - Cette classe                     : affiche la page des questions et traite ses 3 formulaires.
- *  - Vue affichée                     : groupe_c/groupe_c_ADMIN/admin_QUESTIONS_groupeC
+ *  - Vue affichée                     : groupe_c/admin/questions
  *                                       (qui étend le layout layout_admin_groupeC)
- *  - Modèle utilisé                   : ModelAdminCmot_cle (liste des termes classés).
+ *  - Modèle utilisé                   : MotCleModel (liste des termes classés).
  *  - question_quiz et question_reponse n'ont pas de modèle : leurs requêtes restent ici (query builder),
  *    comme dans ton code d'origine. Les transactions aussi.
  *
@@ -29,7 +29,7 @@ use Config\Database;
  *
  * VALIDATION : chaque méthode POST vérifie les données avec $this->validate().
  */
-class DICT_Question_Admin_GroupeC extends DICT_Admin_Base_GroupeC
+class DictQuestionAdminController extends DictAdminBaseController
 {
     /** Création : la question est obligatoire (une question faite d'espaces est refusée). */
     private const REGLES_AJOUT = [
@@ -77,10 +77,10 @@ class DICT_Question_Admin_GroupeC extends DICT_Admin_Base_GroupeC
         // On propose les termes classés (présents dans conceptcyber).
         // NB : la requête ne retire PAS les termes déjà pris par une autre question :
         // la règle "une seule question par terme" n'est pas vérifiée ici.
-        $data['mots'] = (new ModelAdminCmot_cle())->getMotsClasses(); // modèle mot_cle
+        $data['mots'] = (new MotCleModel())->getMotsClasses(); // modèle mot_cle
 
         // La vue étend le layout (en-tête, notice, CSS, pied de page) : plus besoin de les assembler ici
-        return view('groupe_c/groupe_c_ADMIN/admin_QUESTIONS_groupeC', $data);
+        return view('groupe_c/admin/questions', $data);
     }
 
     /**

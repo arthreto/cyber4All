@@ -2,7 +2,7 @@
 
 /**
  * LAYOUT : cadre commun des pages d'administration du quiz Concept (groupe C).
- * Fichier : app/Views/groupe_c/groupe_c_ADMIN/layout_admin_groupeC.php
+ * Fichier : app/Views/groupe_c/admin/layout_admin.php
  *
  * QUI FAIT QUOI
  * -------------
@@ -22,7 +22,7 @@ helper('html'); // charge link_tag()
 <?= $this->include('notice') ?>
 
     <!-- Feuille de style du groupe C -->
-<?= link_tag(base_url('/css/groupe_c_css/groupe_c_css.css')) ?>
+<?= link_tag(base_url('/css/groupe_c_css/admin.css')) ?>
     <!-- Fond de page et marges. À déplacer un jour dans groupe_c_css.css -->
     <style>body { margin: 0; background: #f7f8fc; }</style>
     <body>

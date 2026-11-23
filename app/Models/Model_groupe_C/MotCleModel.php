@@ -6,12 +6,12 @@ use CodeIgniter\Model;
 
 /**
  * MODÈLE : table mot_cle (le glossaire : un mot + sa définition).
- * Fichier : app/Models/Model_groupe_C/ModelAdminCmot_cle.php
+ * Fichier : app/Models/Model_groupe_C/MotCleModel.php
  *
  * Tes propriétés d'origine sont inchangées. J'ai seulement ajouté 2 méthodes
  * (listes de termes pour les menus déroulants), avant écrites dans les contrôleurs.
  */
-class ModelAdminCmot_cle extends Model
+class MotCleModel extends Model
 {
     protected $table = 'mot_cle';
     protected $primaryKey = 'id';
@@ -20,7 +20,7 @@ class ModelAdminCmot_cle extends Model
 
     /**
      * Termes du glossaire PAS encore classés (liste "Terme à ajouter"), en ordre alphabétique.
-     * Utilisée par DICT_Concept_Admin_groupeC::GroupeC_Admin() (mode ajout).
+     * Utilisée par Dict_Concept_Admin_controller::GroupeC_Admin() (mode ajout).
      */
     public function getMotsNonClasses(): array
     {
@@ -34,7 +34,7 @@ class ModelAdminCmot_cle extends Model
 
     /**
      * Termes déjà classés (liste "Terme associé" de la page des questions), en ordre alphabétique.
-     * Utilisée par DICT_Question_Admin_GroupeC::GroupeC_Questions().
+     * Utilisée par Dict_Question_Admin_Controller::GroupeC_Questions().
      */
     public function getMotsClasses(): array
     {

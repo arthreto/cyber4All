@@ -4,7 +4,7 @@ namespace App\Controllers\Controllers_groupe_C;
 
 use App\Controllers\BaseController;
 use App\Entities\Utilisateur;
-use App\Models\Model_groupe_C\ModelAdminCmot_cle_categorie;
+use App\Models\Model_groupe_C\ConceptCyberModel;
 use CodeIgniter\Exceptions\PageNotFoundException;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
@@ -18,15 +18,15 @@ use Psr\Log\LoggerInterface;
  * QUI FAIT QUOI
  * -------------
  *  - Elle est héritée par :
- *        DICT_Concept_Admin_groupeC   (page des termes)
- *        DICT_Question_Admin_GroupeC  (page des questions)
+ *        Dict_Concept_Admin_controller   (page des termes)
+ *        Dict_Question_Admin_Controller  (page des questions)
  *  - Elle fournit à ses enfants :
  *        1. le contrôle d'accès admin (initController) : exécuté à chaque ouverture d'une page admin
  *        2. synchroniserReponses()                      : recalcule les bonnes réponses d'une question
  *
  * Le comportement est identique : 404 si l'utilisateur n'est pas admin.
  */
-abstract class DICT_Admin_Base_GroupeC extends BaseController
+abstract class DictAdminBaseController extends BaseController
 {
     /**
      * Correspondance entre le nom de la colonne (table conceptcyber) et l'id du concept en base.
@@ -68,8 +68,8 @@ abstract class DICT_Admin_Base_GroupeC extends BaseController
      * en fonction des cases D/I/C/T cochées sur le terme associé.
      *
      * Appelée par :
-     *  - DICT_Concept_Admin_groupeC::GroupeC_Modifier()          (quand on change les cases d'un terme)
-     *  - DICT_Question_Admin_GroupeC::GroupeC_ModifierQuestion()  (quand on change le terme d'une question)
+     *  - Dict_Concept_Admin_controller::GroupeC_Modifier()          (quand on change les cases d'un terme)
+     *  - Dict_Question_Admin_Controller::GroupeC_ModifierQuestion()  (quand on change le terme d'une question)
      *
      * $idQuestion = la question à mettre à jour
      * $idMot      = le terme associé (ou null si aucun)
@@ -89,7 +89,7 @@ abstract class DICT_Admin_Base_GroupeC extends BaseController
         }
 
         // 3. On lit les cases cochées du terme (table conceptcyber)
-        $concept = (new ModelAdminCmot_cle_categorie())->getParMot($idMot); // modèle conceptcyber
+        $concept = (new ConceptCyberModel())->getParMot($idMot); // modèle conceptcyber
         if (! $concept) {
             return; // le terme n'est pas encore classé : rien à faire
         }

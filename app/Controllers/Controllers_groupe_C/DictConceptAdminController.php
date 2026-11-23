@@ -2,8 +2,8 @@
 
 namespace App\Controllers\Controllers_groupe_C;
 
-use App\Models\Model_groupe_C\ModelAdminCmot_cle;
-use App\Models\Model_groupe_C\ModelAdminCmot_cle_categorie;
+use App\Models\Model_groupe_C\MotCleModel;
+use App\Models\Model_groupe_C\ConceptCyberModel;
 use CodeIgniter\HTTP\RedirectResponse;
 use Config\Database;
 
@@ -12,13 +12,13 @@ use Config\Database;
  *
  * QUI FAIT QUOI
  * -------------
- *  - DICT_Admin_Base_GroupeC (parent) : vérifie que l'utilisateur est admin (sinon 404)
+ *  - DictAdminBaseController (parent) : vérifie que l'utilisateur est admin (sinon 404)
  *                                       et fournit synchroniserReponses().
  *  - Cette classe                     : affiche la page des termes et traite ses 3 formulaires.
- *  - Vue affichée                     : groupe_c/groupe_c_ADMIN/admin_DICT_groupeC
+ *  - Vue affichée                     : groupe_c/admin/termes
  *                                       (qui étend le layout layout_admin_groupeC)
- *  - Modèles utilisés                 : ModelAdminCmot_cle (table mot_cle)
- *                                       et ModelAdminCmot_cle_categorie (table conceptcyber).
+ *  - Modèles utilisés                 : MotCleModel (table mot_cle)
+ *                                       et ConceptCyberModel (table conceptcyber).
  *  - La table question_quiz n'a pas de modèle : un seul accès via le query builder (voir GroupeC_Modifier).
  *    Les transactions restent dans le contrôleur.
  *
@@ -32,7 +32,7 @@ use Config\Database;
  * VALIDATION : chaque méthode POST vérifie les données avec $this->validate().
  * Si c'est invalide, on redirige sans message (comme avant).
  */
-class DICT_Concept_Admin_groupeC extends DICT_Admin_Base_GroupeC
+class DictConceptAdminController extends DictAdminBaseController
 {
     /**
      * Les 4 catégories DICT.
@@ -58,8 +58,8 @@ class DICT_Concept_Admin_groupeC extends DICT_Admin_Base_GroupeC
     public function GroupeC_Admin(): string
     {
         // Les modèles = des objets qui parlent à une table de la base
-        $model        = new ModelAdminCmot_cle();            // table mot_cle
-        $modelConcept = new ModelAdminCmot_cle_categorie();  // table conceptcyber
+        $model        = new MotCleModel();            // table mot_cle
+        $modelConcept = new ConceptCyberModel();  // table conceptcyber
 
         // --- Barre de recherche : si on a tapé quelque chose, on filtre sur le mot ---
         $recherche = (string) $this->request->getGet('recherche'); // valeur de ?recherche=...
@@ -106,7 +106,7 @@ class DICT_Concept_Admin_groupeC extends DICT_Admin_Base_GroupeC
         $data['motsDisponibles'] = $data['creation'] ? $model->getMotsNonClasses() : [];
 
         // La vue étend le layout (en-tête, notice, CSS, pied de page) : plus besoin de les assembler ici
-        return view('groupe_c/groupe_c_ADMIN/admin_DICT_groupeC', $data);
+        return view('groupe_c/admin/termes', $data);
     }
 
     /**
@@ -120,7 +120,7 @@ class DICT_Concept_Admin_groupeC extends DICT_Admin_Base_GroupeC
             return redirect()->to(site_url('floribondant/DICT'));
         }
 
-        $modelConcept = new ModelAdminCmot_cle_categorie();
+        $modelConcept = new ConceptCyberModel();
         $db           = Database::connect(); // sert uniquement à la transaction
         $idMot        = (int) $this->request->getPost('id_mot_cle'); // champ caché du formulaire
 
@@ -166,10 +166,10 @@ class DICT_Concept_Admin_groupeC extends DICT_Admin_Base_GroupeC
         }
 
         $idMot        = (int) $this->request->getPost('id_mot_cle');
-        $modelConcept = new ModelAdminCmot_cle_categorie(); // table conceptcyber
+        $modelConcept = new ConceptCyberModel(); // table conceptcyber
 
         // Deux vérifications : le mot existe bien, et il n'est pas déjà classé
-        $motExiste   = (new ModelAdminCmot_cle())->find($idMot) !== null; // table mot_cle
+        $motExiste   = (new MotCleModel())->find($idMot) !== null; // table mot_cle
         $dejaPresent = $modelConcept->estClasse($idMot);
 
         if ($motExiste && ! $dejaPresent) {
@@ -204,7 +204,7 @@ class DICT_Concept_Admin_groupeC extends DICT_Admin_Base_GroupeC
         $idMot = (int) $this->request->getPost('id_mot_cle');
 
         // retirer() renvoie true si une ligne a réellement été supprimée
-        if ((new ModelAdminCmot_cle_categorie())->retirer($idMot)) {
+        if ((new ConceptCyberModel())->retirer($idMot)) {
             return redirect()->to(site_url('floribondant/DICT'))
                 ->with('succes', 'Le terme a bien été supprimé du classement.');
         }

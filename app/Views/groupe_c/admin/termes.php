@@ -1,18 +1,15 @@
 <?php
 
 /**
- * VUE : gestion des termes du quiz Concept (administration, groupe C).
- * Fichier : app/Views/groupe_c/groupe_c_ADMIN/admin_DICT_groupeC.php
- *
  * RÔLE DE CETTE VUE
  * -----------------
  * Elle ne fait QU'AFFICHER. Elle ne lit pas la base et ne traite aucun formulaire :
- *   - le contrôleur DICT_Concept_Admin_groupeC::GroupeC_Admin() lui envoie les données (variables ci-dessous) ;
+ *   - le contrôleur Dict_Concept_Admin_controller::GroupeC_Admin() lui envoie les données (variables ci-dessous) ;
  *   - les formulaires envoient leurs données vers 3 routes, traitées par le même contrôleur :
  *       floribondant/groupe_c/admin/modifier   -> GroupeC_Modifier()
  *       floribondant/groupe_c/admin/supprimer  -> GroupeC_Supprimer()
  *       floribondant/groupe_c/admin/ajouter    -> GroupeC_Ajouter()
- *   - le style vient de public/css/groupe_c_css/groupe_c_css.css (chargé par le layout).
+ *   - le style vient de public/css/groupe_c_css/admin.css (chargé par le layout).
  *
  * LAYOUT
  * ------
@@ -59,7 +56,7 @@
 helper('form'); // charge les fonctions form_open(), form_input(), etc. (sans effet si déjà chargé)
 
 // Cette vue s'insère dans le layout (en-tête, notice, CSS, <body>, pied de page, pop-up de succès)
-$this->extend('groupe_c/groupe_c_ADMIN/layout_admin_groupeC');
+$this->extend('groupe_c/admin/layout_admin');
 
 // Tout ce qui suit jusqu'à endSection() est injecté à l'endroit de renderSection('contenu') du layout
 $this->section('contenu');

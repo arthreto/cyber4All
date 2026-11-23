@@ -2,17 +2,17 @@
 
 /**
  * VUE : gestion des questions du quiz Concept (administration, groupe C).
- * Fichier : app/Views/groupe_c/groupe_c_ADMIN/admin_QUESTIONS_groupeC.php
+ * Fichier : app/Views/groupe_c/admin/questions.php
  *
  * RÔLE DE CETTE VUE
  * -----------------
  * Elle ne fait QU'AFFICHER. Elle ne lit pas la base et ne traite aucun formulaire :
- *   - le contrôleur DICT_Question_Admin_GroupeC::GroupeC_Questions() lui envoie les données (variables ci-dessous) ;
+ *   - le contrôleur DictQuestionAdminController::GroupeC_Questions() lui envoie les données (variables ci-dessous) ;
  *   - les formulaires envoient leurs données vers 3 routes, traitées par le même contrôleur :
  *       floribondant/groupe_c/admin/questions/ajouter    -> GroupeC_AjouterQuestion()
  *       floribondant/groupe_c/admin/questions/modifier   -> GroupeC_ModifierQuestion()
  *       floribondant/groupe_c/admin/questions/supprimer  -> GroupeC_SupprimerQuestion()
- *   - le style vient de public/css/groupe_c_css/groupe_c_css.css (chargé par le layout).
+ *   - le style vient de public/css/groupe_c_css/admin.css (chargé par le layout).
  *
  * LES 3 AFFICHAGES POSSIBLES (colonne de droite)
  * ----------------------------------------------
@@ -48,7 +48,7 @@
 helper('form'); // charge les fonctions form_open(), form_textarea(), etc. (sans effet si déjà chargé)
 
 // Cette vue s'insère dans le layout (en-tête, notice, CSS, <body>, pied de page, pop-up de succès)
-$this->extend('groupe_c/groupe_c_ADMIN/layout_admin_groupeC');
+$this->extend('groupe_c/admin/layout_admin');
 
 // Tout ce qui suit jusqu'à endSection() est injecté à l'endroit de renderSection('contenu') du layout
 $this->section('contenu');

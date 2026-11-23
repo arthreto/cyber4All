@@ -6,9 +6,9 @@ use CodeIgniter\Model;
 
 /**
  * MODÈLE : table conceptcyber (les cases D/I/C/T de chaque terme classé).
- * Fichier : app/Models/Model_groupe_C/ModelAdminCmot_cle_categorie.php
+ * Fichier : app/Models/Model_groupe_C/ConceptCyberModel.php
  */
-class ModelAdminCmot_cle_categorie extends Model
+class ConceptCyberModel extends Model
 {
     protected $table = 'conceptcyber';
     protected $primaryKey = 'id_mot_cle';
