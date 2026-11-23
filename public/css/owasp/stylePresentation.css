@@ -621,3 +621,214 @@ body.web {
 
     color: white;
 }
+/* ===== Administration OWASP ===== */
+
+.owasp-edit {
+    width: min(1100px, 95%);
+    margin: 40px auto;
+}
+
+.owasp-edit__back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    margin-bottom: 24px;
+
+    color: var(--accent-text);
+    text-decoration: none;
+    font-weight: 700;
+}
+
+.owasp-edit__back:hover {
+    text-decoration: underline;
+}
+
+.owasp-edit__heading {
+    margin-bottom: 30px;
+}
+
+.owasp-edit__heading p {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--accent-text);
+}
+
+.owasp-edit__heading h1 {
+    margin: 8px 0;
+    color: var(--accent);
+    font-size: clamp(32px, 5vw, 48px);
+}
+
+.owasp-edit__heading span {
+    color: #65788f;
+}
+
+/* Cartes */
+
+.owasp-edit__card {
+    margin-bottom: 30px;
+    padding: 28px;
+
+    background: #fff;
+
+    border-radius: 18px;
+
+    border: 1px solid #e8ebf5;
+    border-left: 5px solid var(--accent);
+
+    box-shadow: 0 8px 24px rgba(21,32,52,.07);
+}
+
+.owasp-edit__card h2,
+.owasp-edit__card h3 {
+    margin-top: 0;
+    margin-bottom: 24px;
+    color: var(--accent-text);
+}
+
+/* Champs */
+
+.owasp-edit__field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.owasp-edit__field label {
+    font-weight: 700;
+    color: #34465d;
+}
+
+.owasp-edit__field input,
+.owasp-edit__field textarea {
+    width: 100%;
+
+    padding: 14px;
+
+    font-size: 15px;
+
+    border: 1px solid #dbe1ed;
+    border-radius: 12px;
+
+    background: #fff;
+
+    transition: all .2s ease;
+}
+
+.owasp-edit__field input:focus,
+.owasp-edit__field textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+
+    box-shadow:
+            0 0 0 4px rgba(59,111,212,.10);
+}
+
+/* Description / Code côte-à-côte */
+
+.owasp-edit__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+
+    margin-bottom: 24px;
+}
+
+/* Code */
+
+.owasp-edit__code {
+    font-family:
+            Consolas,
+            Monaco,
+            monospace;
+
+    min-height: 260px;
+
+    background: #fbfcfe;
+}
+
+/* Boutons */
+
+.owasp-edit__button {
+    border: none;
+
+    padding: 14px 22px;
+
+    border-radius: 12px;
+
+    color: white;
+
+    font-weight: 700;
+    font-size: 14px;
+
+    cursor: pointer;
+
+    background:
+            linear-gradient(
+                    135deg,
+                    var(--mark-1),
+                    var(--mark-2)
+            );
+
+    box-shadow:
+            0 8px 20px var(--mark-shadow);
+
+    transition: .2s ease;
+}
+
+.owasp-edit__button:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+            0 12px 24px var(--mark-shadow);
+}
+
+/* Titre section */
+
+.owasp-edit__section-title {
+    margin: 40px 0 20px;
+    color: var(--accent);
+    font-size: 32px;
+}
+
+.owasp-edit__empty {
+    padding: 18px;
+    border-radius: 12px;
+    background: var(--accent-bg);
+}
+
+/* Messages */
+
+.owasp-edit__notice {
+    padding: 16px 20px;
+
+    margin-bottom: 24px;
+
+    border-radius: 12px;
+
+    background: #e8f8ed;
+
+    color: #1a7f37;
+
+    font-weight: 600;
+}
+
+.owasp-edit__notice--error {
+    background: #fdecea;
+    color: #c62828;
+}
+
+/* Responsive */
+
+@media (max-width: 900px) {
+
+    .owasp-edit__grid {
+        grid-template-columns: 1fr;
+    }
+
+}
+

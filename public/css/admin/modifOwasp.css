@@ -1,0 +1,45 @@
+.owasp-edit {
+    width: min(1100px, calc(100% - 2rem));
+    margin: 2rem auto 4rem;
+    color: var(--gray-title);
+}
+
+.owasp-edit__back { color: var(--color-primary-purple); font-weight: 600; text-decoration: none; }
+.owasp-edit__back:hover { text-decoration: underline; }
+.owasp-edit__heading { margin: 1.5rem 0; }
+.owasp-edit__heading p { color: var(--color-primary-purple); font-weight: 700; text-transform: uppercase; letter-spacing: .08em; font-size: .8rem; }
+.owasp-edit__heading h1 { margin: .4rem 0; font-size: clamp(1.8rem, 4vw, 2.5rem); }
+.owasp-edit__heading span { color: var(--gray-text-light); }
+.owasp-edit__card {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(44, 62, 80, .08);
+    padding: clamp(1.2rem, 3vw, 2rem);
+    margin-bottom: 1.25rem;
+}
+.owasp-edit__card h2, .owasp-edit__card h3 { margin-bottom: 1.25rem; }
+.owasp-edit__section-title { margin: 2.5rem 0 1rem; }
+.owasp-edit__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; }
+.owasp-edit__field { display: flex; flex-direction: column; gap: .5rem; margin-bottom: 1.25rem; }
+.owasp-edit__field label { font-weight: 600; }
+.owasp-edit__field input, .owasp-edit__field textarea {
+    width: 100%; padding: .8rem; border: 1px solid var(--gray-300); border-radius: 8px;
+    color: var(--gray-800); background: var(--gray-50); font: inherit;
+}
+.owasp-edit__field textarea { resize: vertical; line-height: 1.5; }
+.owasp-edit__field .owasp-edit__code { font-family: Consolas, monospace; }
+.owasp-edit__field input:focus, .owasp-edit__field textarea:focus { outline: 2px solid var(--color-primary-blue); outline-offset: 1px; }
+.owasp-edit__button {
+    border: 0; border-radius: 8px; padding: .8rem 1.25rem; color: var(--white); font: inherit;
+    font-weight: 600; cursor: pointer; background: linear-gradient(135deg, var(--color-primary-blue), var(--color-primary-purple));
+}
+.owasp-edit__button:hover { filter: brightness(.92); }
+.owasp-edit__button--delete { background: #b42318; margin-bottom: 1.25rem; }
+.owasp-edit__notice, .owasp-edit__empty { padding: 1rem; margin-bottom: 1rem; border-radius: 8px; background: #e8f7ed; color: #155c30; }
+.owasp-edit__notice--error { background: #fff0f0; color: #9c2929; }
+.owasp-edit__empty { background: var(--gray-100); color: var(--gray-text-light); }
+@media (max-width: 700px) {
+    .owasp-edit__grid { grid-template-columns: 1fr; gap: 0; }
+    .owasp-edit__button { width: 100%; }
+}

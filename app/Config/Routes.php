@@ -50,6 +50,10 @@ $routes->group('floribondant', static function ($routes) {
     $routes->match(['GET','POST'], 'contenu', 'admin\owasp\AdminContenuOwaspController::index');
     $routes->get('contenu/(:segment)', 'admin\owasp\AdminContenuOwaspController::choixTop/$1');
     $routes->get('contenu/(:segment)/modifier/(:num)', 'admin\owasp\AdminContenuOwaspController::modifElement/$1/$2');
+    $routes->post('contenu/(:segment)/modifier/(:num)', 'admin\owasp\AdminContenuOwaspController::enregistrerMenace/$1/$2');
+    $routes->post('contenu/(:segment)/modifier/(:num)/contre-mesure/ajouter', 'admin\owasp\AdminContenuOwaspController::ajouterContreMesure/$1/$2');
+    $routes->post('contenu/(:segment)/modifier/(:num)/contre-mesure/(:num)', 'admin\owasp\AdminContenuOwaspController::enregistrerContreMesure/$1/$2/$3');
+    $routes->post('contenu/(:segment)/modifier/(:num)/contre-mesure/(:num)/supprimer', 'admin\owasp\AdminContenuOwaspController::supprimerContreMesure/$1/$2/$3');
     $routes->match(['GET','POST'], 'ajouter', 'admin\AdminContenuOwaspController::addElement');
 });
 

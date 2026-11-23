@@ -28,7 +28,7 @@ class OwaspMenaceModel extends Model
     public function getMenaceContreMesures(int $id): array
     {
         return $this->db->table('contre_mesure')
-            ->select('desc_cm, prog_cm')
+            ->select('id_cm, desc_cm, prog_cm')
             ->where('menace_id', $id)
             ->get()
             ->getResult();
@@ -41,6 +41,13 @@ class OwaspMenaceModel extends Model
             ->where('id_menace', $id)
             ->first();
     }
-
-
+    public function updateMenace(int $id, array $data): bool
+    {
+        return $this->db->table('menace')
+            ->update([
+                'desc_menace' => $data['desc_menace'],
+                'nom_menace' => $data['nom_menace'],
+                'prog_menace' => $data['prog_menace']
+            ]);
+    }
 }
