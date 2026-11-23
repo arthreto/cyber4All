@@ -13,30 +13,48 @@ class AdminContenuOwaspController extends BaseController
 
     public function __construct()
     {
-        $this->Menace = model(OwaspMenaceModel::class);
-        $this->Top    = model(OwaspTopModel::class);
+        $this->menace = model(OwaspMenaceModel::class);
+        $this->top    = model(OwaspTopModel::class);
     }
 
     public function index()
     {
+        $data = ['tops' => $this->top->findAll()];
         return view('header') .
-            view('admin/owasp/choixContenu') .
+            view('admin/owasp/choixContenu', $data) .
             view('footer');
     }
 
     public function choixTop($id)
     {
+        $top = $this->top->getTopById($id);
+        if ($top === null) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+
         $data = [
-            'menacesWeb' => $this->Menace->getMenaces('WEB'),
-            'menacesApi' => $this->Menace->getMenaces('API'),
+            'top' => $top,
+            'menaces' => $this->menace->getMenaces($id),
         ];
         return view('header') .
             view('admin/owasp/tabOwaspContenu', $data) .
             view('footer');
     }
 
-    public function addElement()
+    public function modifElement(string $top, int $id)
     {
+        $menace = $this->menace->getMenace($top, $id);
+        if ($menace === null) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
 
+        $data = [
+            'menace' => $menace,
+            'contreMesures' => $this->menace->getMenaceContreMesures($id),
+        ];
+
+        return view('header') .
+            view('admin/owasp/modifElement', $data) .
+            view('footer');
     }
 }

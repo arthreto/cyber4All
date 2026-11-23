@@ -4,15 +4,14 @@
 
     <div class="admin-columns">
 
-        <!-- TOP WEB -->
         <section class="admin-top-card web">
             <header>
-                <h2>Owasp Web Top <?= count($menacesWeb) ?></h2>
+                <h2><?= esc($top->nom_top) ?> (<?= count($menaces) ?>)</h2>
             </header>
 
             <ul class="admin-risk-list">
 
-                <?php foreach ($menacesWeb as $menace): ?>
+                <?php foreach ($menaces as $menace): ?>
 
                     <li class="admin-risk-item">
 
@@ -23,7 +22,7 @@
                         <div class="risk-actions">
 
                             <a
-                                href="<?= site_url('admin/menace/edit/' . $menace->id_menace) ?>"
+                                href="<?= esc(site_url('floribondant/contenu/' . $top->id_top . '/modifier/' . $menace->id_menace), 'attr') ?>"
                                 class="action-btn edit-btn"
                                 title="Modifier">
                                 ✏️
@@ -46,7 +45,7 @@
                 <li class="admin-add-item">
 
                     <a
-                        href="<?= site_url('admin/menace/create/web') ?>"
+                        href="<?= esc(site_url('admin/menace/create/' . rawurlencode($top->id_top)), 'attr') ?>"
                         class="add-risk-btn">
                         ➕ Ajouter une menace
                     </a>
@@ -56,57 +55,6 @@
             </ul>
         </section>
 
-        <!-- TOP API -->
-        <section class="admin-top-card api">
-            <header>
-                <h2>OWASP API</h2>
-            </header>
-
-            <ul class="admin-risk-list">
-
-                <?php foreach ($menacesApi as $menace): ?>
-
-                    <li class="admin-risk-item">
-
-                        <div class="risk-content">
-                            <strong><?= esc($menace->nom_menace) ?></strong>
-                        </div>
-
-                        <div class="risk-actions">
-
-                            <a
-                                href="<?= site_url('admin/menace/edit/' . $menace->id_menace) ?>"
-                                class="action-btn edit-btn"
-                                title="Modifier">
-                                ✏️
-                            </a>
-
-                            <a
-                                href="<?= site_url('admin/menace/delete/' . $menace->id_menace) ?>"
-                                class="action-btn delete-btn"
-                                title="Supprimer"
-                                onclick="return confirm('Supprimer cette menace et toutes ses contre-mesures ?');">
-                                🗑️
-                            </a>
-
-                        </div>
-
-                    </li>
-
-                <?php endforeach; ?>
-
-                <li class="admin-add-item">
-
-                    <a
-                        href="<?= site_url('admin/menace/create/api') ?>"
-                        class="add-risk-btn">
-                        ➕ Ajouter une menace
-                    </a>
-
-                </li>
-
-            </ul>
-        </section>
 
     </div>
 

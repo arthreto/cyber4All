@@ -48,6 +48,8 @@ $routes->group('floribondant', static function ($routes) {
     $routes->match(['GET','POST'], 'utilisateurs', 'admin\AdminUtilisateurController::index');
     $routes->match(['GET','POST'], 'owasp', 'admin\owasp\AdminOwaspController::index');
     $routes->match(['GET','POST'], 'contenu', 'admin\owasp\AdminContenuOwaspController::index');
+    $routes->get('contenu/(:segment)', 'admin\owasp\AdminContenuOwaspController::choixTop/$1');
+    $routes->get('contenu/(:segment)/modifier/(:num)', 'admin\owasp\AdminContenuOwaspController::modifElement/$1/$2');
     $routes->match(['GET','POST'], 'ajouter', 'admin\AdminContenuOwaspController::addElement');
 });
 
