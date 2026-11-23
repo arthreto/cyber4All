@@ -192,6 +192,13 @@
     gap: 8px;
     flex-wrap: wrap;
 }
+.bouton-supprimer {
+    background: #fdeaea;
+    color: #d64545;
+    border: 1px solid #d64545;
+    margin-right: auto;
+}
+.bouton-supprimer:hover { background: #d64545; color: #fff; }
 
 
 /* ---------- 7. PUCES D / I / C / T ---------- */

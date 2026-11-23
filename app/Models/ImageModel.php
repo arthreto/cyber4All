@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use App\Entities\Image;
 use CodeIgniter\Database\Exceptions\DatabaseException;
 use CodeIgniter\Model;
-use App\Entities\Image;
 
 class ImageModel extends Model
 {

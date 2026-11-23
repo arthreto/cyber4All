@@ -51,7 +51,21 @@ class Groupe_C_Admin extends BaseController
         $idModif                = $this->request->getGet('modifier');
         $data['edition']        = $idModif ? $model->find($idModif) : null;
         $data['conceptEdition'] = $idModif ? ($data['concept'][$idModif] ?? null) : null;
+        $data['questionEdition'] = $idModif
+            ? \Config\Database::connect()->table('question_quiz')->where('id_mot_cle', (int) $idModif)->get()->getRowArray()
+            : null;
         $data['creation']       = $this->request->getGet('creer') !== null;
+        $data['motsDisponibles'] = [];
+        if ($data['creation']) {
+            $data['motsDisponibles'] = \Config\Database::connect()
+                ->table('mot_cle')
+                ->select('mot_cle.id, mot_cle.mot')
+                ->join('conceptcyber', 'conceptcyber.id_mot_cle = mot_cle.id', 'left')
+                ->where('conceptcyber.id_mot_cle IS NULL')
+                ->orderBy('mot_cle.mot', 'ASC')
+                ->get()
+                ->getResultArray();
+        }
 
         return view('header')
             . view('notice')
@@ -66,6 +80,11 @@ class Groupe_C_Admin extends BaseController
     public function GroupeC_Modifier()
     {
         $modelConcept = new \App\Models\Model_groupe_C\ModelAdminCmot_cle_categorie();
+        $db           = \Config\Database::connect();
+
+        $idMot       = (int) $this->request->getPost('id_mot_cle');
+        $question    = trim((string) $this->request->getPost('question'));
+        $explication = trim((string) $this->request->getPost('explication'));
 
         $modelConcept->update($this->request->getPost('id_mot_cle'), [
             'disponibilite'   => $this->request->getPost('disponibilite') ? 1 : 0,
