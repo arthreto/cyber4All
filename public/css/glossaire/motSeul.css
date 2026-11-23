@@ -334,6 +334,47 @@
     color: #667eea;
 }
 
+.mot-seul-page .quiz-preview {
+    min-height: 0;
+    margin-top: 1.5rem;
+    padding: 0;
+}
+
+.mot-seul-page .quiz-preview .detail-page {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    background: transparent;
+    box-shadow: none;
+}
+
+.mot-seul-page .quiz-preview .detail-page::before {
+    content: none;
+}
+
+.mot-seul-page .quiz-preview .detail-header {
+    padding-bottom: 1rem;
+}
+
+.mot-seul-page .quiz-preview .detail-header h1 {
+    color: var(--gray-title, #2d3436);
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.mot-seul-page .quiz-choice {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.mot-seul-page .quiz-choice .back-button,
+.mot-seul-page .quiz-choice .back-button-api {
+    padding: 0.875rem 2rem;
+    border-radius: 12px;
+}
+
 /* ================================================
    PIED DE PAGE (Actions)
    ================================================ */

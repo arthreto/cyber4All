@@ -23,6 +23,7 @@ endif;
     <!-- CSS -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?= link_tag(base_url('/css/style.css')) ?>
+    <?= link_tag(base_url('/css/owasp/stylePresentation.css')) ?>
     <script src="<?= base_url('/js/script.js')?>" defer></script>
     <link rel="icon" type="image/x-icon" href="<?= base_url("images/logos/cyber4all_nobg_notxt.png")?>">
 </head>

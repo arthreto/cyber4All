@@ -138,6 +138,11 @@ $utilisateur = session()->get("utilisateur");
                                 <span class="top10-link">Consulter le classement</span>
                             </a>
                         </div>
+                        <?php
+                        if(isset($utilisateur) && $utilisateur->role === "contributeur"):
+                            echo view('owasp/choixQuizView');
+                        endif;
+                        ?>
                     </section>
                 <?php endif; ?>
 

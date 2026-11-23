@@ -46,6 +46,11 @@ body.web {
     padding: 14px 18px 64px;
 }
 
+.quiz-preview {
+    min-height: 0;
+    padding-bottom: 24px;
+}
+
 .detail-page {
     position: relative;
     width: min(100%, 1140px);
