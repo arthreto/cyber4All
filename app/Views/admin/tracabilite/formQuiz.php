@@ -12,6 +12,8 @@
  * - $blocsThemes   : questions à ajouter, un bloc par thème
  *                    [['id', 'nom', 'choisi' => true/false, 'questions' => [...]], ...]
  * - $errors        : erreurs de validation [champ => message]
+ * - $raisonActivation : quiz inactif en base, raison qui l'empêche d'être activé (null sinon) ;
+ *                    les questions inactives n'y figurent pas, elles portent un badge « Inactive »
  *
  * Mise en page sur deux colonnes :
  * - à gauche, le quiz (thème, titre, description, nombre de questions) et sa visibilité ;
@@ -19,7 +21,8 @@
  *   Tout est enregistré en une fois avec le bouton du bas.
  *
  * Règles : un quiz n'a qu'un thème et seulement des questions de ce thème ;
- * il doit contenir exactement son « nombre de questions » (nb_questions, entre 5 et 20).
+ * il ne dépasse jamais son « nombre de questions » (nb_questions, entre 5 et 20).
+ * Avec moins de questions (même aucune), il est enregistré mais reste inactif jusqu'à être complet.
  *
  * JavaScript, facultatif : le formulaire fonctionne sans (le contrôleur vérifie les règles).
  * js/sio-admin-theme.js n'affiche que les questions du thème coché (partie 2), et gère la recherche,
@@ -94,9 +97,18 @@ $caseQuestion = function (array $question, bool $cochee): string {
 
     $libelle = '<span class="sio-admin__question-libelle">' . esc($question['libelle']) . '</span>';
 
+    // Question supprimée (désactivée) : badge « Inactive » devant l'énoncé.
+    // Elle ne compte pas pour que le quiz soit complet : à décocher et remplacer.
+    if (isset($question['actif']) && (int) $question['actif'] !== 1) {
+        $libelle = '<span class="sio-admin__badge sio-admin__badge--faux">Inactive</span>' . $libelle;
+    }
+
     return form_label($case . $libelle . $badge, $id, ['class' => $classe]);
 };
 ?>
+<!-- Modal de création d'une question -->
+<?= script_tag(['src' => 'js/sio-admin-modal-question.js?v=' . filemtime(FCPATH . 'js/sio-admin-modal-question.js'), 'defer' => null]) ?>
+
 <div class="sio-admin sio-admin--formulaire sio-admin--formulaire-xl">
 
     <div class="glossary-form">
@@ -112,6 +124,12 @@ $caseQuestion = function (array $question, bool $cochee): string {
             <div class="sio-admin__erreur-globale" role="alert">
                 <strong>Le quiz n'a pas été enregistré. Corrigez le(s) point(s) suivant(s) :</strong>
                 <?= ul(esc($errors), ['class' => 'sio-admin__erreur-liste']) ?>
+            </div>
+        <?php elseif (! empty($raisonActivation)): ?>
+            <!-- Quiz inactif qui ne peut pas être activé (les questions inactives ont leur badge « Inactive ») -->
+            <div class="sio-admin__erreur-globale" role="alert">
+                <strong>Ce quiz ne peut pas être activé :</strong>
+                <?= esc($raisonActivation) ?>
             </div>
         <?php endif; ?>
 
@@ -189,7 +207,7 @@ $caseQuestion = function (array $question, bool $cochee): string {
                             'required'         => true,
                             'aria-describedby' => 'aide-nb-question',
                         ]) ?>
-                        <p id="aide-nb-question" class="glossary-form__help">Entre 5 et 20. Le quiz doit contenir exactement ce nombre de questions pour être enregistré.</p>
+                        <p id="aide-nb-question" class="glossary-form__help">Entre 5 et 20. Tant que le quiz n'a pas ce nombre de questions, il est enregistré inactif.</p>
                         <?= $erreurChamp('nb_questions') ?>
                     </div>
 
@@ -204,7 +222,7 @@ $caseQuestion = function (array $question, bool $cochee): string {
                         'champ-actif',
                         ['class' => 'sio-admin__choix sio-admin__choix--carte']
                     ) ?>
-                    <p class="glossary-form__help">Un quiz inactif reste enregistré mais n'apparaît plus sur la page des quiz.</p>
+                    <p class="glossary-form__help">Un quiz inactif reste enregistré mais n'apparaît plus sur la page des quiz. Un quiz incomplet est toujours enregistré inactif.</p>
                 <?= form_fieldset_close() ?>
             </div>
 
@@ -263,11 +281,13 @@ $caseQuestion = function (array $question, bool $cochee): string {
                             <?php if ($theme['questions'] === []): ?>
                                 <p class="glossary-form__help">Aucune autre question dans ce thème.</p>
                             <?php else: ?>
+                            <div class="sio-admin__questions sio-admin__questions--quiz">
                                 <div class="sio-admin__questions">
                                     <?php foreach ($theme['questions'] as $question): ?>
                                         <?= $caseQuestion($question, false) ?>
                                     <?php endforeach; ?>
                                 </div>
+                            </div>
                             <?php endif; ?>
                         </div>
                     <?php endforeach; ?>
@@ -315,7 +335,4 @@ $caseQuestion = function (array $question, bool $cochee): string {
     <iframe class="sio-admin__dialog-cadre" title="Formulaire de création d'une question"></iframe>
 </dialog>
 
-<!-- Confort : position de défilement, questions du thème coché, recherche, limite et récapitulatif -->
-<?= script_tag(['src' => 'js/sio-admin-theme.js?v=' . filemtime(FCPATH . 'js/sio-admin-theme.js'), 'defer' => null]) ?>
-<!-- Modal de création d'une question -->
-<?= script_tag(['src' => 'js/sio-admin-modal-question.js?v=' . filemtime(FCPATH . 'js/sio-admin-modal-question.js'), 'defer' => null]) ?>
+

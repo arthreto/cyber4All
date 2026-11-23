@@ -15,11 +15,10 @@ endif;
 <head>
     <meta charset="UTF-8">
     <title>Cyber4All</title>
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.5.1/css/all.css">
-    <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.5.1/css/sharp-solid.css">
-    <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.5.1/css/sharp-regular.css">
-    <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.5.1/css/sharp-light.css">
+    <!-- Font Awesome gratuit (les polices de site-assets.fontawesome.com ne se chargent pas) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css">
+    <!-- Éditeur Markdown (EasyMDE) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde@2/dist/easymde.min.css">
     <!-- CSS -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?= link_tag(base_url('/css/style.css')) ?>
@@ -28,6 +27,11 @@ endif;
     <?= link_tag(base_url('/css/sio/adminSio.css') . '?v=' . filemtime(FCPATH . 'css/sio/adminSio.css')) ?>
     <?= link_tag(base_url('/css/sio/quiz.css') . '?v=' . filemtime(FCPATH . 'css/sio/quiz.css')) ?>
     <script src="<?= base_url('/js/script.js')?>" defer></script>
+    <!-- Éditeur Markdown : la bibliothèque avant le script qui l'utilise (les scripts defer s'exécutent dans l'ordre) -->
+    <script src="https://cdn.jsdelivr.net/npm/easymde@2/dist/easymde.min.js" defer></script>
+    <script src="<?= base_url('/js/sio-admin-editeur.js') . '?v=' . filemtime(FCPATH . 'js/sio-admin-editeur.js') ?>" defer></script>
+    <!-- Administration : position de défilement, blocs du thème coché, formulaire d'un quiz -->
+    <script src="<?= base_url('/js/sio-admin-theme.js') . '?v=' . filemtime(FCPATH . 'js/sio-admin-theme.js') ?>" defer></script>
     <link rel="icon" type="image/x-icon" href="<?= base_url("images/logos/cyber4all_nobg_notxt.png")?>">
 </head>
 <body>

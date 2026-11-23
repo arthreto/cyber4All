@@ -203,4 +203,85 @@ class QuizQuestionModel extends Model
             return null;
         }
     }
+
+    /**
+     * Récupère les identifiants des quiz auxquels au moins une des questions est rattachée.
+     *
+     * @param array $idsQuestions Identifiants des questions.
+     * @return array Identifiants des quiz (tableau vide si aucun ou en cas d'erreur).
+     *
+     * @author Raphael Bierlaire
+     */
+    public function getIdsQuizByQuestions(array $idsQuestions): array
+    {
+        $idsQuestions = array_values(array_unique(array_map('intval', $idsQuestions)));
+
+        if ($idsQuestions === []) {
+            return [];
+        }
+
+        try {
+            $liaisons = $this->db->table('quiz_question')
+                ->select('id_quiz')
+                ->distinct()
+                ->whereIn('id_question', $idsQuestions)
+                ->get()
+                ->getResultArray();
+
+            return array_map('intval', array_column($liaisons, 'id_quiz'));
+
+        } catch (DatabaseException $e) {
+            log_message('error', "Erreur de récupération des quiz de plusieurs questions : " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Désactive les quiz actifs qui n'ont plus assez de questions.
+     * Seules les questions actives comptent : ce sont les seules proposées sur la page des quiz.
+     * À appeler après la suppression (désactivation) d'une question ou la modification de ses quiz.
+     *
+     * @param array $idsQuiz Identifiants des quiz à vérifier.
+     * @return array Titres des quiz désactivés ([] si aucun ou en cas d'erreur).
+     *
+     * @author Raphael Bierlaire
+     */
+    public function desactiverQuizIncomplets(array $idsQuiz): array
+    {
+        $idsQuiz = array_values(array_unique(array_map('intval', $idsQuiz)));
+
+        if ($idsQuiz === []) {
+            return [];
+        }
+
+        try {
+            $lignes = $this->db->table('quiz')
+                ->select('quiz.id, quiz.titre, quiz.nb_questions')
+                ->select('SUM(CASE WHEN question.actif = 1 THEN 1 ELSE 0 END) AS nb_actives', false)
+                ->join('quiz_question', 'quiz_question.id_quiz = quiz.id', 'left')
+                ->join('question', 'question.id = quiz_question.id_question', 'left')
+                ->whereIn('quiz.id', $idsQuiz)
+                ->where('quiz.actif', 1)
+                ->groupBy('quiz.id')
+                ->get()
+                ->getResultArray();
+
+            $incomplets = array_values(array_filter($lignes, fn (array $l): bool
+                => (int) $l['nb_actives'] < (int) $l['nb_questions']));
+
+            if ($incomplets === []) {
+                return [];
+            }
+
+            $this->db->table('quiz')
+                ->whereIn('id', array_column($incomplets, 'id'))
+                ->update(['actif' => 0]);
+
+            return array_column($incomplets, 'titre');
+
+        } catch (DatabaseException $e) {
+            log_message('error', "Erreur de désactivation des quiz incomplets : " . $e->getMessage());
+            return [];
+        }
+    }
 }

@@ -4,6 +4,7 @@ namespace App\Controllers\admin;
 
 use App\Entities\ExtraitForm;
 use App\Models\ExtraitModel;
+use App\Models\QuizQuestionModel;
 use CodeIgniter\Exceptions\PageNotFoundException;
 use CodeIgniter\HTTP\RedirectResponse;
 
@@ -120,10 +121,21 @@ class AdminExtraitController extends AdminController
             $parametresType = ['type' => $typeSelect];
         }
 
+        $extraitList = array_slice($extraits, ($page - 1) * $parPage, $parPage);
+
+        // Extraits inactifs de la page : raison qui empêche la réactivation (null = réactivable)
+        $raisonsReactivation = [];
+        foreach ($extraitList as $extrait) {
+            if ((int) ($extrait['actif'] ?? 1) !== 1) {
+                $raisonsReactivation[(int) $extrait['id']] = $this->raisonNonReactivable((int) $extrait['id']);
+            }
+        }
+
         $data = [
             'onglet'        => 'extrait',
             'typeSelect'    => $typeSelect,
-            'extraitList'   => array_slice($extraits, ($page - 1) * $parPage, $parPage),
+            'extraitList'   => $extraitList,
+            'raisonsReactivation' => $raisonsReactivation,
             'idNouveau'     => $idNouveau,
             'totalExtraits' => $totalExtraits,
             'typesExtrait'  => ExtraitModel::TYPES,
@@ -249,7 +261,10 @@ class AdminExtraitController extends AdminController
     }
 
     /**
-     * Suppression d'un extrait. Les questions qui l'utilisaient sont conservées, sans extrait
+     * « Suppression » d'un extrait : il passe inactif (actif = 0), il n'est pas effacé.
+     * Les questions actives qui l'utilisent passent inactives (elles gardent leur lien),
+     * et leurs quiz qui n'ont plus assez de questions actives aussi.
+     * Il se réactive avec le bouton « Réactiver » de la liste (extraitReactiver).
      *
      * @param int $idExtrait Identifiant de l'extrait à supprimer
      * @return RedirectResponse Retour à la liste des extraits, avec un message
@@ -269,19 +284,95 @@ class AdminExtraitController extends AdminController
                 ->with('error', 'Cet extrait n\'existe pas ou a déjà été supprimé.');
         }
 
-        $nbQuestions = $this->extrait_model->compterQuestions($idExtrait);
+        // L'extrait et ses questions actives passent inactifs
+        $questionsDesactivees = $this->extrait_model->supprimerExtrait($idExtrait);
 
-        if (! $this->extrait_model->supprimerExtrait($idExtrait)) {
+        if ($questionsDesactivees === false) {
             return redirect()->to(base_url('floribondant/theme/extrait'))
                 ->with('error', "L'extrait n'a pas pu être supprimé. Veuillez réessayer.");
         }
 
-        $message = 'Extrait « ' . $extrait['titre'] . ' » supprimé.';
-        if ($nbQuestions > 0) {
-            $message .= ' ' . $nbQuestions . ' question(s) n\'ont plus d\'extrait.';
+        // Quiz de ces questions qui n'ont plus assez de questions actives : désactivés aussi
+        $quizDesactives = [];
+        if ($questionsDesactivees !== []) {
+            $quizQuestionModel = new QuizQuestionModel();
+            $quizDesactives = $quizQuestionModel->desactiverQuizIncomplets(
+                $quizQuestionModel->getIdsQuizByQuestions($questionsDesactivees)
+            );
+        }
+
+        $message = 'Extrait « ' . $extrait['titre'] . ' » supprimé : il est désactivé et rangé à la fin de la liste.';
+        if ($questionsDesactivees !== []) {
+            $message .= ' ' . count($questionsDesactivees) . ' question(s) qui l\'utilisaient sont désactivées.';
+        }
+        if ($quizDesactives !== []) {
+            $message .= ' Quiz désactivé(s) faute de questions : « ' . implode(' », « ', $quizDesactives) . ' ».';
         }
 
         return redirect()->to(base_url('floribondant/theme/extrait'))
             ->with('success', $message);
+    }
+
+    /**
+     * Réactivation d'un extrait supprimé (désactivé), seulement s'il est valide.
+     * Il est de nouveau affiché dans les questions qui l'utilisent.
+     *
+     * @param int $idExtrait Identifiant de l'extrait à réactiver
+     * @return RedirectResponse Retour à la liste des extraits, avec un message
+     *
+     * @author Raphael Bierlaire
+     */
+    public function extraitReactiver(int $idExtrait)
+    {
+        $raison = $this->raisonNonReactivable($idExtrait);
+
+        if ($raison !== null) {
+            return redirect()->to(base_url('floribondant/theme/extrait'))
+                ->with('error', 'L\'extrait ne peut pas être réactivé : ' . $raison);
+        }
+
+        if (! $this->extrait_model->reactiverExtrait($idExtrait)) {
+            return redirect()->to(base_url('floribondant/theme/extrait'))
+                ->with('error', "L'extrait n'a pas pu être réactivé. Veuillez réessayer.");
+        }
+
+        return redirect()->to(base_url('floribondant/theme/extrait'))
+            ->with('id_nouveau', $idExtrait) // affiché en premier dans la liste
+            ->with('success', 'Extrait réactivé. Ses questions désactivées ne sont pas réactivées automatiquement : réactivez-les depuis la liste des questions.');
+    }
+
+    /**
+     * Vérifie qu'un extrait inactif peut être réactivé (mêmes règles que le formulaire).
+     *
+     * @param int $idExtrait Identifiant de l'extrait
+     * @return string|null Raison du refus, ou null si l'extrait peut être réactivé.
+     *
+     * @author Raphael Bierlaire
+     */
+    private function raisonNonReactivable(int $idExtrait): ?string
+    {
+        $extrait = $this->extrait_model->find($idExtrait);
+
+        if ($extrait === null) {
+            return "cet extrait n'existe pas.";
+        }
+        if ((int) ($extrait['actif'] ?? 1) === 1) {
+            return 'il est déjà actif.';
+        }
+
+        $longueurTitre = mb_strlen(trim((string) $extrait['titre']));
+        if ($longueurTitre === 0 || $longueurTitre > 100) {
+            return 'son titre doit contenir entre 1 et 100 caractères : modifiez-le.';
+        }
+        if (! array_key_exists((string) $extrait['type'], ExtraitModel::TYPES)) {
+            return 'son type est invalide : modifiez-le.';
+        }
+
+        $longueurContenu = mb_strlen((string) $extrait['contenu']);
+        if (trim((string) $extrait['contenu']) === '' || $longueurContenu > 5000) {
+            return 'son contenu doit contenir entre 1 et 5000 caractères : modifiez-le.';
+        }
+
+        return null;
     }
 }

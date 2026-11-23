@@ -290,7 +290,7 @@
             if (max > 0 && cochees.length > max) {
                 texte += ' : décochez-en ' + (cochees.length - max) + ' pour pouvoir enregistrer.';
             } else if (max > 0 && cochees.length < max) {
-                texte += ' : encore ' + (max - cochees.length) + ' à cocher pour pouvoir enregistrer.';
+                texte += ' : encore ' + (max - cochees.length) + ' à cocher, sinon le quiz sera enregistré inactif.';
             } else if (ajoutees === 0 && retirees === 0) {
                 texte += ' : aucun changement.';
             } else {

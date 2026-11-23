@@ -161,5 +161,4 @@ $nbQuestions = count($questions);
     </div>
 </div>
 
-<!-- Confort : position de défilement après un rechargement -->
-<?= script_tag(['src' => 'js/sio-admin-theme.js?v=' . filemtime(FCPATH . 'js/sio-admin-theme.js'), 'defer' => null]) ?>
+

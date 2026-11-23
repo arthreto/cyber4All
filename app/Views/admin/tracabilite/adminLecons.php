@@ -167,10 +167,16 @@ foreach ($pages as $p) {
                                     <?php if ($estActive): ?>
                                     <?= form_open('floribondant/theme/lecons/supprimer/' . $lecon->id, [
                                         'class'    => 'mots-table__delete-form',
-                                        'onsubmit' => "return confirm('Supprimer la leçon « " . esc($lecon->titre, 'js') . " » ? Elle ne sera plus affichée sur le site. Pour la réactiver, modifiez-la et cochez « Leçon active ».');",
+                                        'onsubmit' => "return confirm('Supprimer la leçon « " . esc($lecon->titre, 'js') . " » ? Elle ne sera plus affichée sur le site. Vous pourrez la réactiver depuis cette liste.');",
                                     ]) ?>
                                     <?= form_button(['type' => 'submit', 'content' => 'Supprimer', 'class' => 'sio-admin__btn-supprimer']) ?>
                                     <?= form_close() ?>
+                                    <?php else: ?>
+                                    <!-- Réactiver : bouton grisé (raison en infobulle) si la leçon n'est pas valide -->
+                                    <?= view('admin/tracabilite/boutonReactiver', [
+                                        'url'    => 'floribondant/theme/lecons/reactiver/' . $lecon->id,
+                                        'raison' => $raisonsReactivation[(int) $lecon->id] ?? null,
+                                    ]) ?>
                                     <?php endif; ?>
                                 </div>
                             </td>
@@ -192,5 +198,4 @@ foreach ($pages as $p) {
 
 </div>
 
-<!-- Confort : retour à la même position de la page après un rechargement -->
-<?= script_tag(['src' => 'js/sio-admin-theme.js?v=' . filemtime(FCPATH . 'js/sio-admin-theme.js'), 'defer' => null]) ?>
+

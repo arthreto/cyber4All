@@ -8,9 +8,11 @@
  *                   extrait_mode, id_extrait, extrait_titre, extrait_contenu...)
  * - $blocsThemes  : un bloc par thème, avec ses quiz et ses extraits
  *                   [['id', 'nom', 'choisi' => true/false,
- *                     'quiz' => [['id', 'titre', 'coche'], ...],
- *                     'extraits' => [['id', 'titre', 'contenu', 'debut', 'choisi'], ...]], ...]
+ *                     'quiz' => [['id', 'titre', 'coche', 'actif'], ...],
+ *                     'extraits' => [['id', 'titre', 'contenu', 'debut', 'choisi', 'actif'], ...]], ...]
  * - $errors          : erreurs de validation [champ => message]
+ * - $raisonActivation : question inactive en base, raison qui l'empêche d'être activée (null sinon) ;
+ *                      un extrait supprimé n'y figure pas, il porte un badge « Inactif »
  *
  * Les extraits se modifient et se suppriment dans l'onglet « Extrait » (AdminExtraitController) :
  * ici, on en choisit un existant ou on en crée un nouveau.
@@ -77,6 +79,12 @@ $erreurChamp = fn (string $champ): string
             <div class="sio-admin__erreur-globale" role="alert">
                 <strong>La question n'a pas été enregistrée. Corrigez le(s) point(s) suivant(s) :</strong>
                 <?= ul(esc($errors), ['class' => 'sio-admin__erreur-liste']) ?>
+            </div>
+        <?php elseif (! empty($raisonActivation)): ?>
+            <!-- Question inactive qui ne peut pas être activée (un extrait supprimé a son badge « Inactif ») -->
+            <div class="sio-admin__erreur-globale" role="alert">
+                <strong>Cette question ne peut pas être activée :</strong>
+                <?= esc($raisonActivation) ?>
             </div>
         <?php endif; ?>
 
@@ -197,6 +205,8 @@ $erreurChamp = fn (string $champ): string
                                             <?= form_label(
                                                 form_radio(['name' => 'id_extrait', 'id' => 'extrait-' . $extrait['id']], (string) $extrait['id'], $extrait['choisi'])
                                                 . '<span class="sio-admin__extrait-texte">'
+                                                // Extrait supprimé (désactivé) : la question ne peut pas être active avec lui
+                                                . ($extrait['actif'] ? '' : '<span class="sio-admin__badge sio-admin__badge--faux">Inactif</span>')
                                                 . '<span class="sio-admin__extrait-titre">' . esc($extrait['titre']) . '</span>'
                                                 . '<code class="sio-admin__extrait-debut">' . esc($extrait['debut']) . '</code>'
                                                 . '</span>',
@@ -278,7 +288,10 @@ $erreurChamp = fn (string $champ): string
                                             'id'      => 'quiz-' . $quiz['id'],
                                             'value'   => (string) $quiz['id'],
                                             'checked' => $quiz['coche'],
-                                        ]) . esc($quiz['titre']),
+                                        ])
+                                        // Quiz supprimé (désactivé) : badge « Inactif » devant le titre
+                                        . ($quiz['actif'] ? '' : '<span class="sio-admin__badge sio-admin__badge--faux">Inactif</span>')
+                                        . esc($quiz['titre']),
                                         'quiz-' . $quiz['id'],
                                         ['class' => 'sio-admin__choix sio-admin__choix--carte sio-admin__choix--petit']
                                     ) ?>
@@ -362,5 +375,4 @@ $erreurChamp = fn (string $champ): string
     </div>
 </div>
 
-<!-- Confort : position de défilement, et n'affiche que les quiz et les extraits du thème coché -->
-<?= script_tag(['src' => 'js/sio-admin-theme.js?v=' . filemtime(FCPATH . 'js/sio-admin-theme.js'), 'defer' => null]) ?>
+

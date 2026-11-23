@@ -38,6 +38,7 @@ foreach ($pages as $p) {
 }
 ?>
 
+
 <div class="sio-admin__section">
 
     <!-- Message affiché une seule fois après un ajout, une modification ou une suppression -->
@@ -189,11 +190,17 @@ foreach ($pages as $p) {
                                     <?php if ($estActive): ?>
                                         <?= form_open('floribondant/theme/questions/supprimer/' . $question['id'], [
                                             'class'    => 'mots-table__delete-form',
-                                            'onsubmit' => "return confirm('Supprimer la question « " . esc($debutEnonce, 'js') . " » ? Elle ne sera plus proposée dans les quiz. Pour la réactiver, modifiez-la et cochez « Question active ».');",
+                                            'onsubmit' => "return confirm('Supprimer la question « " . esc($debutEnonce, 'js') . " » ? Elle ne sera plus proposée dans les quiz. Vous pourrez la réactiver depuis cette liste.');",
                                         ]) ?>
                                         <?= form_hidden('id_question', (string) $question['id']) ?>
                                         <?= form_button(['type' => 'submit', 'content' => 'Supprimer', 'class' => 'sio-admin__btn-supprimer']) ?>
                                         <?= form_close() ?>
+                                    <?php else: ?>
+                                        <!-- Réactiver : bouton grisé (raison en infobulle) si la question n'est pas valide -->
+                                        <?= view('admin/tracabilite/boutonReactiver', [
+                                            'url'    => 'floribondant/theme/questions/reactiver/' . $question['id'],
+                                            'raison' => $raisonsReactivation[(int) $question['id']] ?? null,
+                                        ]) ?>
                                     <?php endif; ?>
                                 </div>
                             </td>
@@ -215,5 +222,3 @@ foreach ($pages as $p) {
 
 </div>
 
-<!-- Confort : retour à la même position de la page après un rechargement -->
-<?= script_tag(['src' => 'js/sio-admin-theme.js?v=' . filemtime(FCPATH . 'js/sio-admin-theme.js'), 'defer' => null]) ?>

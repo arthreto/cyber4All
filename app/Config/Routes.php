@@ -60,21 +60,25 @@ $routes->group('floribondant', static function ($routes) {
     $routes->match(['GET', 'POST'], 'theme/questions/ajouter', 'admin\AdminQuestionController::questionAjouter');
     $routes->match(['GET', 'POST'], 'theme/questions/modifier/(:num)', 'admin\AdminQuestionController::questionAjouter/$1');
     $routes->match(['GET', 'POST'], 'theme/questions/supprimer/(:num)', 'admin\AdminQuestionController::questionSupprimer/$1');
+    $routes->post('theme/questions/reactiver/(:num)', 'admin\AdminQuestionController::questionReactiver/$1');
 
     $routes->match(['GET', 'POST'], 'theme/quiz', 'admin\AdminQuizController::index', ['as' => 'quizList']);
     $routes->match(['GET', 'POST'], 'theme/quiz/ajouter', 'admin\AdminQuizController::quizAjouter');
     $routes->match(['GET', 'POST'], 'theme/quiz/modifier/(:num)', 'admin\AdminQuizController::quizAjouter/$1');
     $routes->match(['GET', 'POST'], 'theme/quiz/supprimer/(:num)', 'admin\AdminQuizController::quizSupprimer/$1');
+    $routes->post('theme/quiz/reactiver/(:num)', 'admin\AdminQuizController::quizReactiver/$1');
 
     $routes->match(['GET', 'POST'], 'theme/lecons', 'admin\AdminLeconController::index');
     $routes->match(['GET', 'POST'], 'theme/lecons/ajouter', 'admin\AdminLeconController::leconAjouter');
     $routes->match(['GET', 'POST'], 'theme/lecons/modifier/(:num)', 'admin\AdminLeconController::leconAjouter/$1');
     $routes->match(['GET', 'POST'], 'theme/lecons/supprimer/(:num)', 'admin\AdminLeconController::leconSupprimer/$1');
+    $routes->post('theme/lecons/reactiver/(:num)', 'admin\AdminLeconController::leconReactiver/$1');
 
     $routes->match(['GET', 'POST'], 'theme/extrait', 'admin\AdminExtraitController::index');
     $routes->match(['GET', 'POST'], 'theme/extrait/ajouter', 'admin\AdminExtraitController::extraitAjouter');
     $routes->match(['GET', 'POST'], 'theme/extrait/modifier/(:num)', 'admin\AdminExtraitController::extraitAjouter/$1');
     $routes->match(['GET', 'POST'], 'theme/extrait/supprimer/(:num)', 'admin\AdminExtraitController::extraitSupprimer/$1');
+    $routes->post('theme/extrait/reactiver/(:num)', 'admin\AdminExtraitController::extraitReactiver/$1');
 
 
     $routes->post('signalement/supprimer', 'SignalementController::supprimerSignalement');

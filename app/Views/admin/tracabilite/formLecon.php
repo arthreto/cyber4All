@@ -26,6 +26,7 @@ $actionFormulaire = $estModification
     ? 'floribondant/theme/lecons/modifier/' . (int) $form->modifier
     : 'floribondant/theme/lecons/ajouter';
 ?>
+<!-- Éditeur Markdown, Font Awesome et sio-admin-theme.js : chargés par header.php -->
 <div class="sio-admin sio-admin--formulaire sio-admin--formulaire-large">
 
     <div class="glossary-form">
@@ -173,13 +174,3 @@ $actionFormulaire = $estModification
     </div>
 </div>
 
-<!-- Éditeur Markdown du contenu -->
-<!-- Icônes des boutons : Font Awesome gratuit (les polices de site-assets.fontawesome.com ne se chargent pas) -->
-<?= link_tag('https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css') ?>
-<?= link_tag('https://cdn.jsdelivr.net/npm/easymde@2/dist/easymde.min.css') ?>
-<?= link_tag('https://cdn.jsdelivr.net/npm/easymde@2/dist/easymde.min.css') ?>
-<?= script_tag('https://cdn.jsdelivr.net/npm/easymde@2/dist/easymde.min.js') ?>
-<?= script_tag(['src' => 'js/sio-admin-editeur.js?v=' . filemtime(FCPATH . 'js/sio-admin-editeur.js'), 'defer' => null]) ?>
-
-<!-- Confort : retour à la même position de la page après un rechargement -->
-<?= script_tag(['src' => 'js/sio-admin-theme.js?v=' . filemtime(FCPATH . 'js/sio-admin-theme.js'), 'defer' => null]) ?>

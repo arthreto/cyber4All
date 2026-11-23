@@ -32,11 +32,6 @@ document.addEventListener('DOMContentLoaded', () => {
             table: ['', '\n\n| Colonne 1 | Colonne 2 |\n| --- | --- |\n| Texte | Texte |\n\n'],
         },
 
-        // Texte inséré par le bouton "Tableau"
-        insertTexts: {
-            table: ['', '\n\n| Colonne 1 | Colonne 2 |\n| --- | --- |\n| Texte | Texte |\n\n'],
-        },
-
         // Boutons de la barre d'outils, avec les icônes d'origine d'EasyMDE ('|' = séparateur).
         // className : classes Font Awesome de l'icône (fa-solid, comme dans le reste du site) ;
         // title : bulle d'aide en français (EasyMDE y ajoute lui-même le raccourci clavier)

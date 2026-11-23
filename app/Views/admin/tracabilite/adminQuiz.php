@@ -37,6 +37,7 @@ foreach ($pages as $p) {
 }
 ?>
 
+
 <div class="sio-admin__section">
 
     <!-- Message affiché une seule fois après un ajout, une modification ou une suppression -->
@@ -165,11 +166,17 @@ foreach ($pages as $p) {
                                     <?php if ($estActif): ?>
                                         <?= form_open('floribondant/theme/quiz/supprimer/' . $quiz['id'], [
                                             'class'    => 'mots-table__delete-form',
-                                            'onsubmit' => "return confirm('Supprimer le quiz « " . esc($quiz['titre'], 'js') . " » ? Il ne sera plus proposé sur la page des quiz. Pour le réactiver, modifiez-le et cochez « Quiz actif ».');",
+                                            'onsubmit' => "return confirm('Supprimer le quiz « " . esc($quiz['titre'], 'js') . " » ? Il ne sera plus proposé sur la page des quiz. Vous pourrez le réactiver depuis cette liste.');",
                                         ]) ?>
                                         <?= form_hidden('id_quiz', (string) $quiz['id']) ?>
                                         <?= form_button(['type' => 'submit', 'content' => 'Supprimer', 'class' => 'sio-admin__btn-supprimer']) ?>
                                         <?= form_close() ?>
+                                    <?php else: ?>
+                                        <!-- Réactiver : bouton grisé (raison en infobulle) si le quiz n'est pas valide ou incomplet -->
+                                        <?= view('admin/tracabilite/boutonReactiver', [
+                                            'url'    => 'floribondant/theme/quiz/reactiver/' . $quiz['id'],
+                                            'raison' => $raisonsReactivation[(int) $quiz['id']] ?? null,
+                                        ]) ?>
                                     <?php endif; ?>
                                 </div>
                             </td>
@@ -191,5 +198,3 @@ foreach ($pages as $p) {
 
 </div>
 
-<!-- Confort : retour à la même position de la page après un rechargement -->
-<?= script_tag(['src' => 'js/sio-admin-theme.js?v=' . filemtime(FCPATH . 'js/sio-admin-theme.js'), 'defer' => null]) ?>

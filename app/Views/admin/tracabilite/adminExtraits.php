@@ -4,7 +4,8 @@
  * Liste des extraits (les onglets sont affichés par onglets.php, appelé dans le contrôleur)
  *
  * Données préparées par le contrôleur (AdminExtraitController::index) :
- * - $extraitList   : extraits de la page affichée (tableaux : id, titre, type, debut, nb_questions)
+ * - $extraitList   : extraits de la page affichée (tableaux : id, titre, type, debut, nb_questions, actif)
+ * - $raisonsReactivation : [id d'un extrait inactif => raison qui empêche la réactivation, null si réactivable]
  * - $idNouveau     : id de l'extrait qui vient d'être ajouté ou modifié (0 si aucun)
  * - $totalExtraits : nombre total d'extraits
  * - $typeSelect    : type affiché (clé de ExtraitModel::TYPES), null pour tous
@@ -118,22 +119,32 @@ foreach ($pages as $p) {
                         $urlModifier = 'floribondant/theme/extrait/modifier/' . $extrait['id'];
                         $nbQuestions = (int) $extrait['nb_questions'];
 
+                        // Extrait supprimé (désactivé) : grisé, à la fin de la liste
+                        $estActif = (int) ($extrait['actif'] ?? 1) === 1;
+
                         $classesLigne = 'mots-table__body-row';
+                        if (! $estActif) {
+                            $classesLigne .= ' sio-admin__ligne--inactive';
+                        }
                         if ((int) $extrait['id'] === $idNouveau) {
                             $classesLigne .= ' sio-admin__ligne--nouvelle'; // vient d'être ajouté ou modifié
                         }
 
-                        // Message de confirmation : les questions qui l'utilisent n'auront plus d'extrait.
+                        // Message de confirmation : les questions qui l'utilisent seront désactivées aussi.
                         // esc(..., 'js') sur tout le message : les apostrophes ne cassent pas le confirm('...')
-                        $confirmation = 'Supprimer définitivement l\'extrait « ' . $extrait['titre'] . ' » ?';
+                        $confirmation = 'Supprimer l\'extrait « ' . $extrait['titre'] . ' » ?';
                         if ($nbQuestions > 0) {
-                            $confirmation .= ' ' . $nbQuestions . ' question(s) l\'utilisent : elles n\'auront plus d\'extrait.';
+                            $confirmation .= ' Les ' . $nbQuestions . ' question(s) qui l\'utilisent seront désactivées, et les quiz qui n\'ont plus assez de questions aussi.';
                         }
+                        $confirmation .= ' Vous pourrez le réactiver depuis cette liste.';
                         $confirmation = esc($confirmation, 'js');
                         ?>
                         <tr class="<?= $classesLigne ?>">
                             <td class="mots-table__cell">
                                 <?= anchor($urlModifier, esc($extrait['titre']), ['class' => 'mots-table__link']) ?>
+                                <?php if (! $estActif): ?>
+                                    <span class="sio-admin__badge sio-admin__badge--faux">Inactif</span>
+                                <?php endif; ?>
                             </td>
                             <td class="mots-table__cell">
                                 <span class="sio-admin__badge"><?= esc($typesExtrait[$extrait['type']] ?? $extrait['type']) ?></span>
@@ -155,12 +166,21 @@ foreach ($pages as $p) {
                                 <div class="sio-admin__ligne-actions">
                                     <?= anchor($urlModifier, 'Modifier', ['class' => 'sio-admin__btn-secondaire sio-admin__btn--petit']) ?>
 
+                                    <!-- Supprimer = désactiver l'extrait -->
+                                    <?php if ($estActif): ?>
                                     <?= form_open('floribondant/theme/extrait/supprimer/' . $extrait['id'], [
                                         'class'    => 'mots-table__delete-form',
                                         'onsubmit' => 'return confirm(\'' . $confirmation . '\');',
                                     ]) ?>
                                     <?= form_button(['type' => 'submit', 'content' => 'Supprimer', 'class' => 'sio-admin__btn-supprimer']) ?>
                                     <?= form_close() ?>
+                                    <?php else: ?>
+                                    <!-- Réactiver : bouton grisé (raison en infobulle) si l'extrait n'est pas valide -->
+                                    <?= view('admin/tracabilite/boutonReactiver', [
+                                        'url'    => 'floribondant/theme/extrait/reactiver/' . $extrait['id'],
+                                        'raison' => $raisonsReactivation[(int) $extrait['id']] ?? null,
+                                    ]) ?>
+                                    <?php endif; ?>
                                 </div>
                             </td>
                         </tr>
@@ -181,5 +201,4 @@ foreach ($pages as $p) {
 
 </div>
 
-<!-- Confort : retour à la même position de la page après un rechargement -->
-<?= script_tag(['src' => 'js/sio-admin-theme.js?v=' . filemtime(FCPATH . 'js/sio-admin-theme.js'), 'defer' => null]) ?>
+

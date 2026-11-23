@@ -18,7 +18,7 @@ class ExtraitModel extends Model
     protected $table = 'extrait';
     protected $primaryKey = 'id';
     protected $useAutoIncrement = true;
-    protected $allowedFields = ['titre', 'type', 'contenu'];
+    protected $allowedFields = ['titre', 'type', 'contenu', 'actif'];
 
     /**
      * Types possibles d'un extrait avec leur libellé
@@ -30,13 +30,21 @@ class ExtraitModel extends Model
     ];
 
     /**
-     * Récupère tous les extraits, triés par type puis par titre.
+     * Récupère les extraits actifs, triés par type puis par titre.
+     * Un extrait supprimé (désactivé) n'est plus proposé, sauf celui qu'une question utilise déjà.
      *
+     * @param int|null $idExtraitGarde Extrait à garder même s'il est inactif (extrait actuel de la question), null pour aucun.
      * @return array Liste des extraits, vide si cela ne fonctionne pas
      */
-    public function getAllExtraits(): array
+    public function getAllExtraits(?int $idExtraitGarde = null): array
     {
         try {
+            $this->groupStart()->where('actif', 1);
+            if ($idExtraitGarde !== null) {
+                $this->orWhere('id', $idExtraitGarde);
+            }
+            $this->groupEnd();
+
             return $this->orderBy('type', 'ASC')
                 ->orderBy('titre', 'ASC')
                 ->findAll();
@@ -166,28 +174,62 @@ class ExtraitModel extends Model
     }
 
     /**
-     * Supprime un extrait
+     * « Supprime » un extrait : il n'est pas effacé, il passe inactif (actif = 0),
+     * et les questions actives qui l'utilisent passent inactives elles aussi.
+     * Les questions gardent leur lien vers lui. L'extrait peut être réactivé,
+     * mais ses questions ne sont pas réactivées automatiquement.
      *
      * @param int $idExtrait Identifiant de l'extrait.
-     * @return bool True si la suppression a réussi, false sinon.
+     * @return array|false Identifiants des questions désactivées, false en cas d'erreur.
      */
-    public function supprimerExtrait(int $idExtrait): bool
+    public function supprimerExtrait(int $idExtrait): array|false
     {
         try {
             $this->db->transBegin();
 
-            $this->db->table('question')
-                ->where('id_extrait', $idExtrait)
-                ->update(['id_extrait' => null]);
+            $idsQuestions = array_column(
+                $this->db->table('question')
+                    ->select('id')
+                    ->where('id_extrait', $idExtrait)
+                    ->where('actif', 1)
+                    ->get()
+                    ->getResultArray(),
+                'id'
+            );
 
-            $this->delete($idExtrait);
+            if ($idsQuestions !== []) {
+                $this->db->table('question')
+                    ->whereIn('id', $idsQuestions)
+                    ->update(['actif' => 0]);
+            }
+
+            $this->update($idExtrait, ['actif' => 0]);
 
             $this->db->transCommit();
-            return true;
+            return array_map('intval', $idsQuestions);
 
         } catch (DatabaseException $e) {
             $this->db->transRollback();
             log_message('error', "Erreur de suppression d'un extrait : " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Réactive un extrait supprimé (désactivé).
+     *
+     * @param int $idExtrait Identifiant de l'extrait.
+     * @return bool True si la réactivation a réussi, false sinon.
+     *
+     * @author Raphael Bierlaire
+     */
+    public function reactiverExtrait(int $idExtrait): bool
+    {
+        try {
+            return $this->update($idExtrait, ['actif' => 1]);
+
+        } catch (DatabaseException $e) {
+            log_message('error', "Erreur de réactivation d'un extrait : " . $e->getMessage());
             return false;
         }
     }

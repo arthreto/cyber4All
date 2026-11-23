@@ -116,10 +116,21 @@ class AdminQuizController extends AdminController
             $parametresTheme = ['id_theme' => $themeSelect];
         }
 
+        $quizPage = array_slice($quizList, ($page - 1) * $parPage, $parPage);
+
+        // Quiz inactifs de la page : raison qui empêche la réactivation (null = réactivable)
+        $raisonsReactivation = [];
+        foreach ($quizPage as $quiz) {
+            if ((int) ($quiz['actif'] ?? 1) !== 1) {
+                $raisonsReactivation[(int) $quiz['id']] = $this->raisonNonReactivable((int) $quiz['id']);
+            }
+        }
+
         $data = [
             'onglet'       => 'quiz',
             'themeSelect'  => $themeSelect,
-            'quizList'     => array_slice($quizList, ($page - 1) * $parPage, $parPage),
+            'quizList'     => $quizPage,
+            'raisonsReactivation' => $raisonsReactivation,
             'idNouveau'    => $idNouveau,
             'totalQuiz'    => $totalQuiz,
             'filtreThemes' => $this->filtreThemes($base, $this->theme_model->getAllThemes(), $themeSelect, $parametresTri),
@@ -166,6 +177,106 @@ class AdminQuizController extends AdminController
 
         return redirect()->to(base_url('floribondant/theme/quiz'))
             ->with('success', 'Quiz « ' . $quiz->titre . ' » supprimé : il est désactivé et rangé à la fin de la liste.');
+    }
+
+    /**
+     * Réactivation d'un quiz supprimé (désactivé), seulement s'il est valide et complet.
+     *
+     * @param int $idQuiz Identifiant du quiz à réactiver
+     * @return \CodeIgniter\HTTP\RedirectResponse Retour à la liste des quiz, avec un message
+     *
+     * @author Raphael Bierlaire
+     */
+    public function quizReactiver(int $idQuiz)
+    {
+        $raison = $this->raisonNonReactivable($idQuiz);
+
+        if ($raison !== null) {
+            return redirect()->to(base_url('floribondant/theme/quiz'))
+                ->with('error', 'Le quiz ne peut pas être réactivé : ' . $raison);
+        }
+
+        if (! $this->quiz_model->updateQuiz(['actif' => 1], $idQuiz)) {
+            return redirect()->to(base_url('floribondant/theme/quiz'))
+                ->with('error', "Le quiz n'a pas pu être réactivé. Veuillez réessayer.");
+        }
+
+        return redirect()->to(base_url('floribondant/theme/quiz'))
+            ->with('id_nouveau', $idQuiz) // affiché en premier dans la liste
+            ->with('success', 'Quiz réactivé : il est de nouveau proposé sur la page des quiz.');
+    }
+
+    /**
+     * Vérifie qu'un quiz inactif peut être réactivé : mêmes règles que le formulaire,
+     * et exactement son nombre de questions prévu en questions actives, toutes de son thème.
+     *
+     * @param int  $idQuiz            Identifiant du quiz
+     * @param bool $ignorerInactives  true : les questions inactives comptent comme les autres
+     *                                (formulaire du quiz, où elles sont déjà signalées par un badge « Inactive »)
+     * @return string|null Raison du refus, ou null si le quiz peut être réactivé.
+     *
+     * @author Raphael Bierlaire
+     */
+    private function raisonNonReactivable(int $idQuiz, bool $ignorerInactives = false): ?string
+    {
+        $quiz = $this->quiz_model->find($idQuiz);
+
+        if ($quiz === null) {
+            return "ce quiz n'existe pas.";
+        }
+        if ((int) ($quiz->actif ?? 1) === 1) {
+            return 'il est déjà actif.';
+        }
+
+        $idTheme = (int) $quiz->id_theme;
+        if ($this->theme_model->find($idTheme) === null) {
+            return "son thème n'existe plus : modifiez-le pour en choisir un autre.";
+        }
+
+        $longueurTitre = mb_strlen(trim((string) $quiz->titre));
+        if ($longueurTitre < 14 || $longueurTitre > 150) {
+            return 'son titre doit contenir entre 14 et 150 caractères : modifiez-le.';
+        }
+
+        $nbPrevu = (int) $quiz->nb_questions;
+        if ($nbPrevu < 5 || $nbPrevu > 20) {
+            return 'son nombre de questions doit être entre 5 et 20 : modifiez-le.';
+        }
+
+        $idsQuestions = $this->quiz_question_model->getIdsQuestionsByQuiz($idQuiz);
+        $questions = [];
+        if ($idsQuestions !== []) {
+            $questions = $this->question_model
+                ->select('id, id_theme, actif')
+                ->whereIn('id', $idsQuestions)
+                ->asArray()
+                ->findAll();
+        }
+
+        if (count($questions) > $nbPrevu) {
+            return 'il contient ' . count($questions) . ' questions pour ' . $nbPrevu . ' prévues : modifiez-le.';
+        }
+
+        foreach ($questions as $question) {
+            if ((int) $question['id_theme'] !== $idTheme) {
+                return "il contient une question d'un autre thème : modifiez-le.";
+            }
+        }
+
+        if ($ignorerInactives) {
+            if (count($questions) < $nbPrevu) {
+                return 'il n\'a que ' . count($questions) . ' question(s) sur ' . $nbPrevu . ' : complétez-le.';
+            }
+
+            return null;
+        }
+
+        $nbActives = count(array_filter($questions, fn (array $q): bool => (int) $q['actif'] === 1));
+        if ($nbActives < $nbPrevu) {
+            return 'il n\'a que ' . $nbActives . ' question(s) active(s) sur ' . $nbPrevu . ' : complétez-le.';
+        }
+
+        return null;
     }
 
     /**
@@ -267,6 +378,7 @@ class AdminQuizController extends AdminController
                 $errors = $this->validator->getErrors();
             }
 
+<<<<<<< Updated upstream
             // Le thème doit exister (une valeur modifiée à la main est refusée)
             $idTheme = (int) $formData['id_theme'];
             if (! isset($errors['id_theme']) && $this->theme_model->find($idTheme) === null) {
@@ -274,12 +386,35 @@ class AdminQuizController extends AdminController
             }
 
             // Exactement le nombre de questions prévu
-            $nbPrevu = (int) $formData['nb_questions'];
-            $nbCochees = count($form->questions);
-            if (! isset($errors['nb_questions']) && $nbCochees !== $nbPrevu) {
-                $errors['questions'] = 'Ce quiz doit contenir exactement ' . $nbPrevu . ' questions. ';
+=======
+            // Thème et statut des questions cochées
+            $questionsCocheesInfos = [];
+            if ($form->questions !== []) {
+                $questionsCocheesInfos = $this->question_model
+                    ->select('id, id_theme, actif')
+                    ->whereIn('id', $form->questions)
+                    ->asArray()
+                    ->findAll();
             }
 
+            // Nombre de questions prévu : jamais dépassé.
+            // En dessous (même 0 question), le quiz est enregistré mais forcé inactif.
+            // Seules les questions actives comptent pour qu'il soit complet : ce sont les seules jouées.
+>>>>>>> Stashed changes
+            $nbPrevu = (int) $formData['nb_questions'];
+            $nbCochees = count($form->questions);
+            $nbActives = count(array_filter($questionsCocheesInfos, fn (array $q): bool => (int) $q['actif'] === 1));
+            $quizIncomplet = false;
+            if (! isset($errors['nb_questions'])) {
+                if ($nbCochees > $nbPrevu) {
+                    $errors['questions'] = 'Ce quiz ne peut pas contenir plus de ' . $nbPrevu . ' questions : décochez-en ' . ($nbCochees - $nbPrevu) . '.';
+                } elseif ($nbActives < $nbPrevu) {
+                    $quizIncomplet = true;
+                    $formData['actif'] = '0';
+                }
+            }
+
+<<<<<<< Updated upstream
             // Toutes les questions cochées doivent exister, être actives et être du thème du quiz
             if ($idTheme > 0 && $form->questions !== []) {
                 $themesQuestions = $this->question_model
@@ -294,8 +429,13 @@ class AdminQuizController extends AdminController
                     $errors['questions_introuvables'] = $nbIntrouvables . " question(s) cochée(s) n'existent pas ou ont été supprimées : décochez-les.";
                 }
 
+=======
+            // Toutes les questions cochées doivent être du thème du quiz
+            $idTheme = (int) $formData['id_theme'];
+            if ($idTheme > 0) {
+>>>>>>> Stashed changes
                 $nbAutreTheme = 0;
-                foreach ($themesQuestions as $question) {
+                foreach ($questionsCocheesInfos as $question) {
                     if ((int) $question['id_theme'] !== $idTheme) {
                         $nbAutreTheme++;
                     }
@@ -322,15 +462,23 @@ class AdminQuizController extends AdminController
                 }
 
                 if ($idQuiz !== false
+<<<<<<< Updated upstream
                     && $this->quiz_question_model->updateLiaisonsQuiz($idQuiz, $form->questions)
                     && $db->transStatus()) {
                     $db->transCommit();
+=======
+                    && $this->quiz_question_model->updateLiaisonsQuiz($idQuiz, $form->questions)) {
+                    $message = $estModification ? 'Quiz modifié avec succès !' : 'Quiz créé avec succès !';
+
+                    if ($quizIncomplet) {
+                        $message .= ' Il contient ' . $nbActives . ' question(s) active(s) sur ' . $nbPrevu
+                            . ' : il reste inactif tant qu\'il n\'est pas complet.';
+                    }
+>>>>>>> Stashed changes
 
                     return redirect()->to(base_url('floribondant/theme/quiz'))
                         ->with('id_nouveau', $idQuiz) // affiché en premier dans la liste
-                        ->with('success', $estModification
-                            ? 'Quiz modifié avec succès !'
-                            : 'Quiz créé avec succès !');
+                        ->with('success', $message);
                 }
 
                 $db->transRollback();
@@ -349,7 +497,11 @@ class AdminQuizController extends AdminController
         $questionsQuiz = [];
         if ($idsQuiz !== []) {
             $questionsQuiz = $this->question_model
+<<<<<<< Updated upstream
                 ->select('id, libelle, bonne_reponse, id_theme, actif')
+=======
+                ->select('id, libelle, bonne_reponse, id_theme, actif') // actif : badge « Inactive » dans le formulaire
+>>>>>>> Stashed changes
                 ->whereIn('id', $idsQuiz)
                 ->orderBy('libelle', 'ASC')
                 ->asArray()
@@ -379,8 +531,16 @@ class AdminQuizController extends AdminController
             ];
         }
 
+        // Quiz inactif en base : ce qui l'empêche d'être activé (hors questions inactives,
+        // signalées par un badge « Inactive » dans la liste de ses questions)
+        $raisonActivation = null;
+        if ($idQuizModif !== null && (int) ($quiz->actif ?? 1) !== 1) {
+            $raisonActivation = $this->raisonNonReactivable($idQuizModif, true);
+        }
+
         $data = [
             'form' => $form,
+            'raisonActivation' => $raisonActivation,
             'themeList' => $themeList,
             'questionsQuiz' => $questionsQuiz,
             'blocsThemes' => $blocsThemes,

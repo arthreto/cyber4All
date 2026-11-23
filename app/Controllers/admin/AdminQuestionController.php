@@ -123,10 +123,21 @@ class AdminQuestionController extends AdminController
 
         $this->session->remove('questionForm');
 
+        $questionList = array_slice($questions, ($page - 1) * $parPage, $parPage);
+
+        // Questions inactives de la page : raison qui empêche la réactivation (null = réactivable)
+        $raisonsReactivation = [];
+        foreach ($questionList as $question) {
+            if ((int) ($question['actif'] ?? 1) !== 1) {
+                $raisonsReactivation[(int) $question['id']] = $this->raisonNonReactivable((int) $question['id']);
+            }
+        }
+
         $data = [
             'onglet'         => 'questions',
             'themeSelect'    => $themeSelect,
-            'questionList'   => array_slice($questions, ($page - 1) * $parPage, $parPage),
+            'questionList'   => $questionList,
+            'raisonsReactivation' => $raisonsReactivation,
             'idNouveau'      => $idNouveau,
             'totalQuestions' => $totalQuestions,
             'filtreThemes'   => $this->filtreThemes($base, $this->theme_model->getAllThemes(), $themeSelect, $parametresTri),
@@ -171,6 +182,11 @@ class AdminQuestionController extends AdminController
                 ->with('error', "La question n'a pas pu être supprimée. Veuillez réessayer.");
         }
 
+        // Les quiz de cette question qui n'ont plus assez de questions actives passent inactifs
+        $quizDesactives = $this->quiz_question_model->desactiverQuizIncomplets(
+            $this->quiz_question_model->getIdsQuizByQuestion($idQuestion)
+        );
+
         helper('text');
         $debutLibelle = character_limiter($question['libelle'], 30, '…');
         $message = 'Question « ' . $debutLibelle . ' » supprimée : elle est désactivée et rangée à la fin de la liste.';
@@ -189,7 +205,113 @@ class AdminQuestionController extends AdminController
         }
 
         return redirect()->to(base_url('floribondant/theme'))
+<<<<<<< Updated upstream
             ->with('success', $message);
+=======
+            ->with('success', 'Question « ' . $debutLibelle . ' » supprimée : elle est désactivée et rangée à la fin de la liste.'
+                . $this->messageQuizDesactives($quizDesactives));
+    }
+
+    /**
+     * Réactivation d'une question supprimée (désactivée), seulement si elle est valide.
+     * Ses quiz ne sont pas réactivés automatiquement : ils se réactivent depuis la liste des quiz.
+     *
+     * @param int $idQuestion Identifiant de la question à réactiver
+     * @return RedirectResponse Retour à la liste des questions, avec un message
+     *
+     * @author Raphael Bierlaire
+     */
+    public function questionReactiver(int $idQuestion)
+    {
+        $raison = $this->raisonNonReactivable($idQuestion);
+
+        if ($raison !== null) {
+            return redirect()->to(base_url('floribondant/theme'))
+                ->with('error', 'La question ne peut pas être réactivée : ' . $raison);
+        }
+
+        if (! $this->question_model->updateQuestion(['actif' => 1], $idQuestion)) {
+            return redirect()->to(base_url('floribondant/theme'))
+                ->with('error', "La question n'a pas pu être réactivée. Veuillez réessayer.");
+        }
+
+        return redirect()->to(base_url('floribondant/theme'))
+            ->with('id_nouveau', $idQuestion) // affichée en premier dans la liste
+            ->with('success', 'Question réactivée : elle est de nouveau proposée dans ses quiz actifs.');
+    }
+
+    /**
+     * Vérifie qu'une question inactive peut être réactivée (mêmes règles que le formulaire).
+     *
+     * @param int  $idQuestion              Identifiant de la question
+     * @param bool $ignorerExtraitInactif   true : un extrait supprimé n'est pas une raison
+     *                                      (formulaire de la question, où il est déjà signalé par un badge « Inactif »)
+     * @return string|null Raison du refus, ou null si la question peut être réactivée.
+     *
+     * @author Raphael Bierlaire
+     */
+    private function raisonNonReactivable(int $idQuestion, bool $ignorerExtraitInactif = false): ?string
+    {
+        $question = $this->question_model->find($idQuestion);
+
+        if ($question === null) {
+            return "cette question n'existe pas.";
+        }
+        if ((int) ($question['actif'] ?? 1) === 1) {
+            return 'elle est déjà active.';
+        }
+        if ($this->theme_model->find((int) $question['id_theme']) === null) {
+            return "son thème n'existe plus : modifiez-la pour en choisir un autre.";
+        }
+
+        $longueurLibelle = mb_strlen((string) $question['libelle']);
+        if ($longueurLibelle < 3 || $longueurLibelle > 1000) {
+            return 'son énoncé doit contenir entre 3 et 1000 caractères : modifiez-la.';
+        }
+
+        $longueurExplication = mb_strlen((string) $question['explication']);
+        if ($longueurExplication < 3 || $longueurExplication > 5000) {
+            return 'son explication doit contenir entre 3 et 5000 caractères : modifiez-la.';
+        }
+
+        if (! in_array((string) $question['bonne_reponse'], ['0', '1'], true)) {
+            return "sa bonne réponse n'est ni Vrai ni Faux : modifiez-la.";
+        }
+
+        if (! empty($question['id_extrait'])) {
+            $extrait = $this->extrait_model->find((int) $question['id_extrait']);
+
+            if ($extrait === null) {
+                return "son extrait n'existe plus : modifiez-la.";
+            }
+            if (! $ignorerExtraitInactif && (int) ($extrait['actif'] ?? 1) !== 1) {
+                return "son extrait « " . $extrait['titre'] . " » est supprimé : réactivez l'extrait, ou modifiez la question pour en changer.";
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Phrase à ajouter au message de succès quand des quiz ont été désactivés.
+     *
+     * @param array $titres Titres des quiz désactivés.
+     * @return string Phrase (vide si aucun quiz désactivé).
+     *
+     * @author Raphael Bierlaire
+     */
+    private function messageQuizDesactives(array $titres): string
+    {
+        if ($titres === []) {
+            return '';
+        }
+
+        $noms = implode(', ', array_map(fn (string $titre): string => '« ' . $titre . ' »', $titres));
+
+        return count($titres) > 1
+            ? ' Ces quiz n\'ont plus assez de questions et sont désactivés : ' . $noms . '.'
+            : ' Ce quiz n\'a plus assez de questions et est désactivé : ' . $noms . '.';
+>>>>>>> Stashed changes
     }
 
     /**
@@ -255,7 +377,13 @@ class AdminQuestionController extends AdminController
 
         $errors = [];
         $themeList = $this->theme_model->getAllThemes();
-        $extraitList = $this->extrait_model->getAllExtraits();
+        // Extraits proposés : les actifs, plus l'extrait actuel de la question même s'il est supprimé (désactivé)
+        $idExtraitActuel = null;
+        if (! empty($form->modifier)) {
+            $questionActuelle = $this->question_model->find((int) $form->modifier);
+            $idExtraitActuel = empty($questionActuelle['id_extrait']) ? null : (int) $questionActuelle['id_extrait'];
+        }
+        $extraitList = $this->extrait_model->getAllExtraits($idExtraitActuel);
 
         if ($this->request->is('post')) {
             $post = $this->request->getPost();
@@ -398,6 +526,18 @@ class AdminQuestionController extends AdminController
                     $errors = array_merge($errors, $this->validator->getErrors());
                 }
 
+                // Question active avec un extrait supprimé (désactivé) : refusée,
+                // une question qui utilise un extrait supprimé doit rester inactive
+                if ((string) $formData['actif'] === '1'
+                    && $formData['extrait_mode'] === 'existant'
+                    && ! isset($errors['id_extrait'])) {
+                    foreach ($extraitList as $extrait) {
+                        if ((int) $extrait['id'] === (int) $formData['id_extrait'] && (int) ($extrait['actif'] ?? 1) !== 1) {
+                            $errors['id_extrait'] = 'L’extrait choisi est supprimé : choisissez-en un autre, réactivez-le, ou décochez « Question active ».';
+                        }
+                    }
+                }
+
                 // Les quiz cochés doivent tous être du thème de la question
                 if ($idTheme > 0) {
                     $idsQuizTheme = [];
@@ -450,6 +590,11 @@ class AdminQuestionController extends AdminController
 
                     $idQuestion = false;
 
+                    // Quiz de la question avant l'enregistrement : ceux qu'elle quitte peuvent devenir incomplets
+                    $quizAvant = $estModification
+                        ? $this->quiz_question_model->getIdsQuizByQuestion((int) $form->modifier)
+                        : [];
+
                     if ($idExtrait !== false) {
                         $formData['id_extrait'] = $idExtrait;
 
@@ -466,6 +611,11 @@ class AdminQuestionController extends AdminController
                         && $this->quiz_question_model->updateLiaisons($idQuestion, $form->quiz)) {
                         $db->transCommit();
                         $this->session->remove('questionForm'); // l'image envoyée est maintenant celle de la question
+
+                        // Question retirée d'un quiz ou rendue inactive : ses quiz incomplets passent inactifs
+                        $quizDesactives = $this->quiz_question_model->desactiverQuizIncomplets(
+                            array_merge($quizAvant, $form->quiz)
+                        );
 
 
                         if ($modal) {
@@ -484,9 +634,10 @@ class AdminQuestionController extends AdminController
 
                         return redirect()->to(base_url('floribondant/theme'))
                             ->with('id_nouveau', $idQuestion) // affichée en premier dans la liste
-                            ->with('success', $estModification
+                            ->with('success', ($estModification
                                 ? 'Question modifiée avec succès !'
-                                : 'Question créée avec succès !');
+                                : 'Question créée avec succès !')
+                                . $this->messageQuizDesactives($quizDesactives));
                     }
 
                     $db->transRollback();
@@ -523,11 +674,12 @@ class AdminQuestionController extends AdminController
             ];
 
 
-            foreach (array_column($this->quiz_model->getAllQuizCategoryById((int) $theme->id), 'titre', 'id') as $idQuiz => $titre) {
+            foreach ($this->quiz_model->getAllQuizCategoryById((int) $theme->id) as $quiz) {
                 $bloc['quiz'][] = [
-                    'id'    => (int) $idQuiz,
-                    'titre' => $titre,
-                    'coche' => in_array((string) $idQuiz, $quizCoches, true),
+                    'id'    => (int) $quiz->id,
+                    'titre' => $quiz->titre,
+                    'coche' => in_array((string) $quiz->id, $quizCoches, true),
+                    'actif' => (int) ($quiz->actif ?? 1) === 1, // badge « Inactif » sinon
                 ];
             }
 
@@ -547,14 +699,26 @@ class AdminQuestionController extends AdminController
                     'contenu' => $extrait['contenu'],
                     'debut'   => $debut,
                     'choisi'  => (string) $extrait['id'] === $idExtraitChoisi,
+                    'actif'   => (int) ($extrait['actif'] ?? 1) === 1, // badge « Inactif » sinon
                 ];
             }
 
             $blocsThemes[] = $bloc;
         }
 
+        // Question inactive en base : ce qui l'empêche d'être activée (hors extrait supprimé,
+        // signalé par un badge « Inactif » sur l'extrait)
+        $raisonActivation = null;
+        if (! empty($form->modifier)) {
+            $questionEnBase = $this->question_model->find((int) $form->modifier);
+            if ($questionEnBase !== null && (int) ($questionEnBase['actif'] ?? 1) !== 1) {
+                $raisonActivation = $this->raisonNonReactivable((int) $form->modifier, true);
+            }
+        }
+
         $data = [
             'form'         => $form,
+            'raisonActivation' => $raisonActivation,
             'blocsThemes'  => $blocsThemes,
             'errors'       => $errors,
             'modal'        => $modal,

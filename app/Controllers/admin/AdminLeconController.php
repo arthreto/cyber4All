@@ -97,10 +97,21 @@ class AdminLeconController extends AdminController
         // formulaire de leçon ne sert plus quand on revient à la liste
         $this->session->remove('leconForm');
 
+        $leconList = array_slice($lecons, ($page - 1) * $parPage, $parPage);
+
+        // Leçons inactives de la page : raison qui empêche la réactivation (null = réactivable)
+        $raisonsReactivation = [];
+        foreach ($leconList as $lecon) {
+            if ((int) ($lecon->actif ?? 1) !== 1) {
+                $raisonsReactivation[(int) $lecon->id] = $this->raisonNonReactivable((int) $lecon->id);
+            }
+        }
+
         $data = [
             'onglet'       => 'lecons',
             'themeSelect'  => $themeSelect,
-            'leconList'    => array_slice($lecons, ($page - 1) * $parPage, $parPage),
+            'leconList'    => $leconList,
+            'raisonsReactivation' => $raisonsReactivation,
             'idNouveau'    => $idNouveau,
             'totalLecons'  => $totalLecons,
             'filtreThemes' => $this->filtreThemes($base, $this->theme_model->getAllThemes(), $themeSelect, $parametresTri),
@@ -120,7 +131,7 @@ class AdminLeconController extends AdminController
     /**
      * « Suppression » d'une leçon : elle n'est pas effacée de la base, elle passe inactive (actif = 0).
      * Elle n'est plus affichée sur le site et s'affiche à la fin de la liste.
-     * Pour la réactiver : la modifier et cocher « Leçon active ».
+     * Pour la réactiver : bouton « Réactiver » de la liste (leconReactiver).
      *
      * @param int $idLecon Identifiant de la leçon à désactiver
      * @return \CodeIgniter\HTTP\RedirectResponse Redirection vers la liste des leçons, avec un message
@@ -145,6 +156,66 @@ class AdminLeconController extends AdminController
 
         return redirect()->to(site_url('floribondant/theme/lecons'))
             ->with('error', "La leçon n'a pas pu être supprimée. Veuillez réessayer.");
+    }
+
+    /**
+     * Réactivation d'une leçon supprimée (désactivée), seulement si elle est valide.
+     *
+     * @param int $idLecon Identifiant de la leçon à réactiver
+     * @return \CodeIgniter\HTTP\RedirectResponse Redirection vers la liste des leçons, avec un message
+     *
+     * @author Raphael BIERLAIRE
+     */
+    public function leconReactiver(int $idLecon)
+    {
+        $raison = $this->raisonNonReactivable($idLecon);
+
+        if ($raison !== null) {
+            return redirect()->to(site_url('floribondant/theme/lecons'))
+                ->with('error', 'La leçon ne peut pas être réactivée : ' . $raison);
+        }
+
+        if (! $this->lecon_model->updateLecon(['actif' => 1], $idLecon)) {
+            return redirect()->to(site_url('floribondant/theme/lecons'))
+                ->with('error', "La leçon n'a pas pu être réactivée. Veuillez réessayer.");
+        }
+
+        return redirect()->to(site_url('floribondant/theme/lecons'))
+            ->with('id_nouveau', $idLecon) // affichée en premier dans la liste
+            ->with('success', 'Leçon réactivée : elle est de nouveau affichée sur le site.');
+    }
+
+    /**
+     * Vérifie qu'une leçon inactive peut être réactivée (mêmes règles que le formulaire).
+     *
+     * @param int $idLecon Identifiant de la leçon
+     * @return string|null Raison du refus, ou null si la leçon peut être réactivée.
+     *
+     * @author Raphael BIERLAIRE
+     */
+    private function raisonNonReactivable(int $idLecon): ?string
+    {
+        $lecon = $this->lecon_model->getLeconById($idLecon);
+
+        if ($lecon === null) {
+            return "cette leçon n'existe pas.";
+        }
+        if ((int) ($lecon->actif ?? 1) === 1) {
+            return 'elle est déjà active.';
+        }
+        if ($this->theme_model->find((int) $lecon->id_theme) === null) {
+            return "son thème n'existe plus : modifiez-la pour en choisir un autre.";
+        }
+
+        $longueurTitre = mb_strlen(trim((string) $lecon->titre));
+        if ($longueurTitre < 3 || $longueurTitre > 150) {
+            return 'son titre doit contenir entre 3 et 150 caractères : modifiez-la.';
+        }
+        if (trim((string) $lecon->contenu) === '') {
+            return 'son contenu est vide : modifiez-la.';
+        }
+
+        return null;
     }
 
     /**

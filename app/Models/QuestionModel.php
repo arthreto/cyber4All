@@ -166,7 +166,9 @@ class QuestionModel extends Model
             return $this->select('question.*, extrait.*')
                 ->join('quiz_question', 'quiz_question.id_question = question.id')
                 ->join('quiz', 'quiz.id = quiz_question.id_quiz')
-                ->join('extrait', 'extrait.id = question.id_extrait', 'left')
+                // Extrait supprimé (inactif) : pas affiché, la question reste jouée sans extrait
+                // false : condition écrite telle quelle (le "= 1" ne doit pas être protégé comme un nom de colonne)
+                ->join('extrait', 'extrait.id = question.id_extrait AND extrait.actif = 1', 'left', false)
                 ->where('quiz_question.id_quiz', $idQuiz)
                 ->where('question.actif', 1) // questions supprimées (inactives) exclues
                 ->distinct()
