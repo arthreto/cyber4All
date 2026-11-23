@@ -90,10 +90,24 @@ class DictQuestionAdminController extends DictAdminBaseController
 
         $explication = trim((string) $this->request->getPost('explication'));
 
+        $question = trim((string) $this->request->getPost('question'));
+
+        $model = new QuestionQuizModel();
+
+        $questionExistante = $model
+            ->where('question', $question)
+            ->first();
+
+        if ($questionExistante !== null) {
+            return redirect()
+                ->to(site_url('floribondant/Questions') . '?creer=1')
+                ->with('erreur', 'Cette question existe déjà.');
+        }
+
         // insert() renvoie l'id de la nouvelle question
         $idQuestion = (new QuestionQuizModel())->insert([
             'id_mot_cle'  => null,                                      // pas encore de terme associé
-            'question'    => trim((string) $this->request->getPost('question')), // trim = enlève les espaces autour
+            'question' => $question, // trim = enlève les espaces autour
             'explication' => $explication !== '' ? $explication : null, // vide = NULL en base
         ]);
 

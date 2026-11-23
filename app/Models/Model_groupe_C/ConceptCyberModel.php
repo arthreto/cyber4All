@@ -36,6 +36,20 @@ class ConceptCyberModel extends Model
         return $this->db->affectedRows() > 0;
     }
 
+    public function compterParPilier(string $colonne): int
+    {
+        // Liste blanche : on n'accepte que ces 4 colonnes
+        $autorisees = ['disponibilite', 'integrite', 'confidentialite', 'tracabilite'];
+        if (!in_array($colonne, $autorisees, true)) {
+            return 0;
+        }
+
+        return $this->join('mot_cle', 'mot_cle.id = conceptcyber.id_mot_cle')
+            ->where('mot_cle.statut', 1)
+            ->where('conceptcyber.' . $colonne, 1)
+            ->countAllResults();
+    }
+
     /**
      * Enregistre les cases D/I/C/T d'un terme, puis recalcule les bonnes réponses
      * de toutes les questions liées à ce terme. Renvoie true si tout a réussi.

@@ -49,7 +49,7 @@ class questionController extends BaseController
         if ($quiz['current'] >= count($quiz['ids'])) {
             session()->remove(['quiz', 'correction']);
             return view('header')
-                . view('v_grp/resultatQuiz', [
+                . view('/groupe_c/dict/resultatQuiz', [
                     'score' => $quiz['score'],
                     'total' => count($quiz['ids']),
                 ])
@@ -65,7 +65,7 @@ class questionController extends BaseController
 
         // 2. Puis on les utilise
         return view('header')
-            . view('v_grp/questionQuiz', [
+            . view('/groupe_c/dict/questionQuiz', [
                 'question'  => $question,
                 'numero'    => $numero,
                 'total'     => $total,
@@ -153,7 +153,7 @@ class questionController extends BaseController
         $fait  = $quiz['current'];   // déjà incrémenté dans Repondre()
 
         return view('header')
-            . view('v_grp/correctionQuiz', [
+            . view('/groupe_c/dict/correctionQuiz', [
                 'correction' => $correction,
                 'numero'     => $fait,
                 'total'      => $total,

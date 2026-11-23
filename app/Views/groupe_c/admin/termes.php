@@ -9,7 +9,7 @@
  *       floribondant/groupe_c/admin/modifier   -> GroupeC_Modifier()
  *       floribondant/groupe_c/admin/supprimer  -> GroupeC_Supprimer()
  *       floribondant/groupe_c/admin/ajouter    -> GroupeC_Ajouter()
- *   - le style vient de public/css/groupe_c_css/admin.css (chargé par le layout).
+ *   - le style vient de public/css/groupe_c_css/groupe_c_css.css (chargé par le layout).
  *
  * LAYOUT
  * ------
@@ -133,10 +133,29 @@ $optionsFiltre = ['' => 'Toutes les catégories'] + array_map('esc', $categories
                                     </div>
                                 </td>
 
-                                <!-- Colonne 3 : le lien recharge la page en mode modification (?modifier=ID) -->
+                                <!-- Colonne 3 : "Modifier" puis "Supprimer" juste en dessous (flex-direction: column) -->
                                 <td>
-                                    <div class="actions">
+                                    <div class="actions" style="flex-direction: column;">
+                                        <!-- Le lien recharge la page en mode modification (?modifier=ID) -->
                                         <?= anchor(current_url() . '?modifier=' . (int) $motCle['id'], 'Modifier', ['class' => 'bouton bouton-modifier']) ?>
+
+                                        <!-- Retire le terme du classement, avec confirmation.
+                                             Envoi (POST) vers la route "supprimer" ;
+                                             le 3e paramètre de form_open() = champ caché id_mot_cle.
+                                             csrf_field() = jeton CSRF (supprimable si le filtre csrf est déjà global). -->
+                                        <?= form_open(
+                                                'floribondant/groupe_c/admin/supprimer',
+                                                [],
+                                                ['id_mot_cle' => $motCle['id']]
+                                        ) ?>
+                                        <?= csrf_field() ?>
+                                        <?= form_button([
+                                                'type'    => 'submit',
+                                                'class'   => 'bouton bouton-supprimer',
+                                                'onclick' => "return confirm('Supprimer le terme : " . addslashes($motCle['mot']) . " ?')",
+                                                'content' => 'Supprimer',
+                                        ]) ?>
+                                        <?= form_close() ?>
                                     </div>
                                 </td>
                             </tr>
@@ -191,31 +210,21 @@ $optionsFiltre = ['' => 'Toutes les catégories'] + array_map('esc', $categories
                     </div>
 
                     <div class="boutons-formulaire">
-                        <!-- Ce bouton est dans CE formulaire mais envoie l'AUTRE (attribut form="form-supprimer") -->
-                        <?= form_button([
-                                'type'    => 'submit',
-                                'form'    => 'form-supprimer',
-                                'class'   => 'bouton bouton-supprimer',
-                                'onclick' => "return confirm('Retirer ce terme du classement ?')",
-                                'content' => 'Supprimer',
-                        ]) ?>
                         <?= anchor(current_url(), 'Annuler', ['class' => 'bouton bouton-annuler']) ?>
+
                         <?= form_button([
                                 'type'    => 'submit',
                                 'class'   => 'bouton bouton-principal',
                                 'content' => 'Enregistrer',
                         ]) ?>
                     </div>
-                    <?= form_close() ?>
 
-                    <!-- Formulaire de suppression, séparé pour éviter d'imbriquer deux <form>.
-                         Envoi (POST) vers la route "supprimer". -->
-                    <?= form_open(
-                            'floribondant/groupe_c/admin/supprimer',
-                            ['id' => 'form-supprimer'],
-                            ['id_mot_cle' => $edition['id']]
-                    ) ?>
-                    <?= csrf_field() ?>
+                    <?php if (session()->has('succes')): ?>
+                        <div class="popup-succes">
+                            ✔ <?= esc(session('succes')) ?>
+                        </div>
+                    <?php endif; ?>
+
                     <?= form_close() ?>
                 </div>
 
@@ -257,9 +266,17 @@ $optionsFiltre = ['' => 'Toutes les catégories'] + array_map('esc', $categories
                             <p class="aide">Ajouter un terme sans catégorie</p>
                         </div>
 
+
                         <div class="boutons-formulaire">
                             <?= anchor(current_url(), 'Annuler', ['class' => 'bouton bouton-annuler']) ?>
                         </div>
+
+                        <?php if (session()->has('succes')): ?>
+                            <div class="popup-succes">
+                                ✔ <?= esc(session('succes')) ?>
+                            </div>
+                        <?php endif; ?>
+
                         <?= form_close() ?>
                     <?php endif; ?>
 

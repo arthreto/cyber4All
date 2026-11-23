@@ -17,14 +17,14 @@ class QuizController extends BaseController
 
         $data = [
             'utilisateur' => session()->get('utilisateur'),
-            'nbD' => $model->compterParPilier('DISPONIBILITE'),
-            'nbI' => $model->compterParPilier('INTEGRITE'),
-            'nbC' => $model->compterParPilier('CONFIDENTIALITE'),
-            'nbT' => $model->compterParPilier('TRACABILITE'),
+            'nbD' => $model->compterParPilier('disponibilite'),
+            'nbI' => $model->compterParPilier('integrite'),
+            'nbC' => $model->compterParPilier('confidentialite'),
+            'nbT' => $model->compterParPilier('tracabilite'),
         ];
 
         return view('header')
-            . view('v_grp/quiz', $data)   // garde le nom de ta vue actuelle
+            . view('/groupe_c/dict/quiz', $data)   // garde le nom de ta vue actuelle
             . view('footer');
 
     }

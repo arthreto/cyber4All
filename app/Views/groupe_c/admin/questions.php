@@ -119,7 +119,7 @@ $this->section('contenu');
                                         <?= form_button([
                                                 'type'    => 'submit',
                                                 'class'   => 'bouton bouton-supprimer',
-                                                'onclick' => "return confirm('Supprimer cette question ? Cette action est définitive.')",
+                                                'onclick' => "return confirm('Suppression de la question\\n\\n" . addslashes($q['question']) . "\\n\\nCette action est définitive. Continuer ?')",
                                                 'content' => 'Supprimer',
                                         ]) ?>
                                         <?= form_close() ?>
@@ -161,7 +161,7 @@ $this->section('contenu');
                     <!-- Rappel : form_textarea() ajoute cols/rows par défaut (40/10).
                          On remet 20/2 (valeurs du navigateur) pour garder le même rendu qu'avant. -->
                     <div class="champ">
-                        <?= form_label('Question', 'question', ['class' => 'etiquette']) ?>
+                        <?= form_label('Question*', 'question', ['class' => 'etiquette']) ?>
                         <?= form_textarea([
                                 'name'     => 'question',
                                 'id'       => 'question',
@@ -184,6 +184,7 @@ $this->section('contenu');
                                 'rows'  => '2',
                         ]) ?>
                         <p class="aide">Affichée après la réponse du quiz (1 à 2 phrases).</p>
+
                     </div>
 
                     <!-- Liste déroulante : $mots = termes classés.
@@ -214,7 +215,6 @@ $this->section('contenu');
                 <div class="carte" id="formulaire">
                     <div class="carte-titre">
                         <h2>Nouvelle question</h2>
-                        <p>Tu pourras l'associer à un terme ensuite</p>
                     </div>
 
                     <!-- Envoi (POST) vers la route "questions/ajouter".
@@ -223,7 +223,7 @@ $this->section('contenu');
                     <?= csrf_field() ?>
 
                     <div class="champ">
-                        <?= form_label('Question', 'question', ['class' => 'etiquette']) ?>
+                        <?= form_label('Question*', 'question', ['class' => 'etiquette']) ?>
                         <?= form_textarea([
                                 'name'        => 'question',
                                 'id'          => 'question',
@@ -245,8 +245,15 @@ $this->section('contenu');
                                 'rows'        => '2',
                                 'placeholder' => 'Ex. : Un pare-feu filtre le trafic selon des règles…',
                         ]) ?>
-                        <p class="aide">Affichée après la réponse du quiz (1 à 2 phrases).</p>
+                        <p class="aide">
+                            Affichée après la réponse du quiz (1 à 2 phrases).
+                        </p>
                     </div>
+                    <?php if (session()->has('erreur')): ?>
+                        <div class="popup-erreur">
+                            ✖ <?= esc(session('erreur')) ?>
+                        </div>
+                    <?php endif; ?>
 
                     <div class="boutons-formulaire">
                         <?= anchor(current_url(), 'Annuler', ['class' => 'bouton bouton-annuler']) ?>

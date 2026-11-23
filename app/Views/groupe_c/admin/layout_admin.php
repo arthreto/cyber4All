@@ -27,10 +27,7 @@ helper('html'); // charge link_tag()
     <style>body { margin: 0; background: #f7f8fc; }</style>
     <body>
 
-    <?php if (session()->getFlashdata('succes')): ?>
-        <!-- Affiché seulement si un contrôleur a envoyé un message flash 'succes' (une seule fois) -->
-        <div class="popup-succes">✔ <?= esc(session()->getFlashdata('succes')) ?></div>
-    <?php endif; ?>
+
 
     <!-- Contenu propre à chaque page (défini dans la vue avec $this->section('contenu')) -->
     <?= $this->renderSection('contenu') ?>
