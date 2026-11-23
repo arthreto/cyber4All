@@ -1,3 +1,18 @@
+<?php
+// Cartes de la liste : un lien par menace
+$liens = [];
+foreach ($menaces as $position => $item) {
+    $contenu = '<span class="risk-rank">' . $position . '</span>'
+            . '<div class="risk-content"><strong>' . esc($item->nom_menace) . '</strong></div>'
+            . '<span class="risk-list-arrow" aria-hidden="true">→</span>';
+
+    $liens[] = anchor(
+            'top10/api/detail/' . $Top->id_top . '/' . $position,
+            $contenu,
+            ['class' => 'risk-card']
+    );
+}
+?>
 <main class="detail-preview">
     <article class="detail-page">
         <p class="eyebrow">Classement officiel</p>
@@ -8,23 +23,7 @@
                 <p>Chaque élément présente la traduction française de la description officielle.</p>
             </div>
 
-            <ol class="risk-list">
-                <?php if (!empty($menaces)): ?>
-                    <?php foreach ($menaces as $position => $item): ?>
-                        <?php
-                        $contenu = '
-                            <span class="risk-rank">' . $position . '</span>
-                            <div class="risk-content">
-                                <strong>' . esc($item->nom_menace) . '</strong>
-                            </div>
-                            <span class="risk-list-arrow" aria-hidden="true">→</span>';
-                        ?>
-                        <li>
-                            <?= anchor(base_url('top10/api/detail/' . $Top->id_top . '/' . $position), $contenu, ['class' => 'risk-card']) ?>
-                        </li>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </ol>
+            <?= ol($liens, ['class' => 'risk-list']) ?>
         </section>
 
     </article>

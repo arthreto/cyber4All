@@ -9,13 +9,15 @@ use CodeIgniter\Exceptions\PageNotFoundException;
 
 class OwaspController extends BaseController
 {
+    protected $helpers = ['url', 'html'];   // anchor(), base_url(), ol(), link_tag()
+
     protected OwaspMenaceModel $Menace;
     protected OwaspTopModel $Top;
 
     public function __construct()
     {
-        $this->Menace = new OwaspMenaceModel();
-        $this->Top = new OwaspTopModel();
+        $this->Menace = model(OwaspMenaceModel::class);
+        $this->Top    = model(OwaspTopModel::class);
     }
 
     /**

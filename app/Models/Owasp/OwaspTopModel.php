@@ -15,16 +15,13 @@ class OwaspTopModel extends Model
     public function getTopById(string $top): ?object
     {
         return $this->select('id_top, nom_top, edition_top, libelle_top')
-            ->where('id_top', $top)
-            ->get()
-            ->getRow();
+            ->find($top);
     }
 
     public function getAutresTops(string $top): array
     {
         return $this->select('id_top, nom_top, edition_top, libelle_top')
             ->where('id_top !=', $top)
-            ->get()
-            ->getResult();
+            ->findAll();
     }
 }
