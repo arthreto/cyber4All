@@ -19,7 +19,7 @@
 
     </div>
     <div class="image_dict">
-        <?php $image = ['src' => '/images/quiz/dict_retour.png',
+        <?php $image = ['src' => '/images/quiz/dict.png',
                 'alt' => 'schema dict',
                 'class' => 'img-dict'
         ];

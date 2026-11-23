@@ -6,7 +6,7 @@
     <div class="presentation presentation--retour">
         <div class="retour-question">
             <?php
-            $image = ['src' => '/images/quiz/dict_retour.png',
+            $image = ['src' => '/images/quiz/dict.png',
                     'alt' => 'Bouton retour',
                     'class' => 'btn-image_retour'];
             ?>

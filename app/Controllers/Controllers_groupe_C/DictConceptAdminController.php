@@ -88,10 +88,9 @@ class DictConceptAdminController extends DictAdminBaseController
         // Tous les termes (filtrés ou non), MAIS on ne garde que ceux déjà classés (présents dans conceptcyber).
         // Avant, c'était la vue qui sautait les autres avec "continue" : on le fait ici pour garder la vue sans logique.
         $data['mots'] = array_filter(
-            $model->findAll(),
-            static fn (array $mot): bool => isset($concepts[$mot['id']])
+                $model->orderBy('mot', 'ASC')->findAll(),
+                static fn (array $mot): bool => isset($concepts[$mot['id']])
         );
-
         // --- Colonne de droite : mode modification ---
         $idModif                = $this->request->getGet('modifier'); // ?modifier=12
         $data['edition']        = $idModif ? $model->find($idModif) : null;     // le terme à modifier
