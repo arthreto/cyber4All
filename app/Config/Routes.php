@@ -46,6 +46,7 @@ $routes->group('floribondant', static function ($routes) {
     $routes->match(['GET', 'POST'], 'mots/validation/decision/(:num)', 'admin\AdminMotController::decisionMotCle/$1');
     $routes->post('signalement/supprimer', 'SignalementController::supprimerSignalement');
     $routes->match(['GET','POST'], 'utilisateurs', 'admin\AdminUtilisateurController::index');
+    $routes->match(['GET','POST'], 'owasp', 'admin\owasp\AdminOwaspController::index');
 });
 
 $routes->group('top10', static function ($routes) {
