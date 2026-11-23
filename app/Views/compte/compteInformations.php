@@ -23,7 +23,7 @@ endif;?>
         <div class="input-container">
             <input type='text'
                    id='email'
-                   value="<?= $utilisateur->email!=null?"Email : ".$utilisateur->email:'Email non rensiegné' ?>"
+                   value="<?= $utilisateur->email!=null?"Email : ".$utilisateur->email:'Email non renseigné' ?>"
                    name='email'
                    title="Votre email"
                    class='input-box-connexion'

@@ -161,6 +161,26 @@
     line-height: 1.5;
 }
 
+/* === ERREUR D'UN CHAMP === */
+.champErreur {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.5;
+    color: var(--error-color);
+}
+
+.champErreur[hidden] {
+    display: none;
+}
+
+.form-connexion input.input--erreur,
+.form-connexion input.input--erreur:focus {
+    border-color: var(--error-color);
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+}
+
 /* === LIENS === */
 .form-connexion a {
     color: var(--gradient-primary);
@@ -257,14 +277,4 @@
     50% {
         opacity: 0.5;
     }
-}
-
-.input-container:has(input:invalid:not(:placeholder-shown)) {
-    animation: shake 0.4s;
-}
-
-@keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-5px); }
-    75% { transform: translateX(5px); }
 }
