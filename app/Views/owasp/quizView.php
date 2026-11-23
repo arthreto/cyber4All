@@ -2,9 +2,6 @@
     <article class="detail-page">
 
         <header class="detail-header">
-            <div class="release-title-row">
-                <span class="release-mark"><?= esc(strtoupper($nom_top)) ?></span>
-                <div>
                     <h1>Quiz <?= esc(strtoupper($nom_top)) ?></h1>
                     <p class="detail-intro">
                         <?= count($questions) ?> questions, une seule bonne réponse par question.
@@ -77,9 +74,15 @@
 
         <div class="detail-footer-actions">
             <?php if (!empty($resultat)): ?>
-                <?= anchor('top10/quiz/' . $nom_top, 'Recommencer', ['class' => 'back-button']) ?>
+                <?= anchor('top10/quiz/' . $nom_top, 'Recommencer', ['class' => 'quiz-submit']) ?>
             <?php endif; ?>
-            <?= anchor('top10/quiz', 'Changer de quiz', ['class' => 'text-button']) ?>
+            <?php if ($nom_top === 'api'):
+                $nom_top = 'web' ?>
+                <?= anchor('top10/quiz/' . $nom_top , 'Changer de quiz', ['class' => 'text-button']) ?>
+            <?php elseif ($nom_top === 'web'):
+                $nom_top = 'api' ?>
+                <?= anchor('top10/quiz/' . $nom_top , 'Changer de quiz', ['class' => 'text-button']) ?>
+            <?php endif; ?>
             <?= anchor('top10/' . $nom_top, 'Retour au Top 10', ['class' => 'text-button']) ?>
         </div>
 

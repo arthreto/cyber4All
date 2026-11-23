@@ -107,7 +107,9 @@ body.web {
 
 .detail-header h1 {
     margin: 0;
-    color: #6476e7;
+    color: var(--accent);
+    font-size: clamp(38px, 5vw, 56px);
+    font-weight: 800;
     font-size: clamp(30px, 4vw, 42px);
     line-height: 1.1;
 }
@@ -425,6 +427,7 @@ body.web {
     transition: transform 160ms ease, box-shadow 160ms ease;
 }
 
+
 .back-button:hover {
     transform: translateY(-2px);
     box-shadow: 0 11px 24px rgba(102, 77, 191, 0.32);
@@ -452,7 +455,7 @@ body.web {
 }
 
 .text-button {
-    color: #5368d9;
+    color: black;
     font-size: 14px;
     font-weight: 700;
     text-decoration: none;
@@ -462,7 +465,8 @@ body.web {
 }
 
 .text-button:hover {
-    background: #f0f2ff;
+    background: #f3f3f3;
+    transform: scale(1.08) translateY(-1px);
 }
 
 /* Responsive */
@@ -532,4 +536,83 @@ body.web {
 .quiz-score {
     font-size: 1.5rem;
     font-weight: 700;
+}
+
+.quiz-question {
+    margin: 0 0 28px;
+    padding: 24px;
+    border: 1px solid #e8ebf5;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 8px 20px rgba(21, 32, 52, 0.05);
+    border-left: 5px solid var(--accent);
+}
+
+.quiz-num {
+    display: inline-grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    margin-right: 12px;
+
+    border-radius: 50%;
+
+    background: var(--accent);
+    color: white;
+
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.detail-intro {
+    margin-top: 14px;
+    font-size: 18px;
+    color: #65788f;
+}
+
+.quiz-option {
+    display: flex;
+    align-items: center;
+
+    gap: 14px;
+
+    padding: 14px 16px;
+    margin-top: 12px;
+
+    border: 1px solid #e5e9f2;
+    border-radius: 12px;
+
+    cursor: pointer;
+
+    transition: all .2s ease;
+}
+
+.quiz-option:hover {
+    border-color: var(--accent);
+    background: var(--accent-bg);
+}
+
+.quiz-letter {
+    display: grid;
+    place-items: center;
+
+    width: 28px;
+    height: 28px;
+
+    border-radius: 50%;
+
+    background: var(--accent-bg);
+    color: var(--accent-text);
+
+    font-weight: 800;
+}
+.quiz-submit {
+    background:
+            linear-gradient(
+                    135deg,
+                    var(--mark-1),
+                    var(--mark-2)
+            );
+
+    color: white;
 }

@@ -8,14 +8,8 @@ use CodeIgniter\Database\BaseBuilder;
 class OwaspQuizModel extends Model
 {
     protected $DBGroup = 'owasp';
-    protected $table      = 'question';
+    protected $table = 'question';
     protected $primaryKey = 'id_ques';
-
-    /** Le top existe-t-il ? (id_top, ex. "web" ou "api" : adapte à tes données) */
-    public function top(string $idTop): ?array
-    {
-        return $this->db->table('tops')->where('id_top', $idTop)->get()->getRowArray();
-    }
 
     /** N questions au hasard, uniquement celles du top demandé (question -> menace -> tops). */
     public function questionsAleatoires(string $idTop, int $nb): array
@@ -59,16 +53,5 @@ class OwaspQuizModel extends Model
     public function idsBonnesReponses(int $idQues): array
     {
         return array_map('intval', array_column($this->bonnesReponses($idQues), 'id_prop'));
-    }
-    public function propositionsParIds(array $ids): array
-    {
-        if ($ids === []) {
-            return [];
-        }
-
-        return $this->db->table('proposition')
-            ->select('id_prop, libelle_prop')
-            ->whereIn('id_prop', $ids)
-            ->get()->getResultArray();
     }
 }
