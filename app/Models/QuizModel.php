@@ -74,6 +74,38 @@ class QuizModel extends Model
     }
 
     /**
+     * Nombre de questions actives de chaque quiz d'un thème (celles réellement jouées,
+     * même filtre que QuestionModel::getQuestionFromQuiz()).
+     *
+     * @param int $idTheme Identifiant du thème
+     * @return array Tableau [id_quiz => nombre de questions], vide en cas d'erreur
+     */
+    public function getNbQuestionsActivesParQuiz(int $idTheme): array
+    {
+        try {
+            $lignes = $this->db->table($this->table)
+                ->select('quiz.id, COUNT(DISTINCT question.id) AS nb')
+                ->join('quiz_question', 'quiz_question.id_quiz = quiz.id', 'left')
+                ->join('question', 'question.id = quiz_question.id_question AND question.actif = 1', 'left')
+                ->where('quiz.id_theme', $idTheme)
+                ->groupBy('quiz.id')
+                ->get()
+                ->getResultArray();
+
+            $compteurs = [];
+            foreach ($lignes as $ligne) {
+                $compteurs[(int) $ligne['id']] = (int) $ligne['nb'];
+            }
+
+            return $compteurs;
+
+        } catch (DatabaseException $e) {
+            log_message('error', "Erreur de comptage des questions des quiz : " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
      * Garde uniquement les champs qui existent dans la table `quiz`.
      *
      * @param array $donnees Données du formulaire.

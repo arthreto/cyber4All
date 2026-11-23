@@ -17,7 +17,7 @@
 
     <header class="quiz-page__entete">
         <h1 class="quiz-page__titre">Quiz Vrai / Faux</h1>
-        <p class="quiz-page__intro">Choisissez un thème, puis un quiz. Chaque réponse est corrigée avec son explication.</p>
+        <p class="quiz-page__intro">Chaque réponse est corrigée avec son explication.</p>
     </header>
 
     <!-- Catégories : un onglet par thème -->
@@ -31,7 +31,12 @@
     </nav>
 
     <section class="quiz-liste" aria-labelledby="quiz-liste-titre">
-        <h2 id="quiz-liste-titre" class="quiz-liste__titre">Quiz du thème <?= esc($themeActif->nom) ?></h2>
+        <div class="quiz-liste__entete">
+            <h2 id="quiz-liste-titre" class="quiz-liste__titre">Quiz du thème <?= esc($themeActif->nom) ?></h2>
+            <?php if ($aDesLecons ?? true): ?>
+                <a href="<?= site_url('theme/' . $themeActif->id) ?>" class="quiz-page__lecon">Revoir les leçons <span aria-hidden="true">→</span></a>
+            <?php endif; ?>
+        </div>
 
         <?php if ($quizList === []): ?>
             <p class="quiz-liste__vide">Aucun quiz pour ce thème pour l'instant.</p>
@@ -39,18 +44,42 @@
 
         <ul class="quiz-liste__items">
             <!-- position : place fixe du quiz dans le thème (les quiz désactivés comptent), voir QuizController -->
-            <?php foreach ($quizList as $element): ?>
-                <li class="quiz-carte">
-                    <div class="quiz-carte__infos">
-                        <h3 class="quiz-carte__titre"><?= esc($element['quiz']->titre) ?></h3>
+            <?php foreach ($quizList as $index => $element):
+                $quiz = $element['quiz'];
+                $nb = (int) $element['nbQuestions'];
+                $description = trim((string) ($quiz->description ?? ''));
+            ?>
+                <li class="quiz-carte<?= $nb === 0 ? ' quiz-carte--vide' : '' ?>">
+                    <div class="quiz-carte__corps">
+                        <span class="quiz-carte__numero" aria-hidden="true"><?= str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) ?></span>
+                        <div class="quiz-carte__infos">
+                            <h3 class="quiz-carte__titre"><?= esc($quiz->titre) ?></h3>
+                            <?php if ($description !== ''): ?>
+                                <p class="quiz-carte__description"><?= esc($description) ?></p>
+                            <?php endif; ?>
+                        </div>
                     </div>
-                    <?= anchor(base_url('/quiz/' . $themeActif->id . '/' . $element['position']), 'Commencer', ['class' => 'btn-connexion quiz-carte__btn']) ?>
+
+                    <div class="quiz-carte__pied">
+                        <span class="quiz-carte__questions">
+                            <?= $nb ?> question<?= $nb > 1 ? 's' : '' ?>
+                        </span>
+
+                        <?php if ($nb > 0): ?>
+                            <?= anchor(
+                                base_url('/quiz/' . $themeActif->id . '/' . $element['position']),
+                                'Commencer <span aria-hidden="true">→</span>',
+                                [
+                                    'class'      => 'quiz-carte__btn',
+                                    'aria-label' => 'Commencer le quiz ' . $quiz->titre . ', ' . $nb . ' question' . ($nb > 1 ? 's' : ''),
+                                ]
+                            ) ?>
+                        <?php else: ?>
+                            <span class="quiz-carte__bientot">Bientôt disponible</span>
+                        <?php endif; ?>
+                    </div>
                 </li>
             <?php endforeach; ?>
         </ul>
     </section>
-
-    <?php if ($aDesLecons ?? true): ?>
-        <a href="<?= site_url('theme/' . $themeActif->id) ?>" class="quiz-page__lecon">Revoir les leçons du thème <?= esc($themeActif->nom) ?></a>
-    <?php endif; ?>
 </div>

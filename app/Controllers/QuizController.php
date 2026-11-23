@@ -144,16 +144,21 @@ class QuizController extends BaseController
      * La position compte aussi les quiz désactivés : elle ne change pas quand un quiz est supprimé.
      *
      * @param int $idTheme Identifiant du thème
-     * @return array Liste de ['quiz' => Quiz, 'position' => int]
+     * @return array Liste de ['quiz' => Quiz, 'position' => int, 'nbQuestions' => int]
      */
     private function quizActifsAvecPosition(int $idTheme): array
     {
         $liste = [];
         $position = 1;
+        $compteurs = $this->quiz_model->getNbQuestionsActivesParQuiz($idTheme);
 
         foreach ($this->quiz_model->getAllQuizCategoryById($idTheme) as $quiz) {
             if ((int) ($quiz->actif ?? 1) === 1) {
-                $liste[] = ['quiz' => $quiz, 'position' => $position];
+                $liste[] = [
+                    'quiz'        => $quiz,
+                    'position'    => $position,
+                    'nbQuestions' => $compteurs[(int) $quiz->id] ?? 0,
+                ];
             }
             $position++;
         }
