@@ -16,6 +16,7 @@ class QuizController extends BaseController
         $model = new \App\Models\Model_groupe_C\ConceptCyberModel();
 
         $data = [
+            'utilisateur' => session()->get('utilisateur'),
             'nbD' => $model->compterParPilier('DISPONIBILITE'),
             'nbI' => $model->compterParPilier('INTEGRITE'),
             'nbC' => $model->compterParPilier('CONFIDENTIALITE'),
@@ -40,7 +41,7 @@ class QuizController extends BaseController
         }
 
         $duree = $this->request->getPost('duree');
-        $nb    = ($duree === 'tout') ? $total : (int) $duree;
+        $nb    = (int) $duree;
         $nb    = max(1, min($nb, $total));
 
         $ids = $model->tirerIds($nb);

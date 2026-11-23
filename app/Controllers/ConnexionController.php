@@ -137,15 +137,21 @@ class ConnexionController extends BaseController
         $this->utilisateurModel = new UtilisateurModel();
 
         $identifiant = $this->request->getPost('identifiant');
-        $email = $this->request->getPost('email') ?? '';
+        $email = $this->request->getPost('email') ?? null;
         $mdp = $this->request->getPost('mdp') ?? '';
 
-        if($this->utilisateurModel->adresseEmailExiste($email) || $this->utilisateurModel->getUtilisateurParPseudo($identifiant)) {
+        if(($this->utilisateurModel->adresseEmailExiste($email) && strlen($email) > 1) || $this->utilisateurModel->getUtilisateurParPseudo($identifiant)) {
             return $this->errorOnPage('connexion/inscription','Utilisateur ou mail déjà utilisé');
         }
 
+        $data = [
+            'pseudo' => $identifiant,
+            'email' => $email,
+            'mot_de_passe' => $mdp,
+            'role' => 'contributeur'
+        ];
         $utilisateurEntity = new Utilisateur();
-        $utilisateur = $utilisateurEntity::creer($identifiant, $mdp, 'contributeur', $this->request->getPost('email'));
+        $utilisateur = $utilisateurEntity::creer($identifiant, $mdp, 'contributeur', strlen($this->request->getPost('email')) > 1 ? $this->request->getPost('email') : null);
 
 
         $idCreerUtilisateur = $this->utilisateurModel->insertUtilisateur($utilisateur);

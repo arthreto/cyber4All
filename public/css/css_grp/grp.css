@@ -1,9 +1,10 @@
 :root{
-    --grey_sous_titre: #d1d5db;
+    --grey_sous_titre: #8c8c8c;
     --black_font: #000000;
     --blu_quiz: #38a2d3;
     --blu_text: #5b8aa0;
     --blu_background: #9fd3e8;
+
 
     /* couleur pour les carte*/
     .carte--d { --c: #f5a623; }
@@ -17,6 +18,8 @@
     --vert_bon: #16a34a;
     --rouge_faux_background: #fee2e2;
     --rouge_faux: #dc2626;
+    --orange_partiel: #d97706;
+    --gris_message: #d3d3d3;
 }
 
 
@@ -38,13 +41,7 @@ main {
     flex: 0 0 50%;            /* exactement la moitié, pas flex: 1 */
     max-width: 50%;
     margin: 0;                /* pas de marge : elle ferait dépasser 100% */
-    padding: 50px 0px;            /* l'espace passe en padding (box-sizing: border-box est déjà global) */
-}
-
-
-.image_dict {
-    flex: 1;
-    max-width: 50%;
+    padding: 20px 45px 0;           /* l'espace passe en padding (box-sizing: border-box est déjà global) */
 }
 
 .titre_quiz {
@@ -53,7 +50,6 @@ main {
     font-size: 30px;
 }
 .sous_titre{
-
     text-align: left;
     font-size: 20px;
 }
@@ -67,11 +63,17 @@ main {
 
 
 .image_dict {
-    flex: 0 0 50%;            /* l'autre moitié */
+    flex: 0 0 50%;
     max-width: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.img-dict {
+    max-width: 100%;   /* l'image s'adapte à sa moitié */
+    height: 270px;      /* garde les proportions */
+    width: auto;
 }
 
 /* panneau */
@@ -79,7 +81,7 @@ main {
     flex: none;
     width: 100%;
     max-width: 1500px;
-    margin: 40px auto;        /* centré */
+    margin: 0px auto 10px;        /* centré */
     padding: 30px;
     background: white;
     border: 1px solid #243038;
@@ -122,6 +124,13 @@ main {
     border-radius: 8px;
 
 }
+.carte-label {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex: 1;
+    cursor: pointer;
+}
 
 
 .lettre {
@@ -162,7 +171,7 @@ main {
     display: none;
 }
 
-.duree span {
+.duree label {
     display: block;
     padding: 10px 22px;
     border-radius: 4px;
@@ -170,7 +179,7 @@ main {
     cursor: pointer;
 }
 
-.duree input:checked + span {
+.duree input:checked + label {
     background: var(--blu_background);
     color: black;
     font-weight: bold;
@@ -195,10 +204,36 @@ main {
     text-decoration: none;
 }
 
+
 .btn-lancer:hover {
     filter: brightness(1.1);
 }
+.quiz-form .ligne-bouton {
+    justify-content: space-between;   /* texte à gauche, bouton à droite */
+    align-items: center;
+}
 
+.msg-connexion {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    background: #eef7fc;                          /* même fond que .btn-secondaire:hover */
+    border: 1px solid var(--blu_background);
+    border-left: 4px solid var(--blu_quiz);
+    border-radius: 8px;
+}
+
+.msg-connexion p {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--blu_text);
+}
+
+.msg-connexion-icone {
+    font-size: 18px;
+}
 .termes {
     margin-left: auto;        /* pousse le nombre au bord droit de la carte */
     font-family: monospace;
@@ -206,14 +241,149 @@ main {
     color: var(--blu_text);
 }
 
+.termes a,
+.lien-termes {
+    color: var(--grey_sous_titre);   /* gris #8c8c8c */
+    text-decoration: none;           /* pas de soulignement */
+}
+
+.termes a:hover,
+.lien-termes:hover {
+    color: var(--blu_quiz);          /* optionnel : bleu au survol */
+}
+
+.termes a:visited {
+    color: var(--grey_sous_titre);   /* reste gris après un clic */
+}
+
+.quiz {
+    flex: 0 0 100%;
+    text-align: center;
+    font-size: 20px;
+    margin: 20px 0;
+}   /* accolade ajoutée */
+
+.quiz-form {
+    flex: 0 0 100%;
+    max-width: 1500px;
+    margin: 0 auto 40px;
+    padding: 30px;
+    background: white;
+    border: 1px solid #243038;
+    border-radius: 12px;
+    color: black;
+}
+
+/* deux colonnes : intro à gauche, durée à droite */
+.quiz-form-corps {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    align-items: center;
+}
+
+/* colonne gauche */
+.intro-quiz {
+    text-align: left;
+    margin: 0;
+}
+
+.intro-quiz .sous_titre {
+    margin: 0 0 8px;
+    text-align: left;
+    font-size: 18px;
+    color: var(--grey_sous_titre);
+}
+
+.intro-quiz .sous_titre:first-child {
+    font-size: 22px;
+    font-weight: 700;
+    color: black;
+}
+
+/* colonne droite : texte au-dessus des boutons, aligné à droite */
+.quiz-form .ligne-duree {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 14px;
+    margin-top: 0;
+    padding-left: 30px;
+    border-left: 1px solid #e5e7eb;   /* petite séparation verticale */
+}
+
+.texte-duree {
+    text-align: right;
+}
+
+.texte-duree h2,
+.texte-duree p {
+    margin: 0;
+}
+
+.texte-duree h2 {
+    margin-bottom: 4px;
+}
+
+.texte-duree p {
+    color: var(--grey_sous_titre);
+    font-size: 14px;
+}
+
+/* bouton en bas, séparé par un trait */
+.quiz-form .ligne-bouton {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid #e5e7eb;
+}
+.duree--verrouillee {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.duree--verrouillee label {
+    cursor: not-allowed;
+    color: #9ca3af;
+}
+
+.duree input:disabled + label {
+    cursor: not-allowed;
+}
+
+/* le choix coché par défaut reste visible mais grisé */
+.duree input:disabled:checked + label {
+    background: #e5e7eb;
+    color: #9ca3af;
+    font-weight: bold;
+}
+/* mobile : une seule colonne */
+@media (max-width: 800px) {
+    .quiz-form-corps {
+        grid-template-columns: 1fr;
+    }
+
+    .quiz-form .ligne-duree {
+        padding-left: 0;
+        border-left: none;
+        align-items: flex-start;
+    }
+
+    .texte-duree {
+        text-align: left;
+    }
+}
+
 /*===============================================================
 /* page des question vu questionQuiz.php*/
 
-.btn-retour-question{
-    font-size: 12px;
-    color : var(--grey_sous_titre);
-    text-align: left
+.retour-question{
+    height: 100px; /* Ajuste la taille de l'image selon tes besoins */
 
+
+}
+.btn-image_retour {
+    display: block;
+    height: 150px;                       /* 90px était un peu massif, ajuste à ton goût */
+    width: auto;
 }
 
 .btn-val {
@@ -236,14 +406,11 @@ main {
     flex: 0 0 100%;          /* occupe toute une ligne, force le retour à la ligne */
     display: flex;
     justify-content: center; /* centre .progression horizontalement */
-    padding: 0 20px;
+    padding: 20px 0px 20px;
     box-sizing: border-box;
 
 }
 
-.presentation {
-    padding: 50px 70px 0;
-}
 .progression {
     display: flex;
     flex-direction: column;
@@ -427,4 +594,84 @@ main {
 
 .btn-secondaire:hover {
     background: #eef7fc;
+}
+
+.msg-partiel { color: var(--orange_partiel); font-weight: 700; }
+.msg-ko { color: var(--rouge_faux); font-weight: 700; }
+.msg-ok { color: var(--vert_bon); font-weight: 700; }
+.msgCorrection{ color: var(--gris_message); font-weight: 600}
+
+.ligne-message {
+    display: flex;
+    align-items: center;   /* alignement vertical */
+    gap: 10px;             /* espace entre les deux */
+}
+
+
+/* Bouton retour remonté en haut à gauche */
+.presentation--retour {
+    flex: 0 0 100%;        /* prend toute la ligne (évite d'être sur 50%) */
+    max-width: 100%;
+    padding: 10px 20px 0;  /* écrase uniquement pour cette variante */
+}
+
+.retour-question {
+    height: auto;          /* supprime les 100px fixes qui poussaient vers le bas */
+}
+
+.btn-image_retour {
+    height: 80px;          /* plus petit, ajuste à ton goût */
+}   /* accolade ajoutée */
+
+.carte-question input {
+    display: none;
+}
+.btn-lancer {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 28px;
+    background: var(--blu_quiz);
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 10px;              /* même rayon que .btn-val */
+    cursor: pointer;
+    text-decoration: none;
+    box-shadow: 0 4px 0 color-mix(in srgb, var(--blu_quiz) 70%, black);
+    transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+}
+
+.btn-lancer:hover {
+    background: color-mix(in srgb, var(--blu_quiz) 90%, white);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 color-mix(in srgb, var(--blu_quiz) 70%, black);
+}
+
+.btn-lancer:active {
+    transform: translateY(2px);       /* effet d'enfoncement */
+    box-shadow: 0 2px 0 color-mix(in srgb, var(--blu_quiz) 70%, black);
+}
+
+.btn-lancer:focus-visible {
+    outline: 3px solid var(--blu_background);
+    outline-offset: 3px;
+}
+
+.btn-fleche {
+    display: inline-block;
+    transition: transform 0.2s;
+}
+
+.btn-lancer:hover .btn-fleche {
+    transform: translateX(5px);       /* la flèche avance au survol */
+}
+
+.btn-lancer:disabled {
+    background: #9ca3af;              /* même gris que .btn-val:disabled */
+    color: #e5e7eb;
+    box-shadow: none;
+    cursor: not-allowed;
+    transform: none;
 }

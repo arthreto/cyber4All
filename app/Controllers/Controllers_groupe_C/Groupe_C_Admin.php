@@ -39,7 +39,7 @@ class Groupe_C_Admin extends BaseController
 
         $categorie = $this->request->getGet('concept');
 
-        if (in_array($categorie, ['DISPONIBILITE', 'INTEGRITE', 'CONFIDENTIALITE', 'TRACABILITE'], true)) {
+        if (in_array($categorie, ['disponibilite', 'integrite', 'confidentialite', 'tracabilite'], true)) {
             $model->select('mot_cle.*')
                 ->join('conceptcyber', 'conceptcyber.id_mot_cle = mot_cle.id')
                 ->where('conceptcyber.' . $categorie, 1);
@@ -68,10 +68,10 @@ class Groupe_C_Admin extends BaseController
         $modelConcept = new \App\Models\Model_groupe_C\ModelAdminCmot_cle_categorie();
 
         $modelConcept->update($this->request->getPost('id_mot_cle'), [
-            'DISPONIBILITE'   => $this->request->getPost('DISPONIBILITE') ? 1 : 0,
-            'INTEGRITE'       => $this->request->getPost('INTEGRITE') ? 1 : 0,
-            'CONFIDENTIALITE' => $this->request->getPost('CONFIDENTIALITE') ? 1 : 0,
-            'TRACABILITE'     => $this->request->getPost('TRACABILITE') ? 1 : 0,
+            'disponibilite'   => $this->request->getPost('disponibilite') ? 1 : 0,
+            'integrite'       => $this->request->getPost('integrite') ? 1 : 0,
+            'confidentialite' => $this->request->getPost('confidentialite') ? 1 : 0,
+            'tracabilite'     => $this->request->getPost('tracabilite') ? 1 : 0,
         ]);
 
         return redirect()->to(base_url('floribondant/QuizzConcept'));

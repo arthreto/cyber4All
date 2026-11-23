@@ -98,6 +98,7 @@ class GlossaireController extends BaseController
 
     public function rechercherGlossaire()
     {
+
         if (!$this->request->is('post')) {
             return redirect()->back();
         }
@@ -108,6 +109,7 @@ class GlossaireController extends BaseController
             base_url('glossaire?recherche=' . urlencode($recherche))
         );
     }
+
 
     /**
      * afficherCategorie permet d'afficher le glossaire lié à
@@ -143,6 +145,37 @@ class GlossaireController extends BaseController
     /**
      * Détail d'un mot
      */
+    public function afficherConcept(string $concept)
+    {
+        $titres = [
+            'disponibilite'   => 'Disponibilité',
+            'integrite'       => 'Intégrité',
+            'confidentialite' => 'Confidentialité',
+            'tracabilite'     => 'Traçabilité',
+        ];
+
+        if (! isset($titres[$concept])) {
+            return redirect()->to(base_url('glossaire'));
+        }
+
+        $glossaire = $this->glossaire_model->getGlossaireConcept($concept);
+
+        $data = [
+            'glossaire'  => $this->grouperParLettre($glossaire),
+            'total'      => count($glossaire),
+            'from'       => base_url('glossaire'),
+            'categorie'  => (object) ['id' => 0, 'nom' => $titres[$concept]],
+            'categories' => $this->categorie_model->getAllCategories(),
+            'contenu'    => 'categorie',
+        ];
+        $data = array_merge($data, $this->setDataGlossaire());
+
+        return view('header', $data)
+            . view('notice')
+            . view('recherche')
+            . view('glossaire/glossaire')
+            . view('footer');
+    }
     public function afficherMot($idMot)
     {
         $data = [

@@ -7,6 +7,22 @@ $concepts = [
         3 => ['c', 'C', 'Confidentialité', 'Qui peut voir ?'],
         4 => ['t', 'T', 'Traçabilité',     'Qui a fait quoi ?'],
 ];
+// Cases cochées qui sont aussi correctes
+$bonnesCochees = array_intersect($correction['coches'], $correction['bonnes']);
+
+if ($correction['juste']) {
+    $statut = 'ok';
+    $texte  = 'Bonne réponse ✅';
+    $message = '1 points gagné';
+} elseif (count($bonnesCochees) > 0) {
+    $statut = 'partiel';
+    $texte  = 'Réponse partiellement correcte ⚠️';
+    $message = 'Vous ne gagnez pas de points';
+} else {
+    $statut = 'ko';
+    $texte  = 'Mauvaise réponse ❌';
+    $message = 'Vous ne gagnez pas de points';
+}
 ?>
 
 <main>
@@ -30,10 +46,14 @@ $concepts = [
         <div class="titre_quiz">
             <h1><?= esc($correction['mot']) ?></h1>
         </div>
-        <div class="sous_titre">
-            <p><?= esc($correction['question']) ?></p>
-            <p class="<?= $correction['juste'] ? 'msg-ok' : 'msg-ko' ?>">
-                <?= $correction['juste'] ? 'Bonne réponse ✅' : 'Mauvaise réponse ❌' ?>
+        <p class="sous_titre">
+        <p><?= esc($correction['question']) ?></p>
+        <div class="ligne-message">
+            <p class="msg-<?= $statut ?>">
+                <?= $texte ?>
+            </p>
+            <p class="msgCorrection">
+                <?= $message ?>
             </p>
         </div>
 
@@ -64,7 +84,7 @@ $concepts = [
 
         <div class="ligne-bouton">
             <a href="<?= base_url('quiz/question') ?>" class="btn-val">
-                <?= $fini ? 'Voir le résultat →' : 'Question suivante →' ?>
+                <?= $fini ? 'Voir les résultats →' : 'Question suivante →' ?>
             </a>
         </div>
     </div>

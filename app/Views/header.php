@@ -117,9 +117,9 @@ endif;
                     <li class="menu-nav__item">
                             <?= anchor(
                                     base_url('quiz'),
-                                    'Quiz',
+                                    'DICT',
                                     [
-                                            'title'=>"Tout le lexique de la cybersécurité",
+                                            'title'=>"Explication et quiz DICT",
                                             'class'=>"menu-nav__lien"
                                     ]
                             ) ?>
