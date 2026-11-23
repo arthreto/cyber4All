@@ -219,6 +219,12 @@ class AdminExtraitController extends AdminController
                 $errors = $this->validator->getErrors();
             }
 
+            // Deux extraits ne peuvent pas avoir le même titre (extraits supprimés compris)
+            if (! isset($errors['titre'])
+                && $this->nomDejaPris($this->extrait_model, 'titre', $formData['titre'], empty($form->modifier) ? null : (int) $form->modifier)) {
+                $errors['titre'] = 'Un extrait possède déjà le même titre.';
+            }
+
             if (empty($errors)) {
                 $estModification = ! empty($form->modifier);
 

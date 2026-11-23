@@ -384,6 +384,12 @@ class AdminQuizController extends AdminController
                 $errors['id_theme'] = "Le thème choisi n'existe pas.";
             }
 
+            // Deux quiz ne peuvent pas avoir le même titre (quiz supprimés compris)
+            if (! isset($errors['titre'])
+                && $this->nomDejaPris($this->quiz_model, 'titre', $formData['titre'], empty($form->modifier) ? null : (int) $form->modifier)) {
+                $errors['titre'] = 'Un quiz possède déjà le même titre.';
+            }
+
             // Thème et statut des questions cochées
             $questionsCocheesInfos = [];
             if ($form->questions !== []) {

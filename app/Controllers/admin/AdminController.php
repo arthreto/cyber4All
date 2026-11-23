@@ -39,6 +39,36 @@ abstract class AdminController extends BaseController
     }
 
     /**
+     * Vérifie si un nom (titre, énoncé) est déjà pris par un autre élément de la même table.
+     * Les éléments supprimés (inactifs) comptent aussi : ils peuvent être réactivés.
+     * La comparaison suit la collation de la colonne (utf8mb4_uca1400_ai_ci) :
+     * sans tenir compte des majuscules ni des accents.
+     *
+     * @param \CodeIgniter\Model $model   Modèle de la table (QuestionModel, QuizModel, LeconModel, ExtraitModel)
+     * @param string             $champ   Colonne du nom (titre, libelle)
+     * @param string             $valeur  Nom saisi
+     * @param int|null           $idExclu Élément en cours de modification (null pour un ajout)
+     * @return bool true si un autre élément porte déjà ce nom
+     *
+     * @author Raphael Bierlaire
+     */
+    protected function nomDejaPris(\CodeIgniter\Model $model, string $champ, string $valeur, ?int $idExclu = null): bool
+    {
+        $valeur = trim($valeur);
+        if ($valeur === '') {
+            return false; // champ vide : déjà signalé par la règle « required »
+        }
+
+        // builder() neuf : n'emporte pas de condition laissée sur le modèle
+        $builder = $model->builder()->where($champ, $valeur);
+        if ($idExclu !== null && $idExclu > 0) {
+            $builder->where('id !=', $idExclu);
+        }
+
+        return $builder->countAllResults() > 0;
+    }
+
+    /**
      * Ordre d'une liste : l'élément ajouté ou modifié juste avant en premier,
      * puis les actifs, puis les inactifs. L'ordre du tri est conservé dans chaque groupe.
      *

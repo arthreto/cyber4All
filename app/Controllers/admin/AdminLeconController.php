@@ -315,6 +315,12 @@ class AdminLeconController extends AdminController
                     $errors['id_theme'] = "Le thème choisi n'existe pas.";
                 }
 
+                // Deux leçons ne peuvent pas avoir le même titre (leçons supprimées comprises)
+                if (! isset($errors['titre'])
+                    && $this->nomDejaPris($this->lecon_model, 'titre', $formData['titre'], empty($form->modifier) ? null : (int) $form->modifier)) {
+                    $errors['titre'] = 'Une leçon possède déjà le même titre.';
+                }
+
                 if (empty($errors)) {
                     $estModification = !empty($form->modifier);
 

@@ -509,6 +509,19 @@ class AdminQuestionController extends AdminController
                     $errors = array_merge($errors, $this->validator->getErrors());
                 }
 
+                // Deux questions ne peuvent pas avoir le même énoncé (questions supprimées comprises)
+                if (! isset($errors['libelle'])
+                    && $this->nomDejaPris($this->question_model, 'libelle', (string) $formData['libelle'], empty($form->modifier) ? null : (int) $form->modifier)) {
+                    $errors['libelle'] = 'Une question possède déjà le même énoncé.';
+                }
+
+                // Nouvel extrait créé avec la question : même règle que dans l'onglet « Extrait »
+                if ($formData['extrait_mode'] === 'nouveau'
+                    && ! isset($errors['extrait_titre'])
+                    && $this->nomDejaPris($this->extrait_model, 'titre', (string) $formData['extrait_titre'])) {
+                    $errors['extrait_titre'] = 'Un extrait possède déjà le même titre.';
+                }
+
                 // Question active avec un extrait supprimé (désactivé) : refusée,
                 // une question qui utilise un extrait supprimé doit rester inactive
                 if ((string) $formData['actif'] === '1'

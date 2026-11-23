@@ -130,7 +130,7 @@ $erreurChamp = fn (string $champ): string
                             'class'       => $classeChamp('glossary-form__input sio-admin__textarea--fixe', 'libelle'),
                             'required'    => true,
                         ]) ?>
-                        <?= $erreurChamp('libelle') ?>
+                        <!-- Pas de message sous l'énoncé : l'erreur est dans l'encadré en haut de page, le champ est encadré en rouge -->
                     </div>
 
                     <!-- Bonne réponse : rien n'est coché pour une nouvelle question -->
