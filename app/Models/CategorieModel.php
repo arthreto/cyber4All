@@ -37,7 +37,7 @@ class CategorieModel extends Model
             ];
             return $this->insert($data);
         } catch (DatabaseException $e) {
-            log_message('error', "Erreur insertCategorie : " . $e->getMessage());
+            log_message('error', "Erreur insertCategorie : {exception}", ['exception' => $e]);
             return false;
         }
     }
@@ -61,7 +61,7 @@ class CategorieModel extends Model
         try {
             return $this->delete($id);
         } catch (DatabaseException $e) {
-            log_message('error', 'deleteCategorieById : ' . $e->getMessage());
+            log_message('error', 'deleteCategorieById : {exception}', ['exception' => $e]);
             return false;
         }
     }
@@ -90,7 +90,7 @@ class CategorieModel extends Model
             ];
             return $this->update($categorie->id, $data);
         } catch (DatabaseException $e) {
-            log_message('error', 'updateCategorieByID : ' . $e->getMessage());
+            log_message('error', 'updateCategorieByID : {exception}', ['exception' => $e]);
             return false;
         }
     }
@@ -115,7 +115,7 @@ class CategorieModel extends Model
         try {
             return $this->orderBy('nom', 'ASC')->findAll();
         } catch (DatabaseException $e) {
-            error_log("Erreur getAllCategories : " . $e->getMessage());
+            log_message('error', "Erreur getAllCategories : {exception}", ['exception' => $e]);
             return [];
         }
     }
@@ -141,7 +141,7 @@ class CategorieModel extends Model
         try {
             return $this->find($id);
         } catch (DatabaseException $e) {
-            error_log("Erreur getMotcleById : " . $e->getMessage());
+            log_message('error', "Erreur getMotcleById : {exception}", ['exception' => $e]);
             return null;
         }
     }
@@ -179,7 +179,7 @@ class CategorieModel extends Model
             }
             return $categories;
         } catch (DatabaseException $e) {
-            error_log("Erreur getCategoriesMotcle : " . $e->getMessage());
+            log_message('error', "Erreur getCategoriesMotcle : {exception}", ['exception' => $e]);
             return [];
         }
     }
@@ -213,7 +213,7 @@ class CategorieModel extends Model
                 ->orderBy('categories.nom')
                 ->findAll();
         } catch (DatabaseException $e) {
-            error_log("Erreur getAllCategoriesByMotIds : " . $e->getMessage());
+            log_message('error', "Erreur getAllCategoriesByMotIds : {exception}", ['exception' => $e]);
             return [];
         }
     }

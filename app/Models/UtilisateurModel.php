@@ -55,7 +55,7 @@ class UtilisateurModel extends Model
         try {
             return $this->insert($data);
         } catch (DatabaseException $e) {
-            log_message('error', "Erreur insertUtilisateur : " . $e->getMessage());
+            log_message('error', "Erreur insertUtilisateur : {exception}", ['exception' => $e]);
             return false;
         }
     }
@@ -80,7 +80,7 @@ class UtilisateurModel extends Model
         try {
             return $this->delete($id);
         } catch (DatabaseException $e) {
-            log_message('error', "Erreur deleteUtilisateurById : " . $e->getMessage());
+            log_message('error', "Erreur deleteUtilisateurById : {exception}", ['exception' => $e]);
             return false;
         }
     }
@@ -112,7 +112,7 @@ class UtilisateurModel extends Model
         try {
             return $this->update($utilisateur->id, $data);
         } catch (DatabaseException $e) {
-            log_message('error', "Erreur updateUtilisateurByID : " . $e->getMessage());
+            log_message('error', "Erreur updateUtilisateurByID : {exception}", ['exception' => $e]);
             return false;
         }
     }
@@ -137,7 +137,7 @@ class UtilisateurModel extends Model
         try {
             return $this->find($id);
         } catch (DatabaseException $e) {
-            log_message('error', "Erreur getUtilisateurById : " . $e->getMessage());
+            log_message('error', "Erreur getUtilisateurById : {exception}", ['exception' => $e]);
             return null;
         }
     }
@@ -162,7 +162,7 @@ class UtilisateurModel extends Model
             $result = $this->where('pseudo', $pseudo)->first();
             return $result instanceof Utilisateur ? $result : false;
         } catch (DatabaseException $e) {
-            log_message('error', "Erreur getUtilisateurParPseudo : " . $e->getMessage());
+            log_message('error', "Erreur getUtilisateurParPseudo : {exception}", ['exception' => $e]);
             return false;
         }
     }
@@ -205,7 +205,7 @@ class UtilisateurModel extends Model
             log_message('error', "Erreur connexion : pseudo ou mot de passe incorrect pour '{$pseudo}'");
             return null;
         } catch (DatabaseException $e) {
-            log_message('error', "Erreur verifierUtilisateur : " . $e->getMessage());
+            log_message('error', "Erreur verifierUtilisateur : {exception}", ['exception' => $e]);
             return null;
         }
     }
@@ -225,7 +225,7 @@ class UtilisateurModel extends Model
         try {
             return $this->where('email', $email)->countAllResults() > 0;
         } catch (DatabaseException $e) {
-            log_message('error', "Erreur adresseEmailExiste : " . $e->getMessage());
+            log_message('error', "Erreur adresseEmailExiste : {exception}", ['exception' => $e]);
             return false;
         }
     }
@@ -244,7 +244,7 @@ class UtilisateurModel extends Model
         try {
             return $this->where('pseudo', $pseudo)->countAllResults() > 0;
         } catch (DatabaseException $e) {
-            log_message('error', "Erreur pseudoExiste : " . $e->getMessage());
+            log_message('error', "Erreur pseudoExiste : {exception}", ['exception' => $e]);
             return false;
         }
     }
@@ -277,7 +277,7 @@ class UtilisateurModel extends Model
 
             return $users;
         } catch (DatabaseException $e) {
-            log_message('error', "Erreur getClassementVotes : " . $e->getMessage());
+            log_message('error', "Erreur getClassementVotes : {exception}", ['exception' => $e]);
             return [];
         }
     }
@@ -323,7 +323,7 @@ class UtilisateurModel extends Model
                 ->paginate($perPage); // paginer par le nombre de mot à afficher
 
         } catch (DatabaseException $e) {
-            log_message('error', "Erreur getUtilisateursPaginatedOrderBy : " . $e->getMessage());
+            log_message('error', "Erreur getUtilisateursPaginatedOrderBy : {exception}", ['exception' => $e]);
             return [];
         }
     }
@@ -400,7 +400,7 @@ class UtilisateurModel extends Model
                 ->find();
             return isset($row['anciennete']) ? (int)$row['anciennete'] : 0;
         } catch (DatabaseException $e) {
-            log_message('error', "Erreur getAncieneteUtilisateur : " . $e->getMessage());
+            log_message('error', "Erreur getAncieneteUtilisateur : {exception}", ['exception' => $e]);
             return 0;
         }
     }

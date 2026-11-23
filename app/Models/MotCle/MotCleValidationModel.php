@@ -59,7 +59,7 @@ class MotCleValidationModel extends Model
                 ->first();
             return $row['id_validation'] ?? null;
         } catch (DatabaseException $e) {
-            error_log("Erreur getIdDemande : " . $e->getMessage());
+            log_message('error', "Erreur getIdDemande : {exception}", ['exception' => $e]);
             return null;
         }
     }
@@ -110,7 +110,7 @@ class MotCleValidationModel extends Model
 
             return $mots;
         } catch (DatabaseException $e) {
-            log_message('error', 'getMotCleValidationContributeurPaginate : ' . $e->getMessage());
+            log_message('error', 'getMotCleValidationContributeurPaginate : {exception}', ['exception' => $e]);
             return [];
         }
     }
@@ -162,7 +162,7 @@ class MotCleValidationModel extends Model
 
             return $mots;
         } catch (DatabaseException $e) {
-            log_message('error', 'getMotCleValidationContributeurAttentePaginate : ' . $e->getMessage());
+            log_message('error', 'getMotCleValidationContributeurAttentePaginate : {exception}', ['exception' => $e]);
             return [];
         }
     }

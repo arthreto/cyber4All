@@ -44,7 +44,7 @@ class ThemeModel extends Model
             log_message('error',count($this->findAll()));
             return $this->orderBy('nom', 'DESC')->findAll();
         } catch (DatabaseException $e) {
-            log_message('error',"Erreur getAllCategories : " . $e->getMessage());
+            log_message('error', "Erreur getAllCategories : {exception}", ['exception' => $e]);
             return [];
         }
     }

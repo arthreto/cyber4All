@@ -42,7 +42,7 @@ class QuizModel extends Model
         try {
             return $this->orderBy('titre', 'ASC')->findAll();
         } catch (DatabaseException $e) {
-            log_message('error',"Erreur getAllQuiz : " . $e->getMessage());
+            log_message('error', "Erreur getAllQuiz : {exception}", ['exception' => $e]);
             return [];
         }
     }
@@ -68,7 +68,7 @@ class QuizModel extends Model
 
             return $this->orderBy('id', 'ASC')->findAll();
         } catch (DatabaseException $e) {
-            log_message('error',"Erreur getAllQuiz : " . $e->getMessage());
+            log_message('error', "Erreur getAllQuiz : {exception}", ['exception' => $e]);
             return [];
         }
     }
@@ -124,7 +124,7 @@ class QuizModel extends Model
             return $idQuiz === false ? false : (int) $idQuiz;
 
         } catch (DatabaseException $e) {
-            log_message('error', "Erreur de création d'un quiz : " . $e->getMessage());
+            log_message('error', "Erreur de création d'un quiz : {exception}", ['exception' => $e]);
             return false;
         }
     }
@@ -144,7 +144,7 @@ class QuizModel extends Model
                 ->update($this->filtrerColonnes($donnees));
 
         } catch (DatabaseException $e) {
-            log_message('error', "Erreur de modification d'un quiz : " . $e->getMessage());
+            log_message('error', "Erreur de modification d'un quiz : {exception}", ['exception' => $e]);
             return false;
         }
     }
@@ -176,7 +176,7 @@ class QuizModel extends Model
             return $builder->get()->getResultArray();
 
         } catch (DatabaseException $e) {
-            log_message('error', "Erreur de récupération des quiz (admin) : " . $e->getMessage());
+            log_message('error', "Erreur de récupération des quiz (admin) : {exception}", ['exception' => $e]);
             return [];
         }
     }

@@ -50,7 +50,7 @@ class ExtraitModel extends Model
                 ->findAll();
 
         } catch (DatabaseException $e) {
-            log_message('error', "Erreur de récupération des extraits : " . $e->getMessage());
+            log_message('error', "Erreur de récupération des extraits : {exception}", ['exception' => $e]);
             return [];
         }
     }
@@ -81,7 +81,7 @@ class ExtraitModel extends Model
             return $builder->get()->getResultArray();
 
         } catch (DatabaseException $e) {
-            log_message('error', "Erreur de récupération des extraits (admin) : " . $e->getMessage());
+            log_message('error', "Erreur de récupération des extraits (admin) : {exception}", ['exception' => $e]);
             return [];
         }
     }
@@ -105,7 +105,7 @@ class ExtraitModel extends Model
                 ->getResultArray();
 
         } catch (DatabaseException $e) {
-            log_message('error', "Erreur de récupération des questions d'un extrait : " . $e->getMessage());
+            log_message('error', "Erreur de récupération des questions d'un extrait : {exception}", ['exception' => $e]);
             return [];
         }
     }
@@ -131,7 +131,7 @@ class ExtraitModel extends Model
             return $builder->countAllResults();
 
         } catch (DatabaseException $e) {
-            log_message('error', "Erreur de comptage des questions d'un extrait : " . $e->getMessage());
+            log_message('error', "Erreur de comptage des questions d'un extrait : {exception}", ['exception' => $e]);
             return 0;
         }
     }
@@ -150,7 +150,7 @@ class ExtraitModel extends Model
             return $idExtrait === false ? false : (int) $idExtrait;
 
         } catch (DatabaseException $e) {
-            log_message('error', "Erreur de création d'un extrait : " . $e->getMessage());
+            log_message('error', "Erreur de création d'un extrait : {exception}", ['exception' => $e]);
             return false;
         }
     }
@@ -168,7 +168,7 @@ class ExtraitModel extends Model
             return $this->update($idExtrait, $donnees);
 
         } catch (DatabaseException $e) {
-            log_message('error', "Erreur de modification d'un extrait : " . $e->getMessage());
+            log_message('error', "Erreur de modification d'un extrait : {exception}", ['exception' => $e]);
             return false;
         }
     }
@@ -210,7 +210,7 @@ class ExtraitModel extends Model
 
         } catch (DatabaseException $e) {
             $this->db->transRollback();
-            log_message('error', "Erreur de suppression d'un extrait : " . $e->getMessage());
+            log_message('error', "Erreur de suppression d'un extrait : {exception}", ['exception' => $e]);
             return false;
         }
     }
@@ -229,7 +229,7 @@ class ExtraitModel extends Model
             return $this->update($idExtrait, ['actif' => 1]);
 
         } catch (DatabaseException $e) {
-            log_message('error', "Erreur de réactivation d'un extrait : " . $e->getMessage());
+            log_message('error', "Erreur de réactivation d'un extrait : {exception}", ['exception' => $e]);
             return false;
         }
     }

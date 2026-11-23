@@ -47,7 +47,7 @@ class LeconModel extends Model
         try {
             return $this->find($idLecon);
         } catch (DatabaseException $e) {
-            log_message('error', 'Erreur getLeconById : ' . $e->getMessage());
+            log_message('error', 'Erreur getLeconById : {exception}', ['exception' => $e]);
             return null;
         }
     }
@@ -148,7 +148,7 @@ class LeconModel extends Model
 
             $lecons = $this->findAll();
         } catch (DatabaseException $e) {
-            log_message('error', 'Erreur getAllLecons : ' . $e->getMessage());
+            log_message('error', 'Erreur getAllLecons : {exception}', ['exception' => $e]);
             return [];
         }
 
@@ -204,7 +204,7 @@ class LeconModel extends Model
 
             return $idLecon === false ? false : (int) $idLecon;
         } catch (DatabaseException $e) {
-            log_message('error', 'Erreur creerLecon : ' . $e->getMessage());
+            log_message('error', 'Erreur creerLecon : {exception}', ['exception' => $e]);
             return false;
         }
     }
@@ -287,7 +287,7 @@ class LeconModel extends Model
 
             return array_map('intval', array_column($lignes, 'id_theme'));
         } catch (DatabaseException $e) {
-            log_message('error', 'Erreur getIdsThemesAvecLecon : ' . $e->getMessage());
+            log_message('error', 'Erreur getIdsThemesAvecLecon : {exception}', ['exception' => $e]);
             return [];
         }
     }

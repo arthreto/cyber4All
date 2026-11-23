@@ -20,24 +20,18 @@ Ce document complète la recette fonctionnelle (tests 1 à 193). Il couvre ce qu
 
 | | Nombre |
 |---|---|
-| Tests exécutés | 132 |
-| Conformes | 117 |
-| Non conformes | 15 |
+| Tests exécutés | 139 |
+| Conformes | 133 |
+| Non conformes | 6 |
 
 ### Non-conformités à corriger (par priorité)
 
 | Priorité | Tests | Problème | Correction proposée |
 |---|---|---|---|
-| Haute (sécurité) | 340 | L'identifiant de session ne change pas à la connexion : le cookie `ci_session` reçu avant la connexion reste valable après. C'est une fixation de session, l'attaque présentée dans les leçons du thème Session. | Appeler `session()->regenerate(true)` juste après une connexion réussie (`ConnexionController::connexion`) et après une inscription. |
-| Haute (sécurité) | 351, 352 | La page « Mon compte » affiche « Modification de compte réussie » et **enregistre un email invalide** (`pasunemail`, `<b>gras</b>`) : le message d'erreur est préparé, mais l'enregistrement a quand même lieu. Le HTML enregistré est ensuite réaffiché sans échappement dans `compteInformations.php` (attribut `value`) et dans la liste admin des utilisateurs (`tabUtilisateurs.php`, colonne email). Un contributeur peut donc y placer du HTML ou du JavaScript. | Dans `CompteController`, arrêter le traitement (`return redirect()->back()`) dès qu'une erreur est trouvée ; valider l'email côté serveur ; échapper `pseudo` et `email` avec `esc()` dans ces deux vues. |
-| Moyenne | 343 | Aucune limite de tentatives de connexion : 12 mauvais mots de passe de suite, puis le bon, et la connexion réussit. | Compter les échecs par identifiant et par adresse IP (en session ou en base) et bloquer quelques minutes après 5 échecs. |
-| Moyenne | 373 | La page admin « Utilisateurs » n'affiche aucun utilisateur. Les données sont passées à la vue `header` au lieu de la vue `admin/adminUtilisateurs` (`AdminUtilisateurController::index`). | Passer `$data` à `view('admin/adminUtilisateurs', $data)`. |
-| Moyenne | 353 | Un email contenant des caractères spéciaux est échappé deux fois dans le formulaire (`esc()` puis `form_input()`) : `&amp;lt;b&amp;gt;`. À chaque enregistrement sans modification, la valeur se dégrade un peu plus. | Retirer le `esc()` dans `formCompte.php` : `form_input()` échappe déjà la valeur. |
-| Moyenne | 354, 355, 356 | Pseudo vide, d'un seul caractère ou de 40 caractères : la modification est refusée, mais **aucun message** n'est affiché. | Valider le pseudo (3 à 13 caractères, comme à l'inscription) et afficher l'erreur. |
-| Moyenne | 362 | Supprimer une leçon décale l'adresse des leçons suivantes du thème (la leçon D passe de `/theme/4/2` à `/theme/4/1`). Les quiz, eux, gardent leur adresse. | Même principe que pour les quiz : compter aussi les leçons désactivées dans la position, et renvoyer une 404 pour une leçon désactivée. |
-| Moyenne | 228, 345 | Rafraîchir la page après l'envoi d'un quiz ou après la connexion renvoie le formulaire, ce qui provoque l'erreur CSRF 403 (même défaut que les tests 39, 54, 115…). | Appliquer le modèle Post/Redirect/Get : enregistrer le résultat en session (flashdata), rediriger, puis afficher en GET. |
-| Basse | 360 | Le menu « Comprendre les accès » propose le thème « Test1234 », qui n'a aucune leçon active : le lien mène à une page 404. | N'afficher dans le menu que les thèmes qui ont au moins une leçon active. |
-| Basse | 361 | La page des quiz d'un thème sans quiz (`/quiz/4`) affiche une liste vide sans message, et son lien « Revoir les leçons du thème » mène à une 404. | Afficher « Aucun quiz pour ce thème pour l'instant », et masquer le lien si le thème n'a pas de leçon. |
+| Moyenne | 343 | Aucune limite de tentatives de connexion : 12 mauvais mots de passe de suite, puis le bon, et la connexion réussit. | Compter les échecs par identifiant et par adresse IP et bloquer quelques minutes après 5 échecs. Non retenu pour l'instant : demande une modification de la base ou du système. |
+| Moyenne | 228, 345 | Rafraîchir la page après l'envoi d'un quiz ou après la connexion renvoie le formulaire, ce qui provoque l'erreur CSRF 403 (même défaut que les tests 39, 54, 115…). | Appliquer le modèle Post/Redirect/Get : enregistrer le résultat en session (flashdata), rediriger, puis afficher en GET (comme le fait déjà la page « Mon compte »). |
+| Basse | 374 | Page admin « Utilisateurs » : cliquer sur un pseudo mène à `/floribondant/utilisateurs/update/1`, qui n'existe pas (404). | Créer la page de modification d'un utilisateur, ou afficher le pseudo sans lien. |
+| Basse | 375 | Page admin « Utilisateurs » : le champ de recherche est celui du glossaire (`/glossaire/recherche`) ; il ne cherche pas dans les utilisateurs. Les boutons « Ajouter un mot » et « Demandes de validations » de la page Mots y sont aussi repris. | Un formulaire de recherche propre à la page, envoyé à `/floribondant/utilisateurs` (le contrôleur lit déjà `recherche`). |
 | Données | 331 | Le quiz « Ceci est un titre sympa » est actif avec 2 questions, alors que la règle impose 5 à 20 questions. Le quiz « Révision : authentification et traçabilité » est signalé « 8 / 9 questions – Incomplet ». | Compléter ces deux quiz ou les désactiver. |
 
 ### Remarques (pas bloquantes)
@@ -46,6 +40,7 @@ Ce document complète la recette fonctionnelle (tests 1 à 193). Il couvre ce qu
 - **Bibliothèques** : `marked@18` et `dompurify@3` sont chargées depuis le CDN sans version exacte. Une mise à jour peut donc changer le rendu sans prévenir. Il vaut mieux figer la version complète (par exemple `marked@18.0.0`).
 - **Fichiers versionnés en trop** : le dossier `node_modules/` (marked, markdown-to-txt…) et des fichiers `writable/debugbar/*.json` sont versionnés dans la branche, alors que la page Leçon utilise le CDN. Il faudrait les ajouter au `.gitignore`.
 - **Inscription** : avec un identifiant très court (« ab »), le message « Le mot de passe ne doit pas contenir l'identifiant » s'ajoute presque toujours à celui de l'identifiant (test 250).
+- **Journal d'erreurs** : `ThemeModel::getAllThemes()` écrit deux lignes de niveau « error » (`contact` et le nombre de thèmes) à chaque page affichée. Ce sont des traces de débogage, à retirer.
 - **Valeur codée en dur** : le champ caché `id_quiz` de la page Quiz vaut toujours `3` (`app/Views/quiz/quiz.php`).
 - **Extraits** : la colonne « questions » de la liste compte aussi les questions supprimées (désactivées).
 
@@ -102,7 +97,7 @@ Ce document complète la recette fonctionnelle (tests 1 à 193). Il couvre ce qu
 | 247 | `/inscription` une fois connecté | Redirection | Conforme | Vers « Mon compte » |
 | 248 | Contributeur connecté | Accès à « Mon compte » | Conforme | |
 | 249 | Déconnexion puis `/compte` | Accès refusé | Conforme | 404 (voir remarques) |
-| 340 | Identifiant de session à la connexion | Un nouvel identifiant est attribué (protection contre la fixation de session) | **Non conforme** | Le cookie `ci_session` d'avant la connexion reste valable : aucun nouveau cookie n'est envoyé à la connexion |
+| 340 | Identifiant de session à la connexion | Un nouvel identifiant est attribué (protection contre la fixation de session) | Conforme | Nouveau cookie `ci_session` à la connexion ; l'ancien ne donne plus accès au compte (404) |
 | 341 | Attributs du cookie de session | `HttpOnly`, `SameSite` | Conforme | `HttpOnly; SameSite=Lax` (pas de `Secure` en HTTP local) |
 | 342 | Réutiliser l'ancien cookie après la déconnexion | Plus d'accès au compte | Conforme | `/compte` en 404 |
 | 343 | 12 mauvais mots de passe de suite, puis le bon | Blocage temporaire après plusieurs échecs | **Non conforme** | Aucune limite : la 13ᵉ tentative connecte l'utilisateur |
@@ -134,25 +129,30 @@ Ce document complète la recette fonctionnelle (tests 1 à 193). Il couvre ce qu
 | ID | Fonctionnalité / Cas de test | Résultat attendu | Résultat obtenu | Observations |
 |---|---|---|---|---|
 | 350 | Changer de pseudo | Pseudo modifié, connexion possible avec le nouveau pseudo | Conforme | |
-| 351 | Email invalide (`pasunemail`) | Refusé avec un message | **Non conforme** | « Modification de compte réussie » et email enregistré |
-| 352 | Email contenant du HTML (`<b>gras</b>`) | Refusé, ou affiché en texte | **Non conforme** | Enregistré ; balise affichée sans échappement sur la page du compte, et sans échappement dans la colonne email de la liste admin des utilisateurs |
-| 353 | Enregistrer sans rien changer, avec un email contenant `<` ou `&` | Email inchangé | **Non conforme** | La valeur est échappée deux fois dans le formulaire et se dégrade à chaque enregistrement (`&amp;amp;amp;lt;…`) |
-| 354 | Pseudo vide | Refusé avec un message | **Non conforme** | Refusé, mais aucun message |
-| 355 | Pseudo d'un seul caractère | Refusé avec un message | **Non conforme** | Refusé, mais aucun message |
-| 356 | Pseudo de 40 caractères | Refusé avec un message | **Non conforme** | Refusé, mais aucun message |
+| 351 | Email invalide (`pasunemail`) | Refusé avec un message | Conforme | « L'adresse email « pasunemail » n'est pas valide. » ; rien n'est enregistré |
+| 352 | Email contenant du HTML (`<b>gras</b>`) | Refusé, et affiché en texte | Conforme | Refusé ; dans le message, la balise est échappée (`&lt;b&gt;`). Pseudo et email sont aussi échappés sur la page du compte et dans la liste admin des utilisateurs |
+| 353 | Enregistrer plusieurs fois sans rien changer, avec un email contenant `&` (`a&b@example.test`) | Email inchangé | Conforme | Valeur identique après 3 enregistrements ; « Aucune modification » |
+| 354 | Pseudo vide | Refusé avec un message | Conforme | « Le pseudo doit contenir entre 3 et 13 caractères. » |
+| 355 | Pseudo d'un seul caractère | Refusé avec un message | Conforme | Même message |
+| 356 | Pseudo de 40 caractères | Refusé avec un message | Conforme | Même message |
 | 357 | Ajouter un email valide | Email enregistré | Conforme | |
 | 358 | Prendre l'email d'un autre compte | Refusé : « est déjà utilisée » | Conforme | |
 | 359 | Prendre le pseudo d'un autre compte | Refusé : « déjà existant » | Conforme | |
 | 346 | Case « Supprimer mon email » | Email retiré | Conforme | |
 | 347 | Envoi sans jeton CSRF | Refusé | Conforme | 403 |
+| 348 | Rafraîchir après une modification du compte | Pas de renvoi du formulaire | Conforme | Redirection vers `/compte` après l'envoi (Post/Redirect/Get) ; le message s'affiche sur la page rechargée |
 
 ### Navigation
 
 | ID | Fonctionnalité / Cas de test | Résultat attendu | Résultat obtenu | Observations |
 |---|---|---|---|---|
-| 360 | Liens du menu « Comprendre les accès » | Chaque thème ouvre sa première leçon | **Non conforme** | Thèmes 1 à 3 : OK ; « Test1234 » (sans leçon active) : 404 |
-| 361 | Page des quiz d'un thème sans quiz (`/quiz/4`) | Message « aucun quiz » | **Non conforme** | Liste vide sans message ; le lien « Revoir les leçons du thème » mène à une 404 |
-| 362 | Adresse d'une leçon après la suppression d'une leçon précédente | La leçon garde son adresse | **Non conforme** | La leçon D passe de `/theme/4/2` à `/theme/4/1` ; `/theme/4/2` renvoie une 404 |
+| 360 | Liens du menu « Comprendre les accès » | Chaque thème proposé ouvre sa première leçon | Conforme | Seuls les thèmes qui ont une leçon active apparaissent (« Test1234 », sans leçon, n'est plus proposé) |
+| 361 | Page des quiz d'un thème sans quiz (`/quiz/4`) | Message « aucun quiz » | Conforme | « Aucun quiz pour ce thème pour l'instant. » ; le lien « Revoir les leçons » est masqué quand le thème n'a pas de leçon |
+| 362 | Adresse d'une leçon après la suppression d'une leçon précédente | La leçon garde son adresse ; l'adresse de la leçon supprimée renvoie une 404 | Conforme | Leçon E supprimée : `/theme/4/8` en 404 ; la leçon F reste à `/theme/4/9` |
+| 363 | `/theme/4` quand les premières leçons du thème sont supprimées | Redirection vers la première leçon active | Conforme | Vers `/theme/4/8` |
+| 364 | Lien « Leçon suivante » quand des leçons sont supprimées | Mène à la prochaine leçon active, à sa vraie adresse | Conforme | |
+| 371 | Sommaire du thème sur la page Leçon | Seulement les leçons actives, chacune avec son adresse | Conforme | |
+| 372 | Thème qui retrouve une leçon active | Réapparaît dans le menu | Conforme | |
 
 ### Droits d'accès
 
@@ -167,7 +167,9 @@ Ce document complète la recette fonctionnelle (tests 1 à 193). Il couvre ce qu
 
 | ID | Fonctionnalité / Cas de test | Résultat attendu | Résultat obtenu | Observations |
 |---|---|---|---|---|
-| 373 | Liste des utilisateurs (`/floribondant/utilisateurs`) | Tableau des utilisateurs | **Non conforme** | Aucun utilisateur affiché, ni avec la recherche |
+| 373 | Liste des utilisateurs (`/floribondant/utilisateurs`) | Tableau des utilisateurs, paginé et triable | Conforme | 10 utilisateurs par page, 2 pages ; tri par pseudo (`?ordre=psd`) correct |
+| 374 | Clic sur le pseudo d'un utilisateur | Page de l'utilisateur | **Non conforme** | `/floribondant/utilisateurs/update/1` : 404 |
+| 375 | Recherche dans les utilisateurs | Liste filtrée | **Non conforme** | Le formulaire envoie au glossaire (`/glossaire/recherche`) |
 
 ### Admin – Extraits
 

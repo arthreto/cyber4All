@@ -57,11 +57,11 @@ abstract class AdminController extends BaseController
 
         foreach ($liste as $element) {
             if (is_array($element)) {
-                $id = (int) $element['id'];
-                $actif = (int) ($element['actif'] ?? 1);
+                $id = $element['id'];
+                $actif = ($element['actif'] ?? 1);
             } else {
-                $id = (int) $element->id;
-                $actif = (int) ($element->actif ?? 1);
+                $id = $element->id;
+                $actif = $element->actif ?? 1;
             }
 
             if ($idNouveau > 0 && $id === $idNouveau) {
@@ -117,12 +117,12 @@ abstract class AdminController extends BaseController
 
         foreach ($themeList as $theme) {
             $parametres = $parametresTri;
-            $parametres['id_theme'] = (int) $theme->id;
+            $parametres['id_theme'] = $theme->id;
 
             $liens[] = [
                 'nom'   => $theme->nom,
                 'url'   => $this->adresseListe($base, $parametres),
-                'actif' => (int) $theme->id === $themeSelect,
+                'actif' => $theme->id === $themeSelect,
             ];
         }
 
@@ -163,14 +163,14 @@ abstract class AdminController extends BaseController
     }
 
     /**
-     * Header du tableau. Un clic sur une colonne triable.
+     * Header du tableau, gère les boutons
      *
      *
      * @param string      $base            Adresse de la liste
      * @param array       $colonnes        Colonnes
      * @param string|null $tri             Colonne triée, null pour l'ordre par défaut
      * @param string      $ordre           Sens du tri : asc ou desc
-     * @param array       $parametresTheme Thème filtré, conservé quand on change de tri
+     * @param array       $parametresTheme Thème filtré
      * @return array Liste du header
      * @author Arthur
      * @author Raphael Bierlaire
@@ -180,30 +180,29 @@ abstract class AdminController extends BaseController
         $entetes = [];
 
         foreach ($colonnes as $cle => $colonne) {
-            // Colonne non triable : texte seul
             if (! isset($colonne['phrase'])) {
                 $entetes[] = ['texte' => $colonne['entete'], 'url' => null, 'infobulle' => '', 'aria_sort' => 'none'];
                 continue;
             }
 
             if ($tri !== $cle) {
-                // Colonne pas encore triée : le clic trie dans l'ordre croissant
+                // Colonne pas encore triée
                 $parametres = ['tri' => $cle, 'ordre' => 'asc'];
                 $infobulle  = 'Trier ' . $colonne['phrase'] . ', ' . $colonne['asc'];
                 $ariaSort   = 'none';
             } elseif ($ordre === 'asc') {
-                // Colonne triée dans l'ordre croissant : le clic passe en décroissant
+                // Colonne triée dans l'ordre croissant
                 $parametres = ['tri' => $cle, 'ordre' => 'desc'];
                 $infobulle  = 'Trier ' . $colonne['phrase'] . ', ' . $colonne['desc'];
                 $ariaSort   = 'ascending';
             } else {
-                // Colonne triée dans l'ordre décroissant : le clic revient à l'ordre par défaut
+                // Colonne triée dans l'ordre décroissant
                 $parametres = [];
                 $infobulle  = 'Revenir à l\'ordre par défaut';
                 $ariaSort   = 'descending';
             }
 
-            // + ajoute les paramètres du thème à ceux du tri
+            // ajoute les paramètres du thème à ceux du tri
             $entetes[] = [
                 'texte'     => $colonne['entete'],
                 'url'       => $this->adresseListe($base, $parametres + $parametresTheme),
@@ -219,7 +218,7 @@ abstract class AdminController extends BaseController
      * Phrase qui rappelle le tri en cours
      *
      * @param string      $debut    Début de la phrase
-     * @param array       $colonnes Colonnes (même tableau que pour colonnesTri)
+     * @param array       $colonnes Colonnes
      * @param string|null $tri      Colonne triée, null pour l'ordre par défaut
      * @param string      $ordre    Sens du tri : asc ou desc
      * @return string|null La phrase, ou null s'il n'y a pas de tri

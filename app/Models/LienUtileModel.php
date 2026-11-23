@@ -39,7 +39,7 @@ class LienUtileModel extends Model
         try {
             return $this->findAll();
         } catch (DatabaseException $e) {
-            log_message('error', 'getAllLiensUtiles : ' . $e->getMessage());
+            log_message('error', 'getAllLiensUtiles : {exception}', ['exception' => $e]);
             return [];
         }
     }
@@ -64,7 +64,7 @@ class LienUtileModel extends Model
         try {
             return $this->update($lienUtile->id, $lienUtile);
         } catch (\ReflectionException $e) {
-            log_message('error', 'modifierLienUtile : ' . $e->getMessage());
+            log_message('error', 'modifierLienUtile : {exception}', ['exception' => $e]);
             return false;
         }
     }
@@ -90,7 +90,7 @@ class LienUtileModel extends Model
             // requête
             return $this->insert($lienUtile);
         } catch (\ReflectionException $e) {
-            log_message('error', 'ajoutLienUtile : ' . $e->getMessage());
+            log_message('error', 'ajoutLienUtile : {exception}', ['exception' => $e]);
             return false;
         }
     }
@@ -116,7 +116,7 @@ class LienUtileModel extends Model
             // requête
             return $this->delete($lienUtile->id);
         } catch (DatabaseException $e) {
-            log_message('error', 'supprimerLienUtile : ' . $e->getMessage());
+            log_message('error', 'supprimerLienUtile : {exception}', ['exception' => $e]);
             return false;
         }
     }

@@ -32,7 +32,7 @@ class MotCleModel extends Model
         try {
             return $this->delete($id);
         } catch (DatabaseException $e) {
-            error_log("Erreur deleteMotCleById : " . $e->getMessage());
+            log_message('error', "Erreur deleteMotCleById : {exception}", ['exception' => $e]);
             return false;
         }
     }
@@ -55,7 +55,7 @@ class MotCleModel extends Model
             ];
             return $this->update($MotCle->id, $data);
         } catch (DatabaseException $e) {
-            error_log("Erreur updateMotCleByID : " . $e->getMessage());
+            log_message('error', "Erreur updateMotCleByID : {exception}", ['exception' => $e]);
             if ($e->getCode() === 1062) {
                 // Contrainte UNIQUE violée
                 return -1;
@@ -88,7 +88,7 @@ class MotCleModel extends Model
                 // Contrainte UNIQUE violée
                 return -1;
             }
-            error_log("Erreur insertMotCle : " . $e->getMessage());
+            log_message('error', "Erreur insertMotCle : {exception}", ['exception' => $e]);
             return false;
         }
     }
@@ -106,7 +106,7 @@ class MotCleModel extends Model
         try {
             return $this->orderBy('mot', 'ASC')->findAll();
         } catch (DatabaseException $e) {
-            error_log("Erreur getAllMotCle : " . $e->getMessage());
+            log_message('error', "Erreur getAllMotCle : {exception}", ['exception' => $e]);
             return [];
         }
     }
@@ -119,7 +119,7 @@ class MotCleModel extends Model
             }
             return $this->orderBy('mot', 'ASC')->paginate($perPage);
         } catch (DatabaseException $e) {
-            error_log("Erreur getMotClePaginated : " . $e->getMessage());
+            log_message('error', "Erreur getMotClePaginated : {exception}", ['exception' => $e]);
             return [];
         }
     }
@@ -170,7 +170,7 @@ class MotCleModel extends Model
                 ->paginate($perPage); // paginer par le nombre de mot à afficher
 
         } catch (DatabaseException $e) {
-            error_log("Erreur getMotClePaginatedOrderBy : " . $e->getMessage());
+            log_message('error', "Erreur getMotClePaginatedOrderBy : {exception}", ['exception' => $e]);
             return [];
         }
     }
@@ -222,7 +222,7 @@ class MotCleModel extends Model
                 ->paginate($perPage); // paginer par le nombre de mot à afficher
 
         } catch (DatabaseException $e) {
-            error_log("Erreur getMotClePaginatedOrderBy : " . $e->getMessage());
+            log_message('error', "Erreur getMotClePaginatedOrderBy : {exception}", ['exception' => $e]);
             return [];
         }
     }
@@ -241,7 +241,7 @@ class MotCleModel extends Model
         try {
             return $this->find($id);
         } catch (DatabaseException $e) {
-            error_log("Erreur getMotCleById : " . $e->getMessage());
+            log_message('error', "Erreur getMotCleById : {exception}", ['exception' => $e]);
             return null;
         }
     }
@@ -258,7 +258,7 @@ class MotCleModel extends Model
             // si le statut vaut 1 alors, on le change à 0.
             return $this->update($motCle->id, ['statut' => !$motCle->statut]);
         } catch (DatabaseException $e) {
-            error_log("Erreur switchStatut : " . $e->getMessage());
+            log_message('error', "Erreur switchStatut : {exception}", ['exception' => $e]);
             return false;
         }
     }
@@ -272,7 +272,7 @@ class MotCleModel extends Model
             return (int)$this->where('statut', 1)
                 ->countAllResults();
         } catch (DatabaseException $e) {
-            error_log('Erreur lors de getNbTotalGlossaire : ' . $e->getMessage());
+            log_message('error', 'Erreur lors de getNbTotalGlossaire : {exception}', ['exception' => $e]);
             return 0;
         }
     }
@@ -289,7 +289,7 @@ class MotCleModel extends Model
                 ->where('id_mot_cle', $idMotCle)
                 ->countAllResults();
         } catch (DatabaseException $e) {
-            error_log('Erreur lors de getNbSignalementsMot : ' . $e->getMessage());
+            log_message('error', 'Erreur lors de getNbSignalementsMot : {exception}', ['exception' => $e]);
             return 0;
         }
     }

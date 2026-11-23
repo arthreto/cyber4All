@@ -40,7 +40,7 @@ class MotCleCategorieModel extends Model
             }
             return true;
         } catch (DatabaseException $e) {
-            log_message('error', 'insertCategoriesMotCle : ' . $e->getMessage());
+            log_message('error', 'insertCategoriesMotCle : {exception}', ['exception' => $e]);
             return false;
         }
     }
@@ -72,7 +72,7 @@ class MotCleCategorieModel extends Model
             }
             return true;
         } catch (DatabaseException $e) {
-            log_message('error', 'deleteCategoriesMotCle : ' . $e->getMessage());
+            log_message('error', 'deleteCategoriesMotCle : {exception}', ['exception' => $e]);
             return false;
         }
     }
