@@ -35,4 +35,29 @@ class ConceptCyberModel extends Model
 
         return $this->db->affectedRows() > 0;
     }
+
+    /**
+     * Enregistre les cases D/I/C/T d'un terme, puis recalcule les bonnes réponses
+     * de toutes les questions liées à ce terme. Renvoie true si tout a réussi.
+     *
+     * $valeurs = ['disponibilite' => 0|1, 'integrite' => 0|1, ...]
+     */
+    public function modifierCases(int $idMot, array $valeurs): bool
+    {
+        $this->db->transStart(); // transaction : tout ou rien
+
+        // 1. On enregistre les nouvelles cases du terme (table conceptcyber)
+        $this->update($idMot, $valeurs);
+
+        // 2. On recalcule les bonnes réponses de toutes les questions liées à ce terme
+        $reponses = new QuestionReponseModel();
+        foreach ((new QuestionQuizModel())->getIdsParMot($idMot) as $idQuestion) {
+            $reponses->synchroniser((int) $idQuestion, $idMot);
+        }
+
+        $this->db->transComplete();
+
+        // transStatus() = true si TOUTES les requêtes de la transaction ont réussi
+        return $this->db->transStatus();
+    }
 }

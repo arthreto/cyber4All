@@ -5,7 +5,6 @@ namespace App\Controllers\Controllers_groupe_C;
 use App\Models\Model_groupe_C\MotCleModel;
 use App\Models\Model_groupe_C\ConceptCyberModel;
 use CodeIgniter\HTTP\RedirectResponse;
-use Config\Database;
 
 /**
  * CONTRÔLEUR : gestion des termes du quiz Concept (administration, groupe C).
@@ -13,14 +12,13 @@ use Config\Database;
  * QUI FAIT QUOI
  * -------------
  *  - DictAdminBaseController (parent) : vérifie que l'utilisateur est admin (sinon 404)
- *                                       et fournit synchroniserReponses().
+ *                                       (contrôle d'accès).
  *  - Cette classe                     : affiche la page des termes et traite ses 3 formulaires.
  *  - Vue affichée                     : groupe_c/admin/termes
  *                                       (qui étend le layout layout_admin_groupeC)
  *  - Modèles utilisés                 : MotCleModel (table mot_cle)
  *                                       et ConceptCyberModel (table conceptcyber).
- *  - La table question_quiz n'a pas de modèle : un seul accès via le query builder (voir GroupeC_Modifier).
- *    Les transactions restent dans le contrôleur.
+ *  - Aucune requête SQL ici : tout passe par les modèles (les transactions sont dans ConceptCyberModel).
  *
  * LES 4 MÉTHODES
  * --------------
@@ -120,9 +118,7 @@ class DictConceptAdminController extends DictAdminBaseController
             return redirect()->to(site_url('floribondant/DICT'));
         }
 
-        $modelConcept = new ConceptCyberModel();
-        $db           = Database::connect(); // sert uniquement à la transaction
-        $idMot        = (int) $this->request->getPost('id_mot_cle'); // champ caché du formulaire
+        $idMot = (int) $this->request->getPost('id_mot_cle'); // champ caché du formulaire
 
         // Une case cochée est envoyée ("1"), une case décochée n'est PAS envoyée : on la traduit en 0
         $valeurs = [];
@@ -130,21 +126,9 @@ class DictConceptAdminController extends DictAdminBaseController
             $valeurs[$colonne] = $this->request->getPost($colonne) ? 1 : 0;
         }
 
-        $db->transStart(); // transaction : tout ou rien
-
-        // 1. On enregistre les nouvelles cases du terme (table conceptcyber)
-        $modelConcept->update($idMot, $valeurs);
-
-        // 2. On recalcule les bonnes réponses de toutes les questions liées à ce terme
-        $questions = $db->table('question_quiz')->select('id')->where('id_mot_cle', $idMot)->get()->getResultArray();
-        foreach ($questions as $q) {
-            $this->synchroniserReponses((int) $q['id'], $idMot); // méthode du contrôleur parent
-        }
-
-        $db->transComplete();
-
-        // transStatus() = true si TOUTES les requêtes de la transaction ont réussi
-        if ($db->transStatus()) {
+        // modifierCases() fait tout en une transaction : enregistre les cases du terme (conceptcyber)
+        // puis recalcule les bonnes réponses des questions liées. Renvoie true si tout a réussi.
+        if ((new ConceptCyberModel())->modifierCases($idMot, $valeurs)) {
             // ->with('succes', ...) crée un message flash : affiché une seule fois à la prochaine page
             return redirect()->to(site_url('floribondant/DICT') . '?modifier=' . $idMot)
                 ->with('succes', 'Le terme a bien été modifié.');

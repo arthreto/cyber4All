@@ -3,8 +3,8 @@
 namespace App\Controllers\Controllers_groupe_C;
 
 use App\Models\Model_groupe_C\MotCleModel;
+use App\Models\Model_groupe_C\QuestionQuizModel;
 use CodeIgniter\HTTP\RedirectResponse;
-use Config\Database;
 
 /**
  * CONTRÔLEUR : gestion des questions du quiz Concept (administration, groupe C).
@@ -12,13 +12,12 @@ use Config\Database;
  * QUI FAIT QUOI
  * -------------
  *  - DictAdminBaseController (parent) : vérifie que l'utilisateur est admin (sinon 404)
- *                                       et fournit synchroniserReponses().
+ *                                       (contrôle d'accès).
  *  - Cette classe                     : affiche la page des questions et traite ses 3 formulaires.
  *  - Vue affichée                     : groupe_c/admin/questions
  *                                       (qui étend le layout layout_admin_groupeC)
- *  - Modèle utilisé                   : MotCleModel (liste des termes classés).
- *  - question_quiz et question_reponse n'ont pas de modèle : leurs requêtes restent ici (query builder),
- *    comme dans ton code d'origine. Les transactions aussi.
+ *  - Modèles utilisés                 : QuestionQuizModel (question_quiz) et MotCleModel (liste des termes classés).
+ *  - Aucune requête SQL ici : tout passe par les modèles (les transactions sont dans QuestionQuizModel).
  *
  * LES 4 MÉTHODES
  * --------------
@@ -55,20 +54,14 @@ class DictQuestionAdminController extends DictAdminBaseController
      */
     public function GroupeC_Questions(): string
     {
-        $db = Database::connect(); // connexion à la base
+        $model = new QuestionQuizModel(); // table question_quiz
 
         // --- Colonne de gauche : la liste de toutes les questions + leur mot associé ---
-        $data['questions'] = $db->table('question_quiz')
-            ->select('question_quiz.*, mot_cle.mot')
-            ->join('mot_cle', 'mot_cle.id = question_quiz.id_mot_cle', 'left') // left = garde aussi les questions SANS terme
-            ->orderBy('question_quiz.id', 'DESC')                              // les plus récentes en premier
-            ->get()->getResultArray();
+        $data['questions'] = $model->getAvecMot();
 
         // --- Colonne de droite : mode modification (?modifier=5) ---
         $idModif         = (int) $this->request->getGet('modifier'); // id de la question à modifier (0 si absent)
-        $data['edition'] = $idModif
-            ? $db->table('question_quiz')->where('id', $idModif)->get()->getRowArray() // la question à modifier
-            : null;
+        $data['edition'] = $idModif ? $model->find($idModif) : null;  // la question à modifier
 
         // --- Colonne de droite : mode création (?creer=1) ---
         $data['creation'] = $this->request->getGet('creer') !== null; // true si ?creer est dans l'URL
@@ -97,15 +90,15 @@ class DictQuestionAdminController extends DictAdminBaseController
 
         $explication = trim((string) $this->request->getPost('explication'));
 
-        $db = Database::connect();
-        $db->table('question_quiz')->insert([
+        // insert() renvoie l'id de la nouvelle question
+        $idQuestion = (new QuestionQuizModel())->insert([
             'id_mot_cle'  => null,                                      // pas encore de terme associé
             'question'    => trim((string) $this->request->getPost('question')), // trim = enlève les espaces autour
             'explication' => $explication !== '' ? $explication : null, // vide = NULL en base
         ]);
 
-        // On ouvre directement la question créée (insertID = son id) pour choisir son terme
-        return redirect()->to(site_url('floribondant/Questions') . '?modifier=' . $db->insertID());
+        // On ouvre directement la question créée pour choisir son terme
+        return redirect()->to(site_url('floribondant/Questions') . '?modifier=' . $idQuestion);
     }
 
     /**
@@ -122,20 +115,15 @@ class DictQuestionAdminController extends DictAdminBaseController
         $idQuestion  = (int) $this->request->getPost('id_question');        // champ caché du formulaire
         $idMot       = (int) $this->request->getPost('id_mot_cle') ?: null; // 0 ("Aucun terme") devient null
         $explication = trim((string) $this->request->getPost('explication'));
-        $db          = Database::connect(); // sert uniquement à la transaction
 
-        $db->transStart(); // transaction : tout ou rien
-
-        $db->table('question_quiz')->where('id', $idQuestion)->update([
-            'question'    => trim((string) $this->request->getPost('question')),
-            'explication' => $explication !== '' ? $explication : null,
-            'id_mot_cle'  => $idMot, // le terme associé choisi dans la liste
-        ]);
-
-        // On recalcule question_reponse d'après les cases D/I/C/T (conceptcyber) du terme choisi
-        $this->synchroniserReponses($idQuestion, $idMot); // méthode du contrôleur parent
-
-        $db->transComplete();
+        // modifierQuestion() fait tout en une transaction : enregistre la question et son terme,
+        // puis recalcule les bonnes réponses (question_reponse).
+        (new QuestionQuizModel())->modifierQuestion(
+            $idQuestion,
+            trim((string) $this->request->getPost('question')),
+            $explication !== '' ? $explication : null,
+            $idMot
+        );
 
         // On reste sur la question en cours de modification
         return redirect()->to(site_url('floribondant/Questions') . '?modifier=' . $idQuestion);
@@ -148,17 +136,8 @@ class DictQuestionAdminController extends DictAdminBaseController
     public function GroupeC_SupprimerQuestion(): RedirectResponse
     {
         if ($this->validate(self::REGLES_SUPPR)) {
-            $idQuestion = (int) $this->request->getPost('id_question');
-            $db         = Database::connect(); // sert uniquement à la transaction
-
-            $db->transStart();
-
-            // 1. D'abord ses lignes dans question_reponse (sinon la clé étrangère peut bloquer)
-            $db->table('question_reponse')->where('id_question', $idQuestion)->delete();
-            // 2. Puis la question elle-même dans question_quiz
-            $db->table('question_quiz')->where('id', $idQuestion)->delete();
-
-            $db->transComplete();
+            // supprimerQuestion() supprime ses bonnes réponses puis la question, en une transaction
+            (new QuestionQuizModel())->supprimerQuestion((int) $this->request->getPost('id_question'));
         }
 
         // Retour à la liste, sans question ouverte
