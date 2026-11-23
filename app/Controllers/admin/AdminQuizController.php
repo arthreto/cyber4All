@@ -378,15 +378,12 @@ class AdminQuizController extends AdminController
                 $errors = $this->validator->getErrors();
             }
 
-<<<<<<< Updated upstream
             // Le thème doit exister (une valeur modifiée à la main est refusée)
             $idTheme = (int) $formData['id_theme'];
             if (! isset($errors['id_theme']) && $this->theme_model->find($idTheme) === null) {
                 $errors['id_theme'] = "Le thème choisi n'existe pas.";
             }
 
-            // Exactement le nombre de questions prévu
-=======
             // Thème et statut des questions cochées
             $questionsCocheesInfos = [];
             if ($form->questions !== []) {
@@ -397,10 +394,15 @@ class AdminQuizController extends AdminController
                     ->findAll();
             }
 
+            // Questions cochées introuvables (identifiant modifié à la main, question effacée) : refusées
+            $nbIntrouvables = count($form->questions) - count($questionsCocheesInfos);
+            if ($nbIntrouvables > 0) {
+                $errors['questions_introuvables'] = $nbIntrouvables . " question(s) cochée(s) n'existent pas : décochez-les.";
+            }
+
             // Nombre de questions prévu : jamais dépassé.
             // En dessous (même 0 question), le quiz est enregistré mais forcé inactif.
             // Seules les questions actives comptent pour qu'il soit complet : ce sont les seules jouées.
->>>>>>> Stashed changes
             $nbPrevu = (int) $formData['nb_questions'];
             $nbCochees = count($form->questions);
             $nbActives = count(array_filter($questionsCocheesInfos, fn (array $q): bool => (int) $q['actif'] === 1));
@@ -414,26 +416,8 @@ class AdminQuizController extends AdminController
                 }
             }
 
-<<<<<<< Updated upstream
-            // Toutes les questions cochées doivent exister, être actives et être du thème du quiz
-            if ($idTheme > 0 && $form->questions !== []) {
-                $themesQuestions = $this->question_model
-                    ->select('id, id_theme')
-                    ->whereIn('id', $form->questions)
-                    ->where('actif', 1)
-                    ->asArray()
-                    ->findAll();
-
-                $nbIntrouvables = count($form->questions) - count($themesQuestions);
-                if ($nbIntrouvables > 0) {
-                    $errors['questions_introuvables'] = $nbIntrouvables . " question(s) cochée(s) n'existent pas ou ont été supprimées : décochez-les.";
-                }
-
-=======
             // Toutes les questions cochées doivent être du thème du quiz
-            $idTheme = (int) $formData['id_theme'];
             if ($idTheme > 0) {
->>>>>>> Stashed changes
                 $nbAutreTheme = 0;
                 foreach ($questionsCocheesInfos as $question) {
                     if ((int) $question['id_theme'] !== $idTheme) {
@@ -450,7 +434,8 @@ class AdminQuizController extends AdminController
                 $estModification = ! empty($form->modifier);
 
                 // Quiz et liaisons enregistrés ensemble : en cas d'erreur, rien n'est gardé (pas de quiz à moitié créé)
-                $db = \Config\Database::connect();
+                // Groupe 'tracabilite' : celui des modèles (QuizModel, QuizQuestionModel), sinon la transaction ne les couvre pas
+                $db = \Config\Database::connect('tracabilite');
                 $db->transBegin();
 
                 if ($estModification) {
@@ -462,19 +447,16 @@ class AdminQuizController extends AdminController
                 }
 
                 if ($idQuiz !== false
-<<<<<<< Updated upstream
                     && $this->quiz_question_model->updateLiaisonsQuiz($idQuiz, $form->questions)
                     && $db->transStatus()) {
                     $db->transCommit();
-=======
-                    && $this->quiz_question_model->updateLiaisonsQuiz($idQuiz, $form->questions)) {
+
                     $message = $estModification ? 'Quiz modifié avec succès !' : 'Quiz créé avec succès !';
 
                     if ($quizIncomplet) {
                         $message .= ' Il contient ' . $nbActives . ' question(s) active(s) sur ' . $nbPrevu
                             . ' : il reste inactif tant qu\'il n\'est pas complet.';
                     }
->>>>>>> Stashed changes
 
                     return redirect()->to(base_url('floribondant/theme/quiz'))
                         ->with('id_nouveau', $idQuiz) // affiché en premier dans la liste
@@ -497,11 +479,7 @@ class AdminQuizController extends AdminController
         $questionsQuiz = [];
         if ($idsQuiz !== []) {
             $questionsQuiz = $this->question_model
-<<<<<<< Updated upstream
-                ->select('id, libelle, bonne_reponse, id_theme, actif')
-=======
                 ->select('id, libelle, bonne_reponse, id_theme, actif') // actif : badge « Inactive » dans le formulaire
->>>>>>> Stashed changes
                 ->whereIn('id', $idsQuiz)
                 ->orderBy('libelle', 'ASC')
                 ->asArray()

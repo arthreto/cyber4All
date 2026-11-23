@@ -189,25 +189,9 @@ class AdminQuestionController extends AdminController
 
         helper('text');
         $debutLibelle = character_limiter($question['libelle'], 30, '…');
-        $message = 'Question « ' . $debutLibelle . ' » supprimée : elle est désactivée et rangée à la fin de la liste.';
 
-        // Quiz actifs qui contenaient cette question : ils n'ont plus leur nombre de questions
-        $titresQuiz = [];
-        foreach ($this->quiz_question_model->getIdsQuizByQuestion($idQuestion) as $idQuiz) {
-            $quiz = $this->quiz_model->find((int) $idQuiz);
-            if ($quiz !== null && (int) ($quiz->actif ?? 1) === 1) {
-                $titresQuiz[] = '« ' . $quiz->titre . ' »';
-            }
-        }
-        if ($titresQuiz !== []) {
-            $message .= (count($titresQuiz) > 1 ? ' Quiz maintenant incomplets : ' : ' Quiz maintenant incomplet : ')
-                . implode(', ', $titresQuiz) . '. Ajoutez-y une autre question.';
-        }
-
+        // Les quiz devenus incomplets sont déjà désactivés ci-dessus : le message les cite
         return redirect()->to(base_url('floribondant/theme'))
-<<<<<<< Updated upstream
-            ->with('success', $message);
-=======
             ->with('success', 'Question « ' . $debutLibelle . ' » supprimée : elle est désactivée et rangée à la fin de la liste.'
                 . $this->messageQuizDesactives($quizDesactives));
     }
@@ -311,7 +295,6 @@ class AdminQuestionController extends AdminController
         return count($titres) > 1
             ? ' Ces quiz n\'ont plus assez de questions et sont désactivés : ' . $noms . '.'
             : ' Ce quiz n\'a plus assez de questions et est désactivé : ' . $noms . '.';
->>>>>>> Stashed changes
     }
 
     /**
