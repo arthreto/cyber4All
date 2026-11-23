@@ -10,6 +10,7 @@ use CodeIgniter\Exceptions\PageNotFoundException;
 
 class OwaspController extends BaseController
 {
+    protected $helpers = ['url', 'html'];   // anchor(), base_url(), ol(), link_tag()
 
     protected OwaspMenaceModel $Menace;
     protected OwaspTopModel $Top;
@@ -88,6 +89,7 @@ class OwaspController extends BaseController
     {
         $infos = $this->Top->getTopById(strtoupper($top));
 
+        $cle  = 'quiz_' . strtolower($top);
         $data = [
             'Top'        => $infos,
             'nom_top'    => $top,
@@ -96,38 +98,26 @@ class OwaspController extends BaseController
             'autresTops' => $this->Top->getAutresTops($infos->id_top),
         ];
 
-        if ($this->request->is('post') && $this->request->getPost('questions')) {
-            // CORRECTION, revérifiée côté serveur
-            $ids       = array_map('intval', (array) $this->request->getPost('questions'));
-            $reponses  = (array) $this->request->getPost('reponses');
-            $affichees = (array) $this->request->getPost('affichees');
-            $score = 0;
-            $questions = [];
+        $postees   = $this->request->is('post') ? (array) $this->request->getPost('reponse') : [];
+        $questions = session()->get($cle);
 
-            foreach ($ids as $idQues) {
-                $q = $this->Quiz->find($idQues);
-                if ($q === null) {
-                    continue;
-                }
+        if ($postees !== [] && is_array($questions)) {
+            // CORRECTION sur les questions mémorisées à l'affichage
+            $score   = 0;
+            $details = [];
 
-                $bonnes = $this->Quiz->idsBonnesReponses($idQues);
-                $coche  = array_map('intval', (array) ($reponses[$idQues] ?? []));
-                sort($bonnes);
-                sort($coche);
-                $ok = $bonnes !== [] && $bonnes === $coche;
-                $score += $ok ? 1 : 0;
+            foreach ($questions as $q) {
+                $id      = (int) $q['id_question'];
+                $bonnes  = $this->Quiz->idsBonnesReponses($id);
+                $choisie = (int) ($postees[$id] ?? 0);
+                $ok      = in_array($choisie, $bonnes, true);
+                $score  += $ok ? 1 : 0;
 
-                $q['ok']       = $ok;
-                $q['bonnes']   = $bonnes;
-                $q['cochees']  = $coche;
-                $q['choix']    = $this->Quiz->propositionsParIds(array_map('intval', (array) ($affichees[$idQues] ?? [])));
-                $q['multiple'] = count($bonnes) > 1;
-                $questions[]   = $q;
+                $details[$id] = ['choisie' => $choisie, 'bonne' => $ok ? $choisie : ($bonnes[0] ?? 0)];
             }
 
             $data['questions'] = $questions;
-            $data['detail']    = true;
-            $data['resultat']  = ['score' => $score, 'total' => count($questions)];
+            $data['resultat']  = ['score' => $score, 'total' => count($questions), 'details' => $details];
         } else {
             // NOUVEAU QUIZ
             $questions = $this->Quiz->questionsAleatoires($infos->id_top, self::NB_QUESTIONS);
@@ -136,16 +126,20 @@ class OwaspController extends BaseController
             }
 
             foreach ($questions as &$q) {
-                $bonnes    = $this->Quiz->bonnesReponses((int) $q['id_ques']);
-                $mauvaises = $this->Quiz->mauvaisesReponses((int) $q['id_ques'], max(0, self::NB_CHOIX - count($bonnes)));
-                $choix     = array_merge($bonnes, $mauvaises);
+                $id        = (int) $q['id_question'];
+                $bonne     = array_slice($this->Quiz->bonnesReponses($id), 0, 1);   // une seule bonne réponse
+                $mauvaises = $this->Quiz->mauvaisesReponses($id, max(0, self::NB_CHOIX - count($bonne)));
+                $choix     = array_merge($bonne, $mauvaises);
                 shuffle($choix);
 
-                $q['choix']    = $choix;
-                $q['multiple'] = count($bonnes) > 1;
+                $q['reponses'] = array_map(static fn ($c) => [
+                    'id_reponse'      => (int) $c['id_prop'],
+                    'libelle_reponse' => $c['libelle_prop'],
+                ], $choix);
             }
             unset($q);
 
+            session()->set($cle, $questions);   // sans l'info « laquelle est bonne »
             $data['questions'] = $questions;
         }
 

@@ -24,7 +24,7 @@
             <p class="quiz-empty">Aucune question n’est disponible pour ce quiz pour le moment.</p>
         <?php else: ?>
 
-            <?= form_open('top10/quiz/' . $nom_top . '/corriger', ['class' => 'quiz-form']) ?>
+            <?= form_open('top10/quiz/' . $nom_top, ['class' => 'quiz-form']) ?>
 
             <?php foreach ($questions as $i => $q):
                 $detail = $resultat['details'][$q['id_question']] ?? null; ?>

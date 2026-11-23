@@ -506,3 +506,30 @@ body.web {
         text-align: center;
     }
 }
+
+.quiz-option.is-correct {
+    background: #e6f6ec;
+    border-color: #1a7f37;
+}
+.quiz-option.is-correct::after {
+    content: "✔ Bonne réponse";
+    margin-left: auto;
+    font-weight: 600;
+    color: #1a7f37;
+}
+
+.quiz-option.is-wrong {
+    background: #fdecea;
+    border-color: #c62828;
+}
+.quiz-option.is-wrong::after {
+    content: "✘ Ta réponse";
+    margin-left: auto;
+    font-weight: 600;
+    color: #c62828;
+}
+
+.quiz-score {
+    font-size: 1.5rem;
+    font-weight: 700;
+}

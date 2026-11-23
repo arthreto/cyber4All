@@ -3,6 +3,7 @@
 namespace App\Models\Owasp;
 
 use CodeIgniter\Model;
+use CodeIgniter\Database\BaseBuilder;
 
 class OwaspQuizModel extends Model
 {
@@ -19,7 +20,7 @@ class OwaspQuizModel extends Model
     /** N questions au hasard, uniquement celles du top demandé (question -> menace -> tops). */
     public function questionsAleatoires(string $idTop, int $nb): array
     {
-        return $this->select('question.id_ques, question.libelle_ques')
+        return $this->select('question.id_ques AS id_question, question.libelle_ques AS texte_question')
             ->join('menace', 'menace.id_menace = question.menace_id')
             ->where('menace.tops_id', $idTop)
             ->orderBy('question.id_ques', 'RANDOM')
@@ -57,14 +58,17 @@ class OwaspQuizModel extends Model
     /** Ids des bonnes réponses (pour la correction côté serveur). */
     public function idsBonnesReponses(int $idQues): array
     {
-        if ($idQues === []) {
+        return array_map('intval', array_column($this->bonnesReponses($idQues), 'id_prop'));
+    }
+    public function propositionsParIds(array $ids): array
+    {
+        if ($ids === []) {
             return [];
         }
 
         return $this->db->table('proposition')
             ->select('id_prop, libelle_prop')
-            ->whereIn('id_prop', $idQues)
+            ->whereIn('id_prop', $ids)
             ->get()->getResultArray();
-
     }
 }
