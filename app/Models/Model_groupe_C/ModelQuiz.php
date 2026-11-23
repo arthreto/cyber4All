@@ -44,10 +44,10 @@ class ModelQuiz extends Model
     public function bonnesReponses(int $idQuestion): array
     {
         $ligne = $this->db->table('question_quiz')
-            ->select('conceptcyber.DISPONIBILITE AS d,
-                  conceptcyber.INTEGRITE AS i,
-                  conceptcyber.CONFIDENTIALITE AS c,
-                  conceptcyber.TRACABILITE AS t')
+            ->select('conceptcyber.disponibilite AS dispo,
+                  conceptcyber.integrite AS inte,
+                  conceptcyber.confidentialite AS conf,
+                  conceptcyber.tracabilite AS traca')
             ->join('conceptcyber', 'conceptcyber.id_mot_cle = question_quiz.id_mot_cle')
             ->where('question_quiz.id', $idQuestion)
             ->get()
@@ -58,10 +58,10 @@ class ModelQuiz extends Model
         }
 
         $bonnes = [];
-        if ((int) $ligne['d'] === 1) $bonnes[] = 1;
-        if ((int) $ligne['i'] === 1) $bonnes[] = 2;
-        if ((int) $ligne['c'] === 1) $bonnes[] = 3;
-        if ((int) $ligne['t'] === 1) $bonnes[] = 4;
+        if ((int) $ligne['dispo'] === 1) $bonnes[] = 1;
+        if ((int) $ligne['inte'] === 1) $bonnes[] = 2;
+        if ((int) $ligne['conf'] === 1) $bonnes[] = 3;
+        if ((int) $ligne['traca'] === 1) $bonnes[] = 4;
 
         return $bonnes;
     }

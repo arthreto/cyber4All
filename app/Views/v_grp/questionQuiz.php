@@ -3,16 +3,17 @@
 <body>
 
 <main>
-    <div class="presentation">
+    <div class="presentation presentation--retour">
         <div class="retour-question">
-            <?= anchor(
-                    base_url('quiz'),
-                    '← Quitter',
-                    [
-                            'title' => "Tout le lexique de la cybersécurité",
-                            'class' => "btn-retour-question"
-                    ]
-            ) ?>
+            <?php
+            $image = ['src' => '/images/quiz/dict_retour.png',
+                    'alt' => 'Bouton retour',
+                    'class' => 'btn-image_retour'];
+            ?>
+            <!--    echo img($image);-->
+            <?= anchor(base_url() . 'quiz', img($image));
+            ?>
+
 
         </div>
     </div>
@@ -36,44 +37,53 @@
             <p><?= esc($question['question']) ?></p>
             <p>Plusieurs réponses peuvent être justes</p>
         </div>
-        <form id="form-question" action="<?= base_url('quiz/question') ?>" method="post">
-            <?= csrf_field() ?>
+        <?= form_open('quiz/question', ['id' => 'form-question']) ?>
 
-            <div class="cartes">
-                <label class="carte-question carte--d">
-                    <input type="checkbox" name="reponses[]" value="1">
-                    <span class="lettre">D</span>
-                    <span><strong>Disponibilité</strong><br>
-                <small>Est-ce accessible ?</small></span>
-                </label>
-
-                <label class="carte-question carte--i">
-                    <input type="checkbox" name="reponses[]" value="2">
-                    <span class="lettre">I</span>
-                    <span><strong>Intégrité</strong><br>
-                <small>Est-ce intact ?</small></span>
-                </label>
-
-                <label class="carte-question carte--c">
-                    <input type="checkbox" name="reponses[]" value="3">
-                    <span class="lettre">C</span>
-                    <span><strong>Confidentialité</strong><br>
-                <small>Qui peut voir ?</small></span>
-                </label>
-
-                <label class="carte-question carte--t">
-                    <input type="checkbox" name="reponses[]" value="4">
-                    <span class="lettre">T</span>
-                    <span><strong>Traçabilité</strong><br>
-                <small>Qui a fait quoi ?</small></span>
-                </label>
+        <div class="cartes">
+            <div class="carte-question carte--d">
+                <?= form_checkbox(['name' => 'reponses[]', 'id' => 'rep1', 'value' => '1']) ?>
+                <?= form_label(
+                        '<span class="lettre">D</span><span><strong>Disponibilité</strong></span>',
+                        'rep1',
+                        ['class' => 'carte-label']
+                ) ?>
             </div>
 
-            <div class="ligne-bouton">
-                <button type="submit" id="btn-valider" class="btn-val" disabled>Valider →</button>
+            <div class="carte-question carte--i">
+                <?= form_checkbox(['name' => 'reponses[]', 'id' => 'rep2', 'value' => '2']) ?>
+                <?= form_label(
+                        '<span class="lettre">I</span><span><strong>Intégrité</strong></span>',
+                        'rep2',
+                        ['class' => 'carte-label']
+                ) ?>
             </div>
-        </form>
+
+            <div class="carte-question carte--c">
+                <?= form_checkbox(['name' => 'reponses[]', 'id' => 'rep3', 'value' => '3']) ?>
+                <?= form_label(
+                        '<span class="lettre">C</span><span><strong>Confidentialité</strong></span>',
+                        'rep3',
+                        ['class' => 'carte-label']
+                ) ?>
+            </div>
+
+            <div class="carte-question carte--t">
+                <?= form_checkbox(['name' => 'reponses[]', 'id' => 'rep4', 'value' => '4']) ?>
+                <?= form_label(
+                        '<span class="lettre">T</span><span><strong>Traçabilité</strong></span>',
+                        'rep4',
+                        ['class' => 'carte-label']
+                ) ?>
+            </div>
         </div>
+
+        <div class="ligne-bouton">
+            <?= form_submit('valider', 'Valider →', ['id' => 'btn-valider', 'class' => 'btn-val', 'disabled' => 'disabled']) ?>
+        </div>
+
+        <?= form_close() ?>
+    </div>
+                                    <!-- script en java pour desactivez le bouton si il n y a pas au moin une case coche -->
     <script>
         const form   = document.getElementById('form-question');
         const bouton = document.getElementById('btn-valider');

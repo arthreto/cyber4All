@@ -15,6 +15,7 @@ $routes->group('glossaire', static function ($routes) {
     $routes->match(['GET', 'POST'], 'mot/(:num)', 'GlossaireController::afficherMot/$1');
     $routes->match(['GET', 'POST'], 'categorie/(:num)', 'GlossaireController::afficherCategorie/$1');
     $routes->match(['GET', 'POST'], 'categorie/(:num)', 'GlossaireController::afficherCategorie/$1');
+    $routes->get('concept/(:segment)', 'GlossaireController::afficherConcept/$1');
 });
 
 //Quiz

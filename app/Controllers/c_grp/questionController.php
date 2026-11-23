@@ -11,7 +11,7 @@ class questionController extends BaseController
     private const CONCEPTS = [1, 2, 3, 4];
 
     private const NOMS = [
-        1 => 'Disponibilité',
+        1 => 'Tisponibilité',
         2 => 'Intégrité',
         3 => 'Confidentialité',
         4 => 'Traçabilité',
@@ -33,7 +33,7 @@ class questionController extends BaseController
         return redirect()->to(base_url('quiz/question'));
     }
 
-    // Les 4 id_concept possibles : 1 D, 2 I, 3 C, 4 T
+    // Les 4 id_concept possibles : 1 dispo, 2 inte, 3 conf, 4 Traca
 
 
 
@@ -96,24 +96,18 @@ class questionController extends BaseController
         if (empty($post)) {
             return redirect()->to(base_url('quiz/question'));
         }
-        $d = in_array('1', $post) ? 1 : 0;
-        $i = in_array('2', $post) ? 1 : 0;
-        $c = in_array('3', $post) ? 1 : 0;
-        $t = in_array('4', $post) ? 1 : 0;
+        $dispo = in_array('1', $post) ? 1 : 0;
+        $inte = in_array('2', $post) ? 1 : 0;
+        $conf = in_array('3', $post) ? 1 : 0;
+        $traca = in_array('4', $post) ? 1 : 0;
 
         $juste = $cc
-            && $d === (int) $cc['DISPONIBILITE']
-            && $i === (int) $cc['INTEGRITE']
-            && $c === (int) $cc['CONFIDENTIALITE']
-            && $t === (int) $cc['TRACABILITE'];
+            && $dispo === (int) $cc['disponibilite']
+            && $inte === (int) $cc['integrite']
+            && $conf === (int) $cc['confidentialite']
+            && $traca === (int) $cc['tracabilite'];
 
         //dd($post, $cc, $d, $i, $c, $t);
-        $juste = $cc
-            && $d === (int) $cc['DISPONIBILITE']
-            && $i === (int) $cc['INTEGRITE']
-            && $c === (int) $cc['CONFIDENTIALITE']
-            && $t === (int) $cc['TRACABILITE'];
-
         if ($juste) {
             $quiz['score']++;
         }
@@ -123,10 +117,10 @@ class questionController extends BaseController
 
         $bonnesIds = [];
         if ($cc) {
-            if ((int) $cc['DISPONIBILITE'])   $bonnesIds[] = 1;
-            if ((int) $cc['INTEGRITE'])       $bonnesIds[] = 2;
-            if ((int) $cc['CONFIDENTIALITE']) $bonnesIds[] = 3;
-            if ((int) $cc['TRACABILITE'])     $bonnesIds[] = 4;
+            if ((int) $cc['disponibilite'])   $bonnesIds[] = 1;
+            if ((int) $cc['integrite'])       $bonnesIds[] = 2;
+            if ((int) $cc['confidentialite']) $bonnesIds[] = 3;
+            if ((int) $cc['tracabilite'])     $bonnesIds[] = 4;
         }
 
         session()->set('correction', [

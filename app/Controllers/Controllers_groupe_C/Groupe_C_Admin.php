@@ -39,7 +39,7 @@ class Groupe_C_Admin extends BaseController
 
         $categorie = $this->request->getGet('concept');
 
-        if (in_array($categorie, ['DISPONIBILITE', 'INTEGRITE', 'CONFIDENTIALITE', 'TRACABILITE'], true)) {
+        if (in_array($categorie, ['disponibilite', 'integrite', 'confidentialite', 'tracabilite'], true)) {
             $model->select('mot_cle.*')
                 ->join('conceptcyber', 'conceptcyber.id_mot_cle = mot_cle.id')
                 ->where('conceptcyber.' . $categorie, 1);
@@ -86,90 +86,12 @@ class Groupe_C_Admin extends BaseController
         $question    = trim((string) $this->request->getPost('question'));
         $explication = trim((string) $this->request->getPost('explication'));
 
-        $valeurs = [
-            'DISPONIBILITE'   => $this->request->getPost('DISPONIBILITE') ? 1 : 0,
-            'INTEGRITE'       => $this->request->getPost('INTEGRITE') ? 1 : 0,
-            'CONFIDENTIALITE' => $this->request->getPost('CONFIDENTIALITE') ? 1 : 0,
-            'TRACABILITE'     => $this->request->getPost('TRACABILITE') ? 1 : 0,
-        ];
-
-        $db->transStart();
-
-        // 1. Concepts cyber du terme
-        $modelConcept->update($idMot, $valeurs);
-
-        // 2. Question + explication : création ou modification
-        $idQuestion = null;
-        $existante  = $db->table('question_quiz')->where('id_mot_cle', $idMot)->get()->getRowArray();
-
-        if ($existante) {
-            $idQuestion = (int) $existante['id'];
-
-            $maj = ['explication' => $explication !== '' ? $explication : null];
-            if ($question !== '') {
-                $maj['question'] = $question;   // on n'efface jamais une question existante
-            }
-            $db->table('question_quiz')->where('id', $idQuestion)->update($maj);
-
-        } elseif ($question !== '') {
-            $db->table('question_quiz')->insert([
-                'id_mot_cle'  => $idMot,
-                'question'    => $question,
-                'explication' => $explication !== '' ? $explication : null,
-            ]);
-            $idQuestion = $db->insertID();
-        }
-
-        // 3. Bonnes réponses de la question (question_reponse) synchronisées avec les cases cochées
-        if ($idQuestion) {
-            $db->table('question_reponse')->where('id_question', $idQuestion)->delete();
-
-            $ids = ['DISPONIBILITE' => 1, 'INTEGRITE' => 2, 'CONFIDENTIALITE' => 3, 'TRACABILITE' => 4];
-            foreach ($ids as $colonne => $idConcept) {
-                if ($valeurs[$colonne] === 1) {
-                    $db->table('question_reponse')->insert([
-                        'id_question' => $idQuestion,
-                        'id_concept'  => $idConcept,
-                    ]);
-                }
-            }
-        }
-
-        $db->transComplete();
-
-        // On reste sur le terme en cours de modification
-        return redirect()->to(base_url('floribondant/QuizzConcept') . '?modifier=' . $idMot);
-    }
-    public function GroupeC_Ajouter()
-    {
-        $idMot = (int) $this->request->getPost('id_mot_cle');
-        $db    = \Config\Database::connect();
-
-        $motExiste   = $db->table('mot_cle')->where('id', $idMot)->countAllResults() > 0;
-        $dejaPresent = $db->table('conceptcyber')->where('id_mot_cle', $idMot)->countAllResults() > 0;
-
-        if ($motExiste && !$dejaPresent) {
-            $db->table('conceptcyber')->insert([
-                'id_mot_cle'      => $idMot,
-                'DISPONIBILITE'   => 0,
-                'INTEGRITE'       => 0,
-                'CONFIDENTIALITE' => 0,
-                'TRACABILITE'     => 0,
-            ]);
-        }
-
-        return redirect()->to(base_url('floribondant/QuizzConcept') . '?modifier=' . $idMot);
-    }
-    public function GroupeC_Supprimer()
-    {
-        $idMot = (int) $this->request->getPost('id_mot_cle');
-
-        if ($idMot > 0) {
-            \Config\Database::connect()
-                ->table('conceptcyber')
-                ->where('id_mot_cle', $idMot)
-                ->delete();
-        }
+        $modelConcept->update($this->request->getPost('id_mot_cle'), [
+            'disponibilite'   => $this->request->getPost('disponibilite') ? 1 : 0,
+            'integrite'       => $this->request->getPost('integrite') ? 1 : 0,
+            'confidentialite' => $this->request->getPost('confidentialite') ? 1 : 0,
+            'tracabilite'     => $this->request->getPost('tracabilite') ? 1 : 0,
+        ]);
 
         return redirect()->to(base_url('floribondant/QuizzConcept'));
     }
