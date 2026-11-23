@@ -4,62 +4,100 @@ namespace App\Controllers\Controllers_groupe_C;
 
 use App\Controllers\BaseController;
 use App\Entities\Utilisateur;
+use App\Models\Model_groupe_C\ModelAdminCmot_cle_categorie;
 use CodeIgniter\Exceptions\PageNotFoundException;
+use CodeIgniter\HTTP\RequestInterface;
+use CodeIgniter\HTTP\ResponseInterface;
 use CodeIgniter\Session\Session;
+use Config\Database;
+use Psr\Log\LoggerInterface;
 
-// "abstract" = cette classe sert de modèle, on ne l'appelle jamais directement via une route.
-// Les autres contrôleurs en héritent pour récupérer son code.
+/**
+ * CONTRÔLEUR PARENT des pages d'administration du quiz Concept (groupe C).
+ *
+ * QUI FAIT QUOI
+ * -------------
+ *  - Elle est héritée par :
+ *        DICT_Concept_Admin_groupeC   (page des termes)
+ *        DICT_Question_Admin_GroupeC  (page des questions)
+ *  - Elle fournit à ses enfants :
+ *        1. le contrôle d'accès admin (initController) : exécuté à chaque ouverture d'une page admin
+ *        2. synchroniserReponses()                      : recalcule les bonnes réponses d'une question
+ *
+ * Le comportement est identique : 404 si l'utilisateur n'est pas admin.
+ */
 abstract class DICT_Admin_Base_GroupeC extends BaseController
 {
-    protected Session $session;               // la session de l'utilisateur connecté
+    /**
+     * Correspondance entre le nom de la colonne (table conceptcyber) et l'id du concept en base.
+     * Utilisée par synchroniserReponses().
+     */
+    private const ID_CONCEPTS = [
+        'disponibilite'   => 1,
+        'integrite'       => 2,
+        'confidentialite' => 3,
+        'tracabilite'     => 4,
+    ];
+
+    protected Session $session;                 // la session de l'utilisateur connecté
     protected ?Utilisateur $utilisateur = null; // l'utilisateur connecté (null si personne)
 
-    // Le constructeur s'exécute automatiquement à chaque fois qu'une page admin est ouverte
-    public function __construct()
+    /**
+     * S'exécute automatiquement à chaque fois qu'une page admin est ouverte.
+     */
+    public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger): void
     {
+        parent::initController($request, $response, $logger);
+
         $this->session = session();
-        $utilisateur = $this->session->get('utilisateur'); // on récupère l'utilisateur en session
+        $utilisateur   = $this->session->get('utilisateur'); // on récupère l'utilisateur en session
 
         // Si l'utilisateur existe ET qu'il est admin : accès autorisé
         if ($utilisateur && $utilisateur->role === 'admin') {
             $this->utilisateur = $utilisateur;
-        } else {
-            // Sinon on affiche une 404 (on cache l'existence de la page)
-            throw PageNotFoundException::forPageNotFound('Accès refusé');
+
+            return;
         }
+
+        // Sinon on affiche une 404 (on cache l'existence de la page)
+        throw PageNotFoundException::forPageNotFound('Accès refusé');
     }
 
     /**
      * Met à jour les "bonnes réponses" d'une question (table question_reponse)
      * en fonction des cases D/I/C/T cochées sur le terme associé.
      *
-     * $db         = la connexion à la base
+     * Appelée par :
+     *  - DICT_Concept_Admin_groupeC::GroupeC_Modifier()          (quand on change les cases d'un terme)
+     *  - DICT_Question_Admin_GroupeC::GroupeC_ModifierQuestion()  (quand on change le terme d'une question)
+     *
      * $idQuestion = la question à mettre à jour
      * $idMot      = le terme associé (ou null si aucun)
      */
-    protected function synchroniserReponses($db, int $idQuestion, ?int $idMot): void
+    protected function synchroniserReponses(int $idQuestion, ?int $idMot): void
     {
+        // Pas de modèle pour question_reponse : on utilise le query builder.
+        // Database::connect() renvoie la connexion partagée : elle fait donc partie de la transaction du contrôleur.
+        $reponses = Database::connect()->table('question_reponse');
+
         // 1. On efface d'abord toutes les anciennes bonnes réponses de cette question
-        $db->table('question_reponse')->where('id_question', $idQuestion)->delete();
+        $reponses->where('id_question', $idQuestion)->delete();
 
         // 2. Pas de terme associé = pas de bonnes réponses, on s'arrête là
-        if (!$idMot) {
+        if (! $idMot) {
             return;
         }
 
         // 3. On lit les cases cochées du terme (table conceptcyber)
-        $concept = $db->table('conceptcyber')->where('id_mot_cle', $idMot)->get()->getRowArray();
-        if (!$concept) {
+        $concept = (new ModelAdminCmot_cle_categorie())->getParMot($idMot); // modèle conceptcyber
+        if (! $concept) {
             return; // le terme n'est pas encore classé : rien à faire
         }
 
-        // 4. Correspondance entre le nom de la colonne et l'id du concept en base
-        $ids = ['disponibilite' => 1, 'integrite' => 2, 'confidentialite' => 3, 'tracabilite' => 4];
-
-        // 5. Pour chaque case cochée (valeur 1), on crée une bonne réponse
-        foreach ($ids as $colonne => $idConcept) {
+        // 4. Pour chaque case cochée (valeur 1), on crée une bonne réponse
+        foreach (self::ID_CONCEPTS as $colonne => $idConcept) {
             if ((int) $concept[$colonne] === 1) {
-                $db->table('question_reponse')->insert([
+                $reponses->insert([
                     'id_question' => $idQuestion,
                     'id_concept'  => $idConcept,
                 ]);
