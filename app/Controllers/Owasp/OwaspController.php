@@ -9,7 +9,6 @@ use CodeIgniter\Exceptions\PageNotFoundException;
 
 class OwaspController extends BaseController
 {
-    protected $helpers = ['url', 'html'];   // anchor(), base_url(), ol(), link_tag()
 
     protected OwaspMenaceModel $Menace;
     protected OwaspTopModel $Top;

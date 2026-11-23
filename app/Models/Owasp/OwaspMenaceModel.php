@@ -25,7 +25,6 @@ class OwaspMenaceModel extends Model
             ->orderBy('id_menace')
             ->findAll();
     }
-
     public function getMenaceContreMesures(int $id): array
     {
         return $this->db->table('contre_mesure')
@@ -42,4 +41,6 @@ class OwaspMenaceModel extends Model
             ->where('id_menace', $id)
             ->first();
     }
+
+
 }

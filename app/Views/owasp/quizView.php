@@ -74,7 +74,7 @@
 
         <div class="detail-footer-actions">
             <?php if (!empty($resultat)): ?>
-                <?= anchor('top10/quiz/' . $nom_top, 'Recommencer', ['class' => 'quiz-submit']) ?>
+                <?= anchor('top10/quiz/' . $nom_top, 'Recommencer', ['class' => 'back-button quiz-button']) ?>
             <?php endif; ?>
             <?php if ($nom_top === 'api'):
                 $nom_top = 'web' ?>
@@ -83,7 +83,6 @@
                 $nom_top = 'api' ?>
                 <?= anchor('top10/quiz/' . $nom_top , 'Changer de quiz', ['class' => 'text-button']) ?>
             <?php endif; ?>
-            <?= anchor('top10/' . $nom_top, 'Retour au Top 10', ['class' => 'text-button']) ?>
         </div>
 
     </article>
