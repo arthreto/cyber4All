@@ -16,16 +16,16 @@ if (!isset($utilisateur)):?>
         ?>
         <h1>Se connecter</h1>
 
-<!--        --><?php //if (isset($_GET['erreur']) && $_GET['erreur'] == 99): ?>
-<!--            <h2>Utilisateur non identifié, mot de passe ou pseudo incorrect</h2>-->
-<!--        --><?php //endif; ?>
+        <!--        --><?php //if (isset($_GET['erreur']) && $_GET['erreur'] == 99): ?>
+        <!--            <h2>Utilisateur non identifié, mot de passe ou pseudo incorrect</h2>-->
+        <!--        --><?php //endif; ?>
         <?php if (isset($erreur)): ?>
             <h2><?= $erreur ?></h2>
         <?php endif; ?>
 
         <div class="input-wrapper">
             <?= form_label('Identifiant', 'input_contact-name',
-                            ['for' => 'identifiant',
+                    ['for' => 'identifiant',
                             'class' => 'form-label--required',]); ?>
             <div class="input-container">
                 <?php
@@ -47,7 +47,7 @@ if (!isset($utilisateur)):?>
 
         <div class="input-wrapper">
             <?= form_label('Mot de passe', 'input_contact-name',
-                            ['for' => 'mdp',
+                    ['for' => 'mdp',
                             'class' => 'form-label--required',]); ?>
             <div class="input-container">
                 <?php
