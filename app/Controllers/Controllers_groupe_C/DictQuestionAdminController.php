@@ -139,8 +139,8 @@ class DictQuestionAdminController extends DictAdminBaseController
             $idMot
         );
 
-        // On reste sur la question en cours de modification
-        return redirect()->to(site_url('floribondant/Questions') . '?modifier=' . $idQuestion);
+        // On retourne sur la liste de questions
+        return redirect()->to(site_url('floribondant/Questions'));
     }
 
     /**

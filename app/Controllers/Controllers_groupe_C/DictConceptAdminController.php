@@ -128,9 +128,11 @@ class DictConceptAdminController extends DictAdminBaseController
         // modifierCases() fait tout en une transaction : enregistre les cases du terme (conceptcyber)
         // puis recalcule les bonnes réponses des questions liées. Renvoie true si tout a réussi.
         if ((new ConceptCyberModel())->modifierCases($idMot, $valeurs)) {
-            // ->with('succes', ...) crée un message flash : affiché une seule fois à la prochaine page
-            return redirect()->to(site_url('floribondant/DICT') . '?modifier=' . $idMot)
-                ->with('succes', 'Le terme a bien été modifié.');
+
+            $mot = (new MotCleModel())->find($idMot);
+
+            return redirect()->to(site_url('floribondant/DICT'))
+                    ->with('succes', 'Le terme « ' . $mot['mot'] . ' » a bien été modifié.');
         }
 
         // Échec : on redirige SANS message de succès, donc pas de pop-up
@@ -165,8 +167,10 @@ class DictConceptAdminController extends DictAdminBaseController
             ]);
 
             // Ajout réussi : message flash => pop-up
+            $mot = (new MotCleModel())->find($idMot);
+
             return redirect()->to(site_url('floribondant/DICT') . '?modifier=' . $idMot)
-                ->with('succes', 'Le terme a bien été ajouté.');
+                    ->with('succes', 'Le terme « ' . $mot['mot'] . ' » a bien été ajouté.');
         }
 
         // Le mot n'existe pas ou est déjà classé : pas de message de succès
@@ -187,9 +191,12 @@ class DictConceptAdminController extends DictAdminBaseController
         $idMot = (int) $this->request->getPost('id_mot_cle');
 
         // retirer() renvoie true si une ligne a réellement été supprimée
+        $mot = (new MotCleModel())->find($idMot);
+
         if ((new ConceptCyberModel())->retirer($idMot)) {
+
             return redirect()->to(site_url('floribondant/DICT'))
-                ->with('succes', 'Le terme a bien été supprimé du classement.');
+                    ->with('succes', 'Le terme « ' . $mot['mot'] . ' » a bien été supprimé du classement.');
         }
 
         return redirect()->to(site_url('floribondant/DICT'));

@@ -393,3 +393,15 @@
     text-align: center;
 }
 .actions .bouton-supprimer { margin-right: 0; }
+
+
+.colonne-droite {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    min-width: 0;
+}
+
+.colonne-droite > .carte {
+    width: 100%;
+}
