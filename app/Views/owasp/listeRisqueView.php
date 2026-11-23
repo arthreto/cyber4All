@@ -28,3 +28,10 @@ foreach ($menaces as $position => $item) {
 
     </article>
 </main>
+<?php
+if(isset($utilisateur) && $utilisateur->role === "contributeur"):
+    echo view('owasp/choixQuizView');
+endif;
+?>
+
+

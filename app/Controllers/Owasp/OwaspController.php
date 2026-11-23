@@ -47,11 +47,11 @@ class OwaspController extends BaseController
     public function getMenaces(string $top): string
     {
         $data = $this->chargerTop($top);
+        $data['utilisateur'] = session()->get('utilisateur');
 
         return view('header', $data) .
             view('owasp/headerView', $data) .
             view('owasp/listeRisqueView', $data) .
-            view('owasp/choixQuizView') .
             view('owasp/footerView', $data);
     }
 
