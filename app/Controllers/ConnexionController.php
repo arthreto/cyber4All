@@ -107,6 +107,11 @@ class ConnexionController extends BaseController
 
         session()->set('utilisateur', $utilisateur);
 
+        // Admin : page Traçabilité (liste des questions)
+        if ($utilisateur->role === 'admin') {
+            return redirect()->to(base_url('floribondant/theme'));
+        }
+
         $data = [
             'themeList' => $this->theme_model->getAllThemes(),
         ];

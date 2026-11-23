@@ -49,7 +49,7 @@ $actionFormulaire = $estModification
         <?php if ($errors !== []): ?>
             <!-- Récapitulatif des erreurs (ul() n'échappe pas les éléments : esc() sur tout le tableau) -->
             <div class="sio-admin__erreur-globale" role="alert">
-                <strong>La leçon n'a pas été enregistrée. Corrigez les points suivants :</strong>
+                <strong>La leçon n'a pas été enregistrée. Corrigez le(s) point(s) suivant(s) :</strong>
                 <?= ul(esc($errors), ['class' => 'sio-admin__erreur-liste']) ?>
             </div>
         <?php endif; ?>

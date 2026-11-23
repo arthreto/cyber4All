@@ -54,7 +54,7 @@ $nbQuestions = count($questions);
         <?php if (! empty($errors)): ?>
             <!-- Récapitulatif des erreurs (ul() n'échappe pas les éléments : esc() sur tout le tableau) -->
             <div class="sio-admin__erreur-globale" role="alert">
-                <strong>L'extrait n'a pas été enregistré. Corrigez les points suivants :</strong>
+                <strong>L'extrait n'a pas été enregistré. Corrigez le(s) point(s) suivant(s) :</strong>
                 <?= ul(esc($errors), ['class' => 'sio-admin__erreur-liste']) ?>
             </div>
         <?php endif; ?>
