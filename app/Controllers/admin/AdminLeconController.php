@@ -175,7 +175,7 @@ class AdminLeconController extends AdminController
                 $form->modifier = $idLeconModif;
 
                 $form->auteur       = $this->utilisateur_model->getUtilisateurById($lecon->id_auteur)?->pseudo;
-                $form->auteur_modif = $this->utilisateur_model->getUtilisateurById($lecon->id_auteur_modif)?->pseudo;
+                $form->auteur_modif = (isset($lecon->id_auteur_modif) ? $this->utilisateur_model->getUtilisateurById($lecon->id_auteur_modif)?->pseudo : null);
                 $form->date_ajout   = $this->formaterDate($lecon->date_ajout);
                 $form->date_modif   = $this->formaterDate($lecon->date_modif);
             }
