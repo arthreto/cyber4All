@@ -6,7 +6,7 @@
 
         <section class="admin-top-card web">
             <header>
-                <h2><?= esc($top->nom_top) ?> (<?= count($menaces) ?>)</h2>
+                <h2><?= esc($top->nom_top) ?> <?= count($menaces) ?></h2>
             </header>
 
             <ul class="admin-risk-list">

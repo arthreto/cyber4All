@@ -1,14 +1,15 @@
 <main class="admin-top-container">
     <h1>Modifier une menace</h1>
 
-    <label for="nom-menace">Nom</label>
-    <input id="nom-menace" type="text" value="<?= esc($menace->nom_menace, 'attr') ?>">
+    <?= form_open('', ['onsubmit' => 'return false;']) ?>
+    <?= form_label('Nom', 'nom-menace') ?>
+    <?= form_input(['name' => 'nom_menace', 'id' => 'nom-menace', 'value' => $menace->nom_menace ?? '']) ?>
 
-    <label for="description-menace">Description</label>
-    <textarea id="description-menace"><?= esc($menace->desc_menace) ?></textarea>
+    <?= form_label('Description', 'description-menace') ?>
+    <?= form_textarea(['name' => 'desc_menace', 'id' => 'description-menace'], $menace->desc_menace ?? '') ?>
 
-    <label for="code-menace">Exemple de code</label>
-    <textarea id="code-menace"><?= esc($menace->prog_menace) ?></textarea>
+    <?= form_label('Exemple de code', 'code-menace') ?>
+    <?= form_textarea(['name' => 'prog_menace', 'id' => 'code-menace'], $menace->prog_menace ?? '') ?>
 
     <h2>Contre-mesures</h2>
     <?php if ($contreMesures === []): ?>
@@ -17,12 +18,13 @@
     <?php foreach ($contreMesures as $index => $contreMesure): ?>
         <section>
             <h3>Contre-mesure <?= $index + 1 ?></h3>
-            <label for="description-cm-<?= $index ?>">Description</label>
-            <textarea id="description-cm-<?= $index ?>"><?= esc($contreMesure->desc_cm) ?></textarea>
+            <?= form_label('Description', 'description-cm-' . $index) ?>
+            <?= form_textarea(['name' => 'contre_mesures[' . $index . '][desc_cm]', 'id' => 'description-cm-' . $index], $contreMesure->desc_cm ?? '') ?>
 
-            <label for="code-cm-<?= $index ?>">Exemple de code</label>
-            <textarea id="code-cm-<?= $index ?>"><?= esc($contreMesure->prog_cm) ?></textarea>
+            <?= form_label('Exemple de code', 'code-cm-' . $index) ?>
+            <?= form_textarea(['name' => 'contre_mesures[' . $index . '][prog_cm]', 'id' => 'code-cm-' . $index], $contreMesure->prog_cm ?? '') ?>
         </section>
     <?php endforeach; ?>
+    <?= form_close() ?>
     <p>L’enregistrement des modifications n’est pas encore disponible.</p>
 </main>
