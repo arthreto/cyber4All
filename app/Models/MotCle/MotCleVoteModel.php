@@ -45,7 +45,7 @@ class MotCleVoteModel extends Model
                 ->where('DATE(vote.date_vote) >=', $debutSemaineStr)
                 ->findAll();
         } catch (DatabaseException $e) {
-            log_message('error', 'getAllMotCleVotesCetteSemaineByUtilisateurId : ' . $e->getMessage());
+            log_message('error', 'getAllMotCleVotesCetteSemaineByUtilisateurId : {exception}', ['exception' => $e]);
             return [];
         }
     }
@@ -72,7 +72,7 @@ class MotCleVoteModel extends Model
                 ->orderBy('lastVote', 'DESC')
                 ->findAll();
         } catch (DatabaseException $e) {
-            log_message('error', 'getAllMotClePopulairesDateDesc : ' . $e->getMessage());
+            log_message('error', 'getAllMotClePopulairesDateDesc : {exception}', ['exception' => $e]);
             return [];
         }
     }
@@ -106,7 +106,7 @@ class MotCleVoteModel extends Model
                 ->orderBy('nb_votes', 'DESC')
                 ->findAll($nbMots);
         } catch (DatabaseException $e) {
-            log_message('error', 'getMotsPopulairesSemainePrecedente : ' . $e->getMessage());
+            log_message('error', 'getMotsPopulairesSemainePrecedente : {exception}', ['exception' => $e]);
             return [];
         }
     }

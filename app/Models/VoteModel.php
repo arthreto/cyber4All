@@ -46,7 +46,7 @@ class VoteModel extends Model
                 return false;
             }
         } catch (DatabaseException $e) {
-            log_message('error', "Erreur insertVote : " . $e->getMessage());
+            log_message('error', "Erreur insertVote : {exception}", ['exception' => $e]);
             return false;
         }
     }
@@ -65,7 +65,7 @@ class VoteModel extends Model
         try {
             return $this->delete($id);
         } catch (DatabaseException $e) {
-            log_message('error', "Erreur deleteVoteById : " . $e->getMessage());
+            log_message('error', "Erreur deleteVoteById : {exception}", ['exception' => $e]);
             return false;
         }
     }
@@ -85,7 +85,7 @@ class VoteModel extends Model
             return $this->where('id_utilisateur', $id_utilisateur)
                 ->countAllResults();
         } catch (DatabaseException $e) {
-            log_message('error', "Erreur getNbVotesTotalByUtilisateurId : " . $e->getMessage());
+            log_message('error', "Erreur getNbVotesTotalByUtilisateurId : {exception}", ['exception' => $e]);
             return 0;
         }
     }
@@ -109,7 +109,7 @@ class VoteModel extends Model
                 ->where('DATE(date_vote) >=', $debutSemaineStr)
                 ->countAllResults();
         } catch (DatabaseException $e) {
-            log_message('error', "Erreur getNbVotesSemaineActuelleByUtilisateurId : " . $e->getMessage());
+            log_message('error', "Erreur getNbVotesSemaineActuelleByUtilisateurId : {exception}", ['exception' => $e]);
             return 0;
         }
     }
@@ -137,7 +137,7 @@ class VoteModel extends Model
 
             return $result instanceof Vote ? $result : null;
         } catch (DatabaseException $e) {
-            log_message('error', "Erreur getUnVoteSemaineEnCours : " . $e->getMessage());
+            log_message('error', "Erreur getUnVoteSemaineEnCours : {exception}", ['exception' => $e]);
             return null;
         }
     }
@@ -155,7 +155,7 @@ class VoteModel extends Model
         try {
             return $this->countAllResults();
         } catch (DatabaseException $e) {
-            log_message('error', "Erreur recupNbAllVotes : " . $e->getMessage());
+            log_message('error', "Erreur recupNbAllVotes : {exception}", ['exception' => $e]);
             return 0;
         }
     }
@@ -189,7 +189,7 @@ class VoteModel extends Model
 
             return $listeIdMots;
         } catch (DatabaseException $e) {
-            log_message('error', "Erreur getIdMotCleVotesSemaineActuelleByUtilisateurId : " . $e->getMessage());
+            log_message('error', "Erreur getIdMotCleVotesSemaineActuelleByUtilisateurId : {exception}", ['exception' => $e]);
             return [];
         }
     }

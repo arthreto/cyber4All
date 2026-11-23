@@ -54,7 +54,7 @@ class ImageModel extends Model
             return $result;
 
         } catch (DatabaseException $e) {
-            log_message('error', '[ImageModel] Exception: ' . $e->getMessage());
+            log_message('error', '[ImageModel] Exception: {exception}', ['exception' => $e]);
             log_message('error', '[ImageModel] SQL: ' . $this->db->getLastQuery());
             return false;
         }
@@ -76,7 +76,7 @@ class ImageModel extends Model
         try {
             return $this->where('mot_id', $motId)->delete();
         } catch (DatabaseException $e) {
-            log_message('error', '[ImageModel] Delete failed: ' . $e->getMessage());
+            log_message('error', '[ImageModel] Delete failed: {exception}', ['exception' => $e]);
             return false;
         }
     }

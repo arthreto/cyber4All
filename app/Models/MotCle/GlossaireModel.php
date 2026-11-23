@@ -66,7 +66,7 @@ class GlossaireModel extends Model
 
             return $mots;
         } catch (DatabaseException $e) {
-            error_log('getGlossaireCompletObj : ' . $e->getMessage());
+            log_message('error', 'getGlossaireCompletObj : {exception}', ['exception' => $e]);
             return [];
         }
     }
@@ -110,7 +110,7 @@ class GlossaireModel extends Model
 
             return $mots;
         } catch (DatabaseException $e) {
-            log_message('error', 'getGlossaireCompletObj : ' . $e->getMessage());
+            log_message('error', 'getGlossaireCompletObj : {exception}', ['exception' => $e]);
             return [];
         }
     }
@@ -152,7 +152,7 @@ class GlossaireModel extends Model
 
             return $mots;
         } catch (DatabaseException $e) {
-            error_log('getGlossaireCompletObj : ' . $e->getMessage());
+            log_message('error', 'getGlossaireCompletObj : {exception}', ['exception' => $e]);
             return [];
         }
     }
@@ -200,7 +200,7 @@ class GlossaireModel extends Model
 
             return $mots;
         } catch (DatabaseException $e) {
-            error_log('getGlossaireCompletObj : ' . $e->getMessage());
+            log_message('error', 'getGlossaireCompletObj : {exception}', ['exception' => $e]);
             return [];
         }
     }
@@ -246,7 +246,7 @@ class GlossaireModel extends Model
 
             return $mots;
         } catch (DatabaseException $e) {
-            error_log('getGlossaireRand : ' . $e->getMessage());
+            log_message('error', 'getGlossaireRand : {exception}', ['exception' => $e]);
             return [];
         }
     }

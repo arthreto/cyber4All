@@ -425,26 +425,26 @@ class CommunautaireController extends BaseController
         }
 
         if (!$file->isValid()) {
-            log_message('error', 'File is not valid: ' . $file->getErrorString());
+            log_message('error', 'File is not valid: {error}', ['error' => $file->getErrorString()]);
             return false; // ❌ Fichier invalide = erreur
         }
 
-        log_message('debug', 'File is valid: ' . $file->getName());
+        log_message('debug', 'File is valid: {name}', ['name' => $file->getName()]);
 
         try {
             $uploadPath = FCPATH . IMAGES_PATH;
 
             if (!is_dir($uploadPath)) {
                 mkdir($uploadPath, 0755, true);
-                log_message('debug', 'Created upload directory: ' . $uploadPath);
+                log_message('debug', 'Created upload directory: {path}', ['path' => $uploadPath]);
             }
             $newName = $file->getName();
             if (!$file->move($uploadPath, $newName)) {
-                log_message('error', 'Failed to move file: ' . $file->getErrorString());
+                log_message('error', 'Failed to move file: {error}', ['error' => $file->getErrorString()]);
                 return false;
             }
 
-            log_message('debug', 'File moved successfully: ' . $newName);
+            log_message('debug', 'File moved successfully: {name}', ['name' => $newName]);
 
             $imageEntity = new Image([
                 'mot_id' => $idMotcle,
@@ -455,12 +455,12 @@ class CommunautaireController extends BaseController
 
             $result = $this->image_model->insertImageMotCle($imageEntity);
 
-            log_message('debug', 'Image insert result: ' . ($result ? 'success' : 'failed'));
+            log_message('debug', 'Image insert result: {result}', ['result' => $result ? 'success' : 'failed']);
 
             return (bool)$result;
 
         } catch (\Exception $e) {
-            log_message('error', '[Upload] ' . $e->getMessage());
+            log_message('error', '[Upload] {exception}', ['exception' => $e]);
             return false;
         }
     }

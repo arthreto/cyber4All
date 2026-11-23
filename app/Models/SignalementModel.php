@@ -36,11 +36,11 @@ class SignalementModel extends Model
             ]);
         } catch (DatabaseException $e) {
             if ($e->getCode() == 1062) {
-                log_message('error', 'Signalement en doublon détecté : ' . $e->getMessage());
+                log_message('error', 'Signalement en doublon détecté : {exception}', ['exception' => $e]);
                 return -1;
             }
 
-            log_message('error', 'Erreur lors de signalerMotCle : ' . $e->getMessage());
+            log_message('error', 'Erreur lors de signalerMotCle : {exception}', ['exception' => $e]);
             return false;
         }
     }
@@ -59,7 +59,7 @@ class SignalementModel extends Model
         try {
             return $this->delete($signalementId);
         } catch (DatabaseException $e) {
-            log_message('error', 'Erreur lors de supprimerSignalement : ' . $e->getMessage());
+            log_message('error', 'Erreur lors de supprimerSignalement : {exception}', ['exception' => $e]);
             return false;
         }
     }
@@ -78,7 +78,7 @@ class SignalementModel extends Model
         try {
             return $this->where('id_utilisateur', $idUtilisateur)->findAll();
         } catch (DatabaseException $e) {
-            log_message('error', 'Erreur lors de getSignalementUtilisateur : ' . $e->getMessage());
+            log_message('error', 'Erreur lors de getSignalementUtilisateur : {exception}', ['exception' => $e]);
             return [];
         }
     }
@@ -97,7 +97,7 @@ class SignalementModel extends Model
         try {
             return $this->where('id_utilisateur', $idUtilisateur)->findColumn('id_mot_cle');
         } catch (DatabaseException $e) {
-            log_message('error', 'Erreur lors de getSignalementIdsUtilisateur : ' . $e->getMessage());
+            log_message('error', 'Erreur lors de getSignalementIdsUtilisateur : {exception}', ['exception' => $e]);
             return [];
         }
     }
@@ -122,7 +122,7 @@ class SignalementModel extends Model
             }
             return $signalements;
         } catch (DatabaseException $e) {
-            log_message('error', 'Erreur lors de getSignalements : ' . $e->getMessage());
+            log_message('error', 'Erreur lors de getSignalements : {exception}', ['exception' => $e]);
             return [];
         }
     }
@@ -141,7 +141,7 @@ class SignalementModel extends Model
         try {
             return $this->find($idSignalement);
         } catch (DatabaseException $e) {
-            log_message('error', 'Erreur lors de getSignalementById : ' . $e->getMessage());
+            log_message('error', 'Erreur lors de getSignalementById : {exception}', ['exception' => $e]);
             return null;
         }
     }
@@ -159,7 +159,7 @@ class SignalementModel extends Model
         try {
             return $this->countAllResults();
         } catch (DatabaseException $e) {
-            log_message('error', 'Erreur lors de getNbSignalements : ' . $e->getMessage());
+            log_message('error', 'Erreur lors de getNbSignalements : {exception}', ['exception' => $e]);
             return 0;
         }
     }
@@ -184,7 +184,7 @@ class SignalementModel extends Model
 
             return $result['mot'] ?? '';
         } catch (DatabaseException $e) {
-            log_message('error', 'Erreur lors de getMotSignalement : ' . $e->getMessage());
+            log_message('error', 'Erreur lors de getMotSignalement : {exception}', ['exception' => $e]);
             return '';
         }
     }

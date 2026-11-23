@@ -48,7 +48,7 @@ class QuestionModel extends Model
             return $idQuestion === false ? false : (int) $idQuestion;
 
         } catch (DatabaseException $e) {
-            log_message('error', "Erreur de création d'une question : " . $e->getMessage());
+            log_message('error', "Erreur de création d'une question : {exception}", ['exception' => $e]);
             return false;
         }
     }
@@ -66,7 +66,7 @@ class QuestionModel extends Model
             return $this->update($idQuestion, $formData);
 
         } catch (DatabaseException $e) {
-            log_message('error', "Erreur de modification d'une question : " . $e->getMessage());
+            log_message('error', "Erreur de modification d'une question : {exception}", ['exception' => $e]);
             return false;
         }
     }
@@ -104,7 +104,7 @@ class QuestionModel extends Model
             return $questions;
 
         } catch (DatabaseException $e) {
-            log_message('error', "Erreur de récupération des questions : " . $e->getMessage());
+            log_message('error', "Erreur de récupération des questions : {exception}", ['exception' => $e]);
             return [];
         }
     }
@@ -149,7 +149,7 @@ class QuestionModel extends Model
             return $questions;
 
         } catch (DatabaseException $e) {
-            log_message('error', "Erreur de récupération des questions du thème : " . $e->getMessage());
+            log_message('error', "Erreur de récupération des questions du thème : {exception}", ['exception' => $e]);
             return [];
         }
     }
@@ -175,7 +175,7 @@ class QuestionModel extends Model
                 ->findAll();
 
         } catch (DatabaseException $e) {
-            log_message('error', "Erreur de récupération des questions du quiz : " . $e->getMessage());
+            log_message('error', "Erreur de récupération des questions du quiz : {exception}", ['exception' => $e]);
             return [];
         }
     }
@@ -213,7 +213,7 @@ class QuestionModel extends Model
             return $questions;
 
         } catch (DatabaseException $e) {
-            log_message('error', "Erreur de récupération des questions du thème : " . $e->getMessage());
+            log_message('error', "Erreur de récupération des questions du thème : {exception}", ['exception' => $e]);
             return [];
         }
     }
@@ -245,7 +245,7 @@ class QuestionModel extends Model
                 ->findAll();
 
         } catch (DatabaseException $e) {
-            log_message('error', "Erreur de récupération des questions du thème (administration) : " . $e->getMessage());
+            log_message('error', "Erreur de récupération des questions du thème (administration) : {exception}", ['exception' => $e]);
             return [];
         }
     }

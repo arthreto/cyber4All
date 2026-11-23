@@ -40,7 +40,7 @@ class QuizQuestionModel extends Model
             return array_map('strval', array_column($liaisons, 'id_quiz'));
 
         } catch (DatabaseException $e) {
-            log_message('error', "Erreur de récupération des liaisons quiz-question : " . $e->getMessage());
+            log_message('error', "Erreur de récupération des liaisons quiz-question : {exception}", ['exception' => $e]);
             return [];
         }
     }
@@ -95,7 +95,7 @@ class QuizQuestionModel extends Model
             return true;
 
         } catch (DatabaseException $e) {
-            log_message('error', "Erreur de mise à jour des liaisons quiz-question : " . $e->getMessage());
+            log_message('error', "Erreur de mise à jour des liaisons quiz-question : {exception}", ['exception' => $e]);
             return false;
         }
     }
@@ -118,7 +118,7 @@ class QuizQuestionModel extends Model
             return array_map('strval', array_column($liaisons, 'id_question'));
 
         } catch (DatabaseException $e) {
-            log_message('error', "Erreur de récupération des questions d'un quiz : " . $e->getMessage());
+            log_message('error', "Erreur de récupération des questions d'un quiz : {exception}", ['exception' => $e]);
             return [];
         }
     }
@@ -163,7 +163,7 @@ class QuizQuestionModel extends Model
             return true;
 
         } catch (DatabaseException $e) {
-            log_message('error', "Erreur de mise à jour des liaisons quiz-question : " . $e->getMessage());
+            log_message('error', "Erreur de mise à jour des liaisons quiz-question : {exception}", ['exception' => $e]);
             return false;
         }
     }
@@ -199,7 +199,7 @@ class QuizQuestionModel extends Model
                 => (int) $l['nb_questions'] > 0 && (int) $l['nb_actuel'] >= (int) $l['nb_questions']));
 
         } catch (DatabaseException $e) {
-            log_message('error', "Erreur de vérification des quiz complets : " . $e->getMessage());
+            log_message('error', "Erreur de vérification des quiz complets : {exception}", ['exception' => $e]);
             return null;
         }
     }
@@ -231,7 +231,7 @@ class QuizQuestionModel extends Model
             return array_map('intval', array_column($liaisons, 'id_quiz'));
 
         } catch (DatabaseException $e) {
-            log_message('error', "Erreur de récupération des quiz de plusieurs questions : " . $e->getMessage());
+            log_message('error', "Erreur de récupération des quiz de plusieurs questions : {exception}", ['exception' => $e]);
             return [];
         }
     }
@@ -280,7 +280,7 @@ class QuizQuestionModel extends Model
             return array_column($incomplets, 'titre');
 
         } catch (DatabaseException $e) {
-            log_message('error', "Erreur de désactivation des quiz incomplets : " . $e->getMessage());
+            log_message('error', "Erreur de désactivation des quiz incomplets : {exception}", ['exception' => $e]);
             return [];
         }
     }
