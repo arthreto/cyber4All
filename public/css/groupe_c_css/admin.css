@@ -378,3 +378,18 @@
 .quiz-concept .vide h2 { margin: 0 0 6px; font-size: 20px; }
 .quiz-concept .vide p  { margin: 0 0 20px; font-size: 14px; color: var(--gris); }
 .quiz-concept [hidden] { display: none; }
+
+/* Boutons Modifier / Supprimer empilés dans la liste */
+.actions {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+}
+.actions form { margin: 0; }
+.actions .bouton {
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+}
+.actions .bouton-supprimer { margin-right: 0; }

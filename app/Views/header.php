@@ -81,10 +81,20 @@ endif;
                         </li>
                         <li class="menu-nav__item">
                             <?= anchor(
-                                    base_url('floribondant/QuizzConcept'),
-                                    'Quiz Concept',
+                                    base_url('floribondant/DICT'),
+                                    'DICT',
                                     [
-                                            'title'=>"Se diriger vers l'espace d'administration",
+                                            'title'=>"Se diriger vers l'espace d'administration DICT",
+                                            'class'=>"menu-nav__lien"
+                                    ]
+                            ) ?>
+                        </li>
+                        <li class="menu-nav__item">
+                            <?= anchor(
+                                    base_url('floribondant/Questions'),
+                                    'Questions Quizz',
+                                    [
+                                            'title'=>"Se diriger vers l'espace d'administration Question Quizz",
                                             'class'=>"menu-nav__lien"
                                     ]
                             ) ?>

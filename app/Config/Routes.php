@@ -64,10 +64,17 @@ $routes->group('floribondant', static function ($routes) {
     $routes->match(['GET', 'POST'], 'mots/validation/decision/(:num)', 'admin\AdminMotController::decisionMotCle/$1');
     $routes->post('signalement/supprimer', 'SignalementController::supprimerSignalement');
     $routes->match(['GET','POST'], 'utilisateurs', 'admin\AdminUtilisateurController::index');
-    $routes->match(['GET', 'POST'], 'QuizzConcept', 'Controllers_groupe_C\Groupe_C_Admin::GroupeC_Admin'); //ROUTE POUR L'ADMIN DU QUIZZ CONCEPT
-    $routes->post('groupe_c/admin/modifier', 'Controllers_groupe_C\Groupe_C_Admin::GroupeC_Modifier');
-    $routes->post('groupe_c/admin/ajouter', 'Controllers_groupe_C\Groupe_C_Admin::GroupeC_Ajouter');
-    $routes->post('groupe_c/admin/supprimer', 'Controllers_groupe_C\Groupe_C_Admin::GroupeC_Supprimer');
+    //ROUTE POUR L'ADMIN DU DICT
+    $routes->match(['GET', 'POST'], 'DICT', 'Controllers_groupe_C\DictConceptAdminController::GroupeC_Admin');
+    $routes->post('groupe_c/admin/modifier', 'Controllers_groupe_C\DictConceptAdminController::GroupeC_Modifier');
+    $routes->post('groupe_c/admin/ajouter', 'Controllers_groupe_C\DictConceptAdminController::GroupeC_Ajouter');
+    $routes->post('groupe_c/admin/supprimer', 'Controllers_groupe_C\DictConceptAdminController::GroupeC_Supprimer');
+
+    // Page 2 : gestion des questions
+    $routes->match(['GET', 'POST'], 'Questions', 'Controllers_groupe_C\DictQuestionAdminController::GroupeC_Questions');
+    $routes->post('groupe_c/admin/questions/ajouter',   'Controllers_groupe_C\DictQuestionAdminController::GroupeC_AjouterQuestion');
+    $routes->post('groupe_c/admin/questions/modifier',  'Controllers_groupe_C\DictQuestionAdminController::GroupeC_ModifierQuestion');
+    $routes->post('groupe_c/admin/questions/supprimer', 'Controllers_groupe_C\DictQuestionAdminController::GroupeC_SupprimerQuestion');
 });
 
 
