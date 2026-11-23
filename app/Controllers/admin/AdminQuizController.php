@@ -146,6 +146,11 @@ class AdminQuizController extends AdminController
      */
     public function quizSupprimer(int $idQuiz)
     {
+        // Suppression uniquement par le formulaire (POST + jeton CSRF) : un simple lien ne doit rien supprimer
+        if (! $this->request->is('post')) {
+            return redirect()->to(base_url('floribondant/theme/quiz'));
+        }
+
         $quiz = $this->quiz_model->find($idQuiz);
 
         if ($quiz === null) {
@@ -262,6 +267,12 @@ class AdminQuizController extends AdminController
                 $errors = $this->validator->getErrors();
             }
 
+            // Le thème doit exister (une valeur modifiée à la main est refusée)
+            $idTheme = (int) $formData['id_theme'];
+            if (! isset($errors['id_theme']) && $this->theme_model->find($idTheme) === null) {
+                $errors['id_theme'] = "Le thème choisi n'existe pas.";
+            }
+
             // Exactement le nombre de questions prévu
             $nbPrevu = (int) $formData['nb_questions'];
             $nbCochees = count($form->questions);
@@ -269,14 +280,19 @@ class AdminQuizController extends AdminController
                 $errors['questions'] = 'Ce quiz doit contenir exactement ' . $nbPrevu . ' questions. ';
             }
 
-            // Toutes les questions cochées doivent être du thème du quiz
-            $idTheme = (int) $formData['id_theme'];
+            // Toutes les questions cochées doivent exister, être actives et être du thème du quiz
             if ($idTheme > 0 && $form->questions !== []) {
                 $themesQuestions = $this->question_model
                     ->select('id, id_theme')
                     ->whereIn('id', $form->questions)
+                    ->where('actif', 1)
                     ->asArray()
                     ->findAll();
+
+                $nbIntrouvables = count($form->questions) - count($themesQuestions);
+                if ($nbIntrouvables > 0) {
+                    $errors['questions_introuvables'] = $nbIntrouvables . " question(s) cochée(s) n'existent pas ou ont été supprimées : décochez-les.";
+                }
 
                 $nbAutreTheme = 0;
                 foreach ($themesQuestions as $question) {
@@ -293,6 +309,10 @@ class AdminQuizController extends AdminController
             if (empty($errors)) {
                 $estModification = ! empty($form->modifier);
 
+                // Quiz et liaisons enregistrés ensemble : en cas d'erreur, rien n'est gardé (pas de quiz à moitié créé)
+                $db = \Config\Database::connect();
+                $db->transBegin();
+
                 if ($estModification) {
                     $idQuiz = $this->quiz_model->updateQuiz($formData, (int) $form->modifier)
                         ? (int) $form->modifier
@@ -302,7 +322,10 @@ class AdminQuizController extends AdminController
                 }
 
                 if ($idQuiz !== false
-                    && $this->quiz_question_model->updateLiaisonsQuiz($idQuiz, $form->questions)) {
+                    && $this->quiz_question_model->updateLiaisonsQuiz($idQuiz, $form->questions)
+                    && $db->transStatus()) {
+                    $db->transCommit();
+
                     return redirect()->to(base_url('floribondant/theme/quiz'))
                         ->with('id_nouveau', $idQuiz) // affiché en premier dans la liste
                         ->with('success', $estModification
@@ -310,6 +333,7 @@ class AdminQuizController extends AdminController
                             : 'Quiz créé avec succès !');
                 }
 
+                $db->transRollback();
                 $errors['enregistrement'] = "Le quiz n'a pas pu être enregistré. Veuillez réessayer.";
             }
         }
@@ -325,7 +349,7 @@ class AdminQuizController extends AdminController
         $questionsQuiz = [];
         if ($idsQuiz !== []) {
             $questionsQuiz = $this->question_model
-                ->select('id, libelle, bonne_reponse, id_theme')
+                ->select('id, libelle, bonne_reponse, id_theme, actif')
                 ->whereIn('id', $idsQuiz)
                 ->orderBy('libelle', 'ASC')
                 ->asArray()

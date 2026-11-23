@@ -4,7 +4,7 @@
  * Liste des quiz (les onglets sont affichés par onglets.php, appelé dans le contrôleur)
  *
  * Données préparées par le contrôleur (AdminQuizController::index) :
- * - $quizList     : quiz de la page affichée (tableaux : id, titre, theme_nom, nb_questions, actif)
+ * - $quizList     : quiz de la page affichée (tableaux : id, titre, theme_nom, nb_questions = questions actives, nb_prevu, actif)
  * - $totalQuiz    : nombre total de quiz
  * - $themeSelect  : thème affiché (-1 = tous les thèmes)
  * - $filtreThemes : liens du filtre ['nom', 'url', 'actif']
@@ -114,7 +114,8 @@ foreach ($pages as $p) {
                     <?php foreach ($quizList as $quiz): ?>
                         <?php
                         $urlModifier = 'floribondant/theme/quiz/modifier/' . $quiz['id'];
-                        $nbQuestions = (int) $quiz['nb_questions'];
+                        $nbQuestions = (int) $quiz['nb_questions']; // questions actives liées au quiz
+                        $nbPrevu = (int) ($quiz['nb_prevu'] ?? 0);  // nombre fixé dans le formulaire du quiz
 
                         // Si la colonne actif n'existe pas, le quiz est considéré comme actif
                         $estActif = (int) ($quiz['actif'] ?? 1) === 1;
@@ -139,6 +140,10 @@ foreach ($pages as $p) {
                                 <?php if ($nbQuestions === 0): ?>
                                     <!-- Quiz vide : rien à proposer aux élèves -->
                                     <span class="sio-admin__badge sio-admin__badge--faux">Aucune question</span>
+                                <?php elseif ($nbPrevu > 0 && $nbQuestions !== $nbPrevu): ?>
+                                    <!-- Question supprimée depuis : le quiz n'a plus son nombre de questions -->
+                                    <?= $nbQuestions ?> / <?= $nbPrevu ?> questions
+                                    <span class="sio-admin__badge sio-admin__badge--faux" title="Une question du quiz a été supprimée : modifiez le quiz pour la remplacer.">Incomplet</span>
                                 <?php elseif ($nbQuestions === 1): ?>
                                     1 question
                                 <?php else: ?>

@@ -129,6 +129,11 @@ class AdminLeconController extends AdminController
      */
     public function leconSupprimer(int $idLecon)
     {
+        // Suppression uniquement par le formulaire (POST + jeton CSRF) : un simple lien ne doit rien supprimer
+        if (! $this->request->is('post')) {
+            return redirect()->to(base_url('floribondant/theme/lecons'));
+        }
+
         if ($this->lecon_model->getLeconById($idLecon) === null) {
             throw PageNotFoundException::forPageNotFound('Leçon introuvable');
         }

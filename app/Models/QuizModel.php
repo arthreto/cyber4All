@@ -91,13 +91,19 @@ class QuizModel extends Model
      *
      * @param int $themeId Identifiant du thème
      * @param int $position Position du quiz dans la catégorie
+     * La position compte tous les quiz du thème, actifs ou non (par id) : désactiver un quiz
+     * ne décale pas les suivants, l'adresse d'un quiz reste la même. Un quiz désactivé
+     * est renvoyé quand même : c'est l'appelant qui affiche alors une page introuvable.
+     *
      * @return object|null Quiz correspondant ou null si inexistant
      */
     public function getQuizByPosition(int $themeId, int $position)
     {
-        // Même liste que la page publique (quiz actifs, par id) : la position correspond au numéro affiché
+        if ($position < 1) {
+            return null;
+        }
+
         return $this->where('id_theme', $themeId)
-            ->where('actif', 1)
             ->orderBy('id', 'ASC')
             ->findAll()[$position - 1] ?? null;
     }
@@ -154,9 +160,11 @@ class QuizModel extends Model
     {
         try {
             $builder = $this->db->table($this->table)
-                ->select('quiz.*, theme.nom AS theme_nom, COUNT(quiz_question.id_question) AS nb_questions')
+                // nb_prevu : nombre de questions fixé pour le quiz ; nb_questions : questions actives réellement liées
+                ->select('quiz.*, quiz.nb_questions AS nb_prevu, theme.nom AS theme_nom, COUNT(question.id) AS nb_questions')
                 ->join('theme', 'theme.id = quiz.id_theme', 'left')
                 ->join('quiz_question', 'quiz_question.id_quiz = quiz.id', 'left')
+                ->join('question', 'question.id = quiz_question.id_question AND question.actif = 1', 'left')
                 ->groupBy('quiz.id')
                 ->orderBy('theme.nom', 'ASC')
                 ->orderBy('quiz.titre', 'ASC');

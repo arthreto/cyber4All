@@ -174,6 +174,11 @@ class ConnexionController extends BaseController
      */
     public function inscription(): string|RedirectResponse
     {
+        // Déjà connecté : pas de nouvelle inscription, direction la page du compte
+        if (session()->has('utilisateur')) {
+            return redirect()->to(base_url('compte'));
+        }
+
         // Premier affichage : formulaire vide, sans erreurs
         if (! $this->request->is('post')) {
             return $this->afficherFormulaire('connexion/inscription');

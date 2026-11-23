@@ -79,6 +79,12 @@ $caseQuestion = function (array $question, bool $cochee): string {
         $badge = '<span class="sio-admin__badge sio-admin__badge--faux">Autre thème</span>' . $badge;
     }
 
+    // Question supprimée (désactivée) encore liée au quiz : à décocher, elle n'est plus affichée aux élèves
+    if (isset($question['actif']) && (int) $question['actif'] === 0) {
+        $classe .= ' sio-admin__choix--autre-theme';
+        $badge = '<span class="sio-admin__badge sio-admin__badge--faux">Supprimée</span>' . $badge;
+    }
+
     $case = form_checkbox([
         'name'    => 'questions[]',
         'id'      => $id,

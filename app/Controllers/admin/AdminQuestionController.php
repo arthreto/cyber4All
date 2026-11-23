@@ -7,6 +7,7 @@ use App\Models\ExtraitModel;
 use App\Models\QuestionModel;
 use App\Models\QuizModel;
 use App\Models\QuizQuestionModel;
+use CodeIgniter\Exceptions\PageNotFoundException;
 use CodeIgniter\HTTP\RedirectResponse;
 
 /**
@@ -152,6 +153,11 @@ class AdminQuestionController extends AdminController
      */
     public function questionSupprimer(int $idQuestion)
     {
+        // Suppression uniquement par le formulaire (POST + jeton CSRF) : un simple lien ne doit rien supprimer
+        if (! $this->request->is('post')) {
+            return redirect()->to(base_url('floribondant/theme'));
+        }
+
         $question = $this->question_model->find($idQuestion);
 
         if ($question === null) {
@@ -167,9 +173,23 @@ class AdminQuestionController extends AdminController
 
         helper('text');
         $debutLibelle = character_limiter($question['libelle'], 30, '…');
+        $message = 'Question « ' . $debutLibelle . ' » supprimée : elle est désactivée et rangée à la fin de la liste.';
+
+        // Quiz actifs qui contenaient cette question : ils n'ont plus leur nombre de questions
+        $titresQuiz = [];
+        foreach ($this->quiz_question_model->getIdsQuizByQuestion($idQuestion) as $idQuiz) {
+            $quiz = $this->quiz_model->find((int) $idQuiz);
+            if ($quiz !== null && (int) ($quiz->actif ?? 1) === 1) {
+                $titresQuiz[] = '« ' . $quiz->titre . ' »';
+            }
+        }
+        if ($titresQuiz !== []) {
+            $message .= (count($titresQuiz) > 1 ? ' Quiz maintenant incomplets : ' : ' Quiz maintenant incomplet : ')
+                . implode(', ', $titresQuiz) . '. Ajoutez-y une autre question.';
+        }
 
         return redirect()->to(base_url('floribondant/theme'))
-            ->with('success', 'Question « ' . $debutLibelle . ' » supprimée : elle est désactivée et rangée à la fin de la liste.');
+            ->with('success', $message);
     }
 
     /**
@@ -183,6 +203,11 @@ class AdminQuestionController extends AdminController
     {
         // Par modal ?
         $modal = $this->request->getGet('modal') === '1';
+
+        // Modification d'une question qui n'existe pas : page introuvable (comme les leçons, quiz et extraits)
+        if ($idQuestionModif !== null && $this->question_model->find($idQuestionModif) === null) {
+            throw PageNotFoundException::forPageNotFound('Question introuvable');
+        }
 
         $form = $this->session->get('questionForm');
 
@@ -279,12 +304,13 @@ class AdminQuestionController extends AdminController
                 ];
 
                 $rules = [
+                    // in_list : seulement un thème qui existe (une valeur modifiée à la main est refusée)
                     'id_theme' => [
                         'label' => 'Thème',
-                        'rules' => 'required|is_natural_no_zero',
+                        'rules' => 'required|in_list[' . implode(',', array_map(fn ($theme) => (int) $theme->id, $themeList)) . ']',
                         'errors' => [
                             'required' => 'Veuillez choisir un thème.',
-                            'is_natural_no_zero' => 'Le thème choisi est invalide.',
+                            'in_list' => "Le thème choisi n'existe pas.",
                         ],
                     ],
                     'libelle' => [

@@ -46,8 +46,9 @@ class QuizController extends BaseController
 
         $quizInfo = $this->quiz_model->getQuizByPosition($themeId, $quizNum);
 
-        // Numéro de quiz inexistant (ou quiz supprimé) : page introuvable
-        if ($quizInfo === null) {
+        // Numéro de quiz inexistant, ou quiz supprimé (désactivé) : page introuvable.
+        // Le quiz désactivé garde sa position : les quiz suivants gardent leur adresse.
+        if ($quizInfo === null || (int) ($quizInfo->actif ?? 1) !== 1) {
             throw PageNotFoundException::forPageNotFound();
         }
 
@@ -127,12 +128,34 @@ class QuizController extends BaseController
             'themeList'  => $themeList,
             'themeActif' => $themeActif,
             // Quiz actifs du thème affiché (sans thème dans l'URL : le premier thème)
-            'quizList' => $this->quiz_model->getAllQuizCategoryById((int) $themeActif->id, true),
+            'quizList' => $this->quizActifsAvecPosition((int) $themeActif->id),
         ];
 
         return view('header', $data)
             . view('notice')
             . view('quiz/selectionQuiz', $data)
             . view('footer');
+    }
+
+    /**
+     * Quiz actifs d'un thème, avec leur position dans l'adresse (quiz/idTheme/position).
+     * La position compte aussi les quiz désactivés : elle ne change pas quand un quiz est supprimé.
+     *
+     * @param int $idTheme Identifiant du thème
+     * @return array Liste de ['quiz' => Quiz, 'position' => int]
+     */
+    private function quizActifsAvecPosition(int $idTheme): array
+    {
+        $liste = [];
+        $position = 1;
+
+        foreach ($this->quiz_model->getAllQuizCategoryById($idTheme) as $quiz) {
+            if ((int) ($quiz->actif ?? 1) === 1) {
+                $liste[] = ['quiz' => $quiz, 'position' => $position];
+            }
+            $position++;
+        }
+
+        return $liste;
     }
 }

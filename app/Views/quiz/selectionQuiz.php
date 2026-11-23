@@ -34,16 +34,15 @@
         <h2 id="quiz-liste-titre" class="quiz-liste__titre">Quiz du thème <?= esc($themeActif->nom) ?></h2>
 
         <ul class="quiz-liste__items">
-            <!-- À brancher : foreach ($quizList as $quiz) -->
-            <?php $id = 1;
-            foreach ($quizList as $quiz): ?>
+            <!-- position : place fixe du quiz dans le thème (les quiz désactivés comptent), voir QuizController -->
+            <?php foreach ($quizList as $element): ?>
                 <li class="quiz-carte">
                     <div class="quiz-carte__infos">
-                        <h3 class="quiz-carte__titre"><?= esc($quiz->titre) ?></h3>
+                        <h3 class="quiz-carte__titre"><?= esc($element['quiz']->titre) ?></h3>
                     </div>
-                    <?= anchor(base_url('/quiz/' . $themeActif->id . '/' . $id), 'Commencer', ['class' => 'btn-connexion quiz-carte__btn']) ?>
+                    <?= anchor(base_url('/quiz/' . $themeActif->id . '/' . $element['position']), 'Commencer', ['class' => 'btn-connexion quiz-carte__btn']) ?>
                 </li>
-            <?php $id++; endforeach; ?>
+            <?php endforeach; ?>
         </ul>
     </section>
 
