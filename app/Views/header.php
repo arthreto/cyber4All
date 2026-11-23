@@ -124,6 +124,16 @@ endif;
                                 ]
                         ) ?>
                     </li>
+                    <li class="menu-nav__item">
+                            <?= anchor(
+                                    base_url('quiz'),
+                                    'DICT',
+                                    [
+                                            'title'=>"Explication et quiz DICT",
+                                            'class'=>"menu-nav__lien"
+                                    ]
+                            ) ?>
+                    </li>
                     <?php endif; ?>
                 </ul>
             </nav>

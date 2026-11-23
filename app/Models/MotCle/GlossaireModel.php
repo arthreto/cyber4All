@@ -80,7 +80,7 @@ class GlossaireModel extends Model
                 ->join('mot_cle_categorie', 'mot_cle_categorie.id_mot_cle = mot_cle.id', 'left')
                 ->join('categories', 'categories.id = mot_cle_categorie.id_categorie', 'left')
                 ->where('statut', 1)
-                ->where('categories.id', $idCat)
+                ->whereIn('categories.id', (array) $idCat)
                 ->groupBy(['mot_cle.id', 'mot_cle.mot'])
                 ->orderBy('mot_cle.mot COLLATE utf8mb4_unicode_ci', '', false) // trie avec les accents
                 ->findAll();
@@ -115,6 +115,23 @@ class GlossaireModel extends Model
         }
     }
 
+    public function getGlossaireConcept(string $colonne): array
+    {
+        // liste blanche : le nom de colonne ne peut pas venir de l'extérieur
+        $autorises = ['disponibilite', 'integrite', 'confidentialite', 'tracabilite'];
+        if (! in_array($colonne, $autorises, true)) {
+            return [];
+        }
+
+        return $this
+            ->select('mot_cle.*')
+            ->join('conceptcyber', 'conceptcyber.id_mot_cle = mot_cle.id')
+            ->where('mot_cle.statut', 1)
+            ->where('conceptcyber.' . $colonne, 1)
+            ->groupBy(['mot_cle.id', 'mot_cle.mot'])
+            ->orderBy('mot_cle.mot COLLATE utf8mb4_unicode_ci', '', false)
+            ->findAll();
+    }
     public function getGlossaireMot(int $idMot): array
     {
         try {
